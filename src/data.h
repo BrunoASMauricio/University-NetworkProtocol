@@ -2,6 +2,8 @@
 #define DATA
 #include <stdint.h>
 
+#define UNSET 255
+
 typedef uint8_t byte;
 
 /*
@@ -57,7 +59,7 @@ typedef struct{
 }PR_p;
 
 typedef struct{
-	bool is_master;
+	byte is_master;
 	// ...
 }node;
 

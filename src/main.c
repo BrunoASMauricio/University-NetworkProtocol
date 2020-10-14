@@ -15,6 +15,7 @@ main(int argc, char **argv)
 	meta.debug = false;
 	meta.post= false;
 	meta.log = NULL;
+	self.is_master = UNSET;
 
 	while (1) {
 		int option_index = 0;
@@ -26,7 +27,7 @@ main(int argc, char **argv)
 			{0,			0,					0,  0 }
 		};
 		// v:
-		c = getopt_long(argc, argv, "lpd", long_options, &option_index);
+		c = getopt_long(argc, argv, "lpdr:", long_options, &option_index);
 
 		if (c == -1)	break;
 
@@ -38,9 +39,21 @@ main(int argc, char **argv)
 				}
 				break;
 			*/
+			case 'r':
+				if (optarg[0] == 'M') {
+					self.is_master = true;
+				} else if (optarg[0] == 'S') {
+					self.is_master = false;
+				} else {
+					meta.debug = true;
+					printfErr("Node can only be master (M) or slave (S)\n");
+					exit(EXIT_FAILURE);
+				}
+				break;
 
 			case 'l':
 				if ((meta.log = fopen("./log", "a")) == NULL) {
+					meta.debug = true;
 					printfErr("Could not open log. Errno set to: %d\n", errno);
 					exit(-1);
 				}
@@ -63,6 +76,7 @@ main(int argc, char **argv)
 	}
 
 	if (optind < argc) {
+		meta.debug = true;
 		while(optind < argc){
 			printfErr("Undefined argument: %s \n", argv[optind++]);
 		}
@@ -87,7 +101,6 @@ void
 setup()
 {
 	int rc;
-
 	self.is_master = isMaster();
 
 	if (pthread_create(&(meta.WF_listener_t), NULL, WF_listener, NULL)) {
