@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 
+#define printf printfLog
 
 void
 /*
@@ -12,29 +13,23 @@ dumpBin(char* buf, int size, const char *fmt,...);
 
 void
 /*
- * Provides output with variables
+ * Normal output
  */
 printfLog(const char *fmt, ...);
 
 void
 /*
- * Simple output
- * If possible, this one should be merged with printfLog
- */
-printLog(const char *msg);
-
-void
-/*
- * Error output with variables
+ * Error output
  */
 printfErr(const char *fmt, ...);
 
 void
 /*
- * Simple error output
- * If possible, this one should be merged with printfErr
+ * Try to print to a file
+ * Print to stderr
+ * End program with EXIT_FAILURE
  */
-printErr(const char *fmt);
+fatalfErr(const char *fmt, ...);
 
 void
 /*

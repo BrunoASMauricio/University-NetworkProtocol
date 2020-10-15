@@ -29,17 +29,11 @@ printfLog(const char *fmt, ...)
 	va_list args;
     va_start(args, fmt);
     vfprintf(stdout, fmt, args);
-    va_end(args);
 	if (meta.log) {
 		fprintf(meta.log, "[!] ");
 		vfprintf(meta.log, fmt, args);
 	}
-}
-
-void
-printLog(const char *msg){
-	fprintf(stdout, msg);
-	if (meta.log) fprintf(meta.log, "[!] %s", (char*)msg);
+	va_end(args);
 }
 
 
@@ -50,18 +44,33 @@ printfErr(const char *fmt, ...)
 	va_list args;
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
-    va_end(args);
 	if (meta.log) {
 		fprintf(meta.log, "[X] ");
 		vfprintf(meta.log, fmt, args);
 	}
+    va_end(args);
 }
 
+
 void
-printErr(const char *msg){
-	if (!meta.debug) return;
-	fprintf(stderr, msg);
-	if (meta.log) fprintf(meta.log, "[!] %s", msg);
+fatalErr(const char *fmt, ...)
+{
+	FILE* t;
+	va_list args;
+	if ((t = fopen("./fatal", "w")) != NULL) {
+		va_start(args, fmt);
+		vfprintf(t, fmt, args);
+		fflush(t);
+		va_end(args);
+	} else {
+		fprintf(stderr, "Could not create \"fatal\" file\n");
+	}
+	va_start(args, fmt);
+	fprintf(stderr, "[XX]");
+    vfprintf(stderr, fmt, args);
+	fflush(stderr);
+    va_end(args);
+	exit(EXIT_FAILURE);
 }
 
 void
@@ -73,14 +82,14 @@ testAll(){
 	a[3] = 0xff;
 	a[4] = 0x00;
 	a[5] = 0x11;
-	printLog("Starting protocol test\n---------\n");
+	printf("Starting protocol test\n---------\n");
 
-	printLog("Testing printErr. Expected output:\n");
-	printLog(">>1 teste 0.5\n");
-	printfLog(">>%d teste %0.1f\n", 1, 0.5);
+	printf("Testing printfLog. Expected output:\n");
+	printf(">>1 teste 0.5\n");
+	printf(">>%d teste %0.1f\n", 1, 0.5);
 
-	printLog("Testing dumpBin. Expected output:\n");
-	printLog(">>Hello 4: 0xaf 0x99 0x82 0xff 0x00 0x11\n");
+	printf("Testing dumpBin. Expected output:\n");
+	printf(">>Hello 4: 0xaf 0x99 0x82 0xff 0x00 0x11\n");
 	
 	dumpBin(a, sizeof(a), ">>Hello %d: ", 4);
 
@@ -88,6 +97,6 @@ testAll(){
 
 
 
-	printLog("Ending protocol test\n---------\n");
+	printf("Ending protocol test\n---------\n");
 
 }

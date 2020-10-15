@@ -4,14 +4,12 @@ int
 /*
  * Main function
  * Parses the command line arguments (sets verbosity and debugging)
- * Sets up the correct protocol version
  * Starts the main protocol loop
  */
 main(int argc, char **argv)
 {
 	int c;
 
-	//meta.version = 1;
 	meta.debug = false;
 	meta.post= false;
 	meta.log = NULL;
@@ -20,42 +18,32 @@ main(int argc, char **argv)
 	while (1) {
 		int option_index = 0;
 		static struct option long_options[] = {
-			//{"version",	required_argument,	0, 'v'},
 			{"log",		no_argument,		0, 'l'},
 			{"post",	no_argument,		0, 'p'},
 			{"debug",	no_argument,		0, 'd'},
 			{0,			0,					0,  0 }
 		};
-		// v:
+
 		c = getopt_long(argc, argv, "lpdr:", long_options, &option_index);
 
 		if (c == -1)	break;
 
 		switch (c) {
-			/*
-			case 'v':
-				if (strcmp(long_options[option_index].name, "version") == 0) {
-					meta.version = atoi(optarg);
-				}
-				break;
-			*/
 			case 'r':
 				if (optarg[0] == 'M') {
 					self.is_master = true;
+					printf("Forcing node to master\n");
 				} else if (optarg[0] == 'S') {
 					self.is_master = false;
+					printf("Forcing node to slave\n");
 				} else {
-					meta.debug = true;
-					printfErr("Node can only be master (M) or slave (S)\n");
-					exit(EXIT_FAILURE);
+					fatalErr("Node can only be master (M) or slave (S)\n");
 				}
 				break;
 
 			case 'l':
 				if ((meta.log = fopen("./log", "a")) == NULL) {
-					meta.debug = true;
-					printfErr("Could not open log. Errno set to: %d\n", errno);
-					exit(-1);
+					fatalErr("Could not open log. Errno set to: %d\n", errno);
 				}
 				break;
 
@@ -68,6 +56,7 @@ main(int argc, char **argv)
 				break;
 
 			case '?':
+				fatalErr("Undefined argument\n");
 				break;
 
 			default:
@@ -75,16 +64,7 @@ main(int argc, char **argv)
 		}
 	}
 
-	if (optind < argc) {
-		meta.debug = true;
-		while(optind < argc){
-			printfErr("Undefined argument: %s \n", argv[optind++]);
-		}
-		printfErr("Shutting down\n");
-		exit(EXIT_FAILURE);
-	}
-
-	printfLog("Starting protocol\n");	
+	printf("Starting protocol\n");	
 	
 	if (meta.post) testAll();
 	
@@ -103,24 +83,20 @@ setup()
 	int rc;
 	self.is_master = isMaster();
 
-	if (pthread_create(&(meta.WF_listener_t), NULL, WF_listener, NULL)) {
-		printfErr("Error: Unable to create thread, %d\n", rc);
-		exit(-1);
+	if (rc = pthread_create(&(meta.WF_listener_t), NULL, WF_listener, NULL)) {
+		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
-	if (pthread_create(&(meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL)) {
-		printfErr("Error: Unable to create thread, %d\n", rc);
-		exit(-1);
+	if (rc = pthread_create(&(meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL)) {
+		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 	
-	if (pthread_create(&(meta.WS_listener_t), NULL, WS_listener, NULL)) {
-		printfErr("Error: Unable to create thread, %d\n", rc);
-		exit(-1);
+	if (rc = pthread_create(&(meta.WS_listener_t), NULL, WS_listener, NULL)) {
+		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
-	if (pthread_create(&(meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL)) {
-		printfErr("Error: Unable to create thread, %d\n", rc);
-		exit(-1);
+	if (rc = pthread_create(&(meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL)) {
+		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 }
 
@@ -143,7 +119,7 @@ handler()
 				handlePR((PR_p*)message);
 				break;
 			default:
-				printfLog("Unrecognized message type %d\n", ((byte*)message)[0]);
+				printf("Unrecognized message type %d\n", ((byte*)message)[0]);
 		}
 		free(message);
 	}
