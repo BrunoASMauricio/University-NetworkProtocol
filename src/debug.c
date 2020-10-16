@@ -134,18 +134,18 @@ testAll(){
 	a[3] = 0xff;
 	a[4] = 0x00;
 	a[5] = 0x11;
-	printfLog("Starting protocol test\n---------\n");
+	printf("Starting protocol test\n---------\n");
 
-	printfLog("Testing printfLog. Expected output:\n");
-	printfLog(">>1 teste 0.5\n");
-	printfLog(">>%d teste %0.1f\n", 1, 0.5);
+	printf("Testing printfLog. Expected output:\n");
+	printf(">>1 teste 0.5\n");
+	printf(">>%d teste %0.1f\n", 1, 0.5);
 
-	printfLog("Testing dumpBin. Expected output:\n");
-	printfLog(">>Hello 4: 0xaf 0x99 0x82 0xff 0x00 0x11\n");
+	printf("Testing dumpBin. Expected output:\n");
+	printf(">>Hello 4: 0xaf 0x99 0x82 0xff 0x00 0x11\n");
 	
 	dumpBin(a, sizeof(a), ">>Hello %d: ", 4);
 
-	printfLog("Testing queue data structures\n");
+	printf("Testing queue data structures\n");
 
 	testQueues();
 
@@ -153,6 +153,6 @@ testAll(){
 
 
 
-	printfLog("Ending protocol test\n---------\n");
+	printf("Ending protocol test\n---------\n");
 
 }
