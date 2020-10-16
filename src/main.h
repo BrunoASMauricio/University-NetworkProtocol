@@ -13,7 +13,7 @@
 #include <errno.h>
 
 
-#include "data.h"
+#include "data.c"
 #include "debug.c"
 #include "protocol.c"
 #include "RX.c"

@@ -83,6 +83,9 @@ setup()
 	int rc;
 	self.is_master = isMaster();
 
+	self.outbound_q = newQueue();
+	self.inbound_q = newQueue();
+
 	if (rc = pthread_create(&(meta.WF_listener_t), NULL, WF_listener, NULL)) {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}

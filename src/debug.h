@@ -29,7 +29,7 @@ void
  * Print to stderr
  * End program with EXIT_FAILURE
  */
-fatalfErr(const char *fmt, ...);
+fatalErr(const char *fmt, ...);
 
 void
 /*
