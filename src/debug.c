@@ -29,11 +29,15 @@ printfLog(const char *fmt, ...)
 	va_list args;
     va_start(args, fmt);
     vfprintf(stdout, fmt, args);
+	va_end(args);
 	if (meta.log) {
 		fprintf(meta.log, "[!] ");
+		va_start(args, fmt);
 		vfprintf(meta.log, fmt, args);
+		va_end(args);
+		//fflush(meta.log);
 	}
-	va_end(args);
+	fflush(stdout);
 }
 
 
@@ -44,11 +48,14 @@ printfErr(const char *fmt, ...)
 	va_list args;
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
+    va_end(args);
 	if (meta.log) {
 		fprintf(meta.log, "[X] ");
+		va_start(args, fmt);
 		vfprintf(meta.log, fmt, args);
+		va_end(args);
+		//fflush(meta.log);
 	}
-    va_end(args);
 }
 
 
@@ -92,9 +99,10 @@ testQueues()
 	addToQueue((void*)buff2, strlen(buff2), aq, 10);
 	addToQueue((void*)buff4, strlen(buff4), aq, -2);
 
-	printf("Expected output:\n");
-	printf("%s\n%s\n%s\n%s\n%s\n%s\n\n",buff2, buff1, buff1, buff3,
-										buff4, buff4);
+	printf("Expected output: %s %s %s\n",  buff2, buff2, buff2);
+	printf("%s\n%s\n%s\n%s\n%s\n%s\n\n",
+					buff2, buff1, buff1,
+					buff3, buff4, buff4);
 
 	dummy2 = (char*)popFromQueue(&dummy, aq);
 	printf("%s\n", dummy2);
@@ -117,7 +125,6 @@ testQueues()
 	delQueue(aq);
 	
 }
-
 void
 testAll(){
 	char a[6];
@@ -127,18 +134,18 @@ testAll(){
 	a[3] = 0xff;
 	a[4] = 0x00;
 	a[5] = 0x11;
-	printf("Starting protocol test\n---------\n");
+	printfLog("Starting protocol test\n---------\n");
 
-	printf("Testing printfLog. Expected output:\n");
-	printf(">>1 teste 0.5\n");
-	printf(">>%d teste %0.1f\n", 1, 0.5);
+	printfLog("Testing printfLog. Expected output:\n");
+	printfLog(">>1 teste 0.5\n");
+	printfLog(">>%d teste %0.1f\n", 1, 0.5);
 
-	printf("Testing dumpBin. Expected output:\n");
-	printf(">>Hello 4: 0xaf 0x99 0x82 0xff 0x00 0x11\n");
+	printfLog("Testing dumpBin. Expected output:\n");
+	printfLog(">>Hello 4: 0xaf 0x99 0x82 0xff 0x00 0x11\n");
 	
 	dumpBin(a, sizeof(a), ">>Hello %d: ", 4);
 
-	printf("Testing queue data structures\n");
+	printfLog("Testing queue data structures\n");
 
 	testQueues();
 
@@ -146,6 +153,6 @@ testAll(){
 
 
 
-	printf("Ending protocol test\n---------\n");
+	printfLog("Ending protocol test\n---------\n");
 
 }

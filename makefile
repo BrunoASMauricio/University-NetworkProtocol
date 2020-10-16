@@ -4,7 +4,7 @@ DEBUG = -Wall -Wextra
 
 FLAGS = -lpthread
 
-CC = gcc
+CC = g++
 
 
 all: NP
