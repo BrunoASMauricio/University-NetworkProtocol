@@ -1,7 +1,6 @@
 #ifndef RX_H
 #define RX_H
 
-void*
 /*
  * Interface with the WF team (RX)
  * Continuously listens for new packets
@@ -14,21 +13,21 @@ void*
  * * A dummy variable, contains NULL
  *
  */
+void*
 WF_listener(void* dummy);
 
-void*
 /*
  * Interface with the WS team (RX)
  */
+void*
 WS_listener(void* dummy);
 
 
-
-void*
 /*
  * Blocks until a new packet is available in the inbound queue
  * Should release the CPU while blocking
  */
+void*
 getMessage();
 
 #endif

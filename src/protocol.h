@@ -1,14 +1,13 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-
-bool
 /*
  * Performs a network test
  * Returns true if this node is the master
  * (has an internet connection)
  * false otherwise
  */
+bool
 isMaster();
 
 

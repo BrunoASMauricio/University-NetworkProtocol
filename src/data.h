@@ -21,10 +21,10 @@ typedef struct{
 	pthread_t WF_dispatcher_t;
 	pthread_t WS_listener_t;
 	pthread_t HW_dispatcher_t;
-	bool post;
-	bool debug;
-	FILE* log;
-}metadata;
+	bool Post;
+	bool Debug;
+	FILE* Log;
+} meta_data;
 
 // TOUCH THESE :)
 
@@ -35,31 +35,31 @@ enum packet_type{
 };
 
 typedef struct{
-	long int data;
+	long int Data;
 }sample;
 
 typedef struct{
-	byte type;
-	byte seq_nmb;
+	byte Type;
+	byte SeqNmb;
 	byte TTL;
-	byte source_IP[2];
-	byte next_hop_IP[2];
-	byte sample_amm;
-	sample* samples;
+	byte SourceIP[2];
+	byte NextHopIP[2];
+	byte SampleAmm;
+	sample* Samples;
 }SD_p;
 
 typedef struct{
-	byte type;
+	byte Type;
 	byte PBID[2];
-	byte Orig_IP[2];
+	byte OrigIP[2];
 }PB_p;
 
 typedef struct{
-	byte type;
+	byte Type;
 	byte PBID[2];
-	unsigned short delay;
-	byte source_IP[2];
-	byte next_hop_IP[2];
+	unsigned short Delay;
+	byte SourceIP[2];
+	byte NextHopIP[2];
 }PR_p;
 
 
@@ -73,56 +73,55 @@ enum priority{
 
 
 typedef struct{
-	void* packet;
-	void* next_el;
-	int packet_size;
-	int pr;
-}queue_el;
+	void* Packet;
+	void* NextEl;
+	int PacketSize;
+	int Pr;
+} queue_el;
 
 typedef struct{
-	queue_el* first;
-	queue_el* last;
-	pthread_mutex_t lock;
-	int size;
-}queue;
+	queue_el* First;
+	queue_el* Last;
+	pthread_mutex_t Lock;
+	int Size;
+} queue;
 
 
 typedef struct{
-	byte is_master;
-	queue* outbound_q;
-	queue* inbound_q;
+	byte IsMaster;
+	queue* OutboundQueue;
+	queue* InboundQueue;
 	// ...
-}node;
+} node;
 
-queue*
 /*
  * Returns an initialized queue
  */
+queue*
 newQueue();
 
-void
 /*
  * Inserts the packet pointed to by "packet", of type "type"
  * into the queue "q" according to the priority "pr"
  */
-addToQueue(void* packet, int type, queue q, int pr);
+void
+addToQueue(void* Packet, int Type, queue Q, int Pr);
 
-int
 /*
  * Pop the next queued packet.
  * Places the packet buffer location in the *buffer pointer
  * Returns the size of the packet
  */
+int
 popFromQueue(void** buffer, queue* q);
 
-void
 /*
  * Deallocates a queue
  */
-delQueue(queue* q);
+void
+delQueue(queue* Q);
 
-metadata meta;
-node self;
-
+meta_data Meta;
+node Self;
 
 #endif

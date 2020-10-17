@@ -20,23 +20,24 @@
 #include "TX.c"
 
 
-void
 /*
  * Performs node setup
  */
+void
 setup();
 
-void
 /*
  * Continuously handles the received packets
  */
+void
 handler();
 
-void
+
 /*
  * Clean the data structures
  * Save whatever data needs saving
  */
+void
 clean();
 
 

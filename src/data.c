@@ -1,17 +1,18 @@
-
 #include "data.h"
 
 queue*
 newQueue()
 {
-	queue* q = (queue*)malloc(sizeof(queue));
-	q->size = 0;
-	q->first = NULL;
-	q->last= NULL;
-	if (pthread_mutex_init(&(q->lock), NULL) != 0) {
+	queue* Q = (queue*)malloc(sizeof(queue));
+	Q->Size = 0;
+	Q->First = NULL;
+	Q->Last= NULL;
+	
+    if (pthread_mutex_init(&(Q->Lock), NULL) != 0) 
+    {
         fatalErr("mutex init failed for outbound lock\n");
     }
-	return q;
+	return Q;
 }
 
 /*
@@ -21,75 +22,84 @@ newQueue()
  * a pool of pre-allocated queue_el can be implemented
  */
 void
-addToQueue(void* packet, int size, queue* q, int pr)
+addToQueue(void* Packet, int Size, queue* Q, int Pr)
 {
-	queue_el* new_el = (queue_el*)malloc(sizeof(queue_el));
-	queue_el *last_higher;
-	queue_el *to_swap;
+	queue_el* NewEl = (queue_el*)malloc(sizeof(queue_el));
+	queue_el *LastHigher;
+	queue_el *ToSwap;
 
-	new_el->packet = packet;
-	new_el->packet_size = size;
-	new_el->pr = pr;
-	new_el->next_el = NULL;
+	NewEl->Packet = Packet;
+	NewEl->PacketSize = Size;
+	NewEl->Pr = Pr;
+	NewEl->NextEl = NULL;
 
-	pthread_mutex_lock(&(q->lock));
-	to_swap = q->first;
-	last_higher = q->first;
+	pthread_mutex_lock(&(Q->Lock));
+	ToSwap = Q->First;
+	LastHigher = Q->First;
 
-	while (to_swap != NULL && to_swap->pr >= pr) {
-		last_higher = to_swap;
-		to_swap = (queue_el*)to_swap->next_el;
+	while(ToSwap != NULL && ToSwap->Pr >= Pr) 
+    {
+		LastHigher = ToSwap;
+		ToSwap = (queue_el*)ToSwap->NextEl;
 	}
 
-	if (q->first == NULL) {
-		q->first = new_el;
-		q->last = new_el;
-	} else {
-		if (to_swap == last_higher) {
-			new_el->next_el= last_higher;
-			q->first = new_el;
-		} else {
-			if (to_swap == NULL) {
-				q->last = new_el;
+	if(Q->First == NULL) 
+    {
+        Q->First = NewEl;
+		Q->Last = NewEl;
+	} 
+    else 
+    {
+		if(ToSwap == LastHigher) 
+        {
+			NewEl->NextEl= LastHigher;
+			Q->First = NewEl;
+		} 
+        else 
+        {
+			if(ToSwap == NULL) 
+            {
+				Q->Last = NewEl;
 			}
-			new_el->next_el = last_higher->next_el;
-			last_higher->next_el = new_el;
+			NewEl->NextEl = LastHigher->NextEl;
+			LastHigher->NextEl = NewEl;
 		}
 	}
-	q->size += 1;
-	pthread_mutex_unlock(&(q->lock));
+	Q->Size += 1;
+	pthread_mutex_unlock(&(Q->Lock));
 }
 
 
 void*
-popFromQueue(int* size, queue* q)
+PopFromQueue(int* Size, queue* Q)
 {	
-	queue_el* popped;
-	void* buf;
+	queue_el* Popped;
+	void* Buf;
 	
-	if (q->size == 0) {
+	if (Q->Size == 0) 
+    {
 		return 0;
 	}
 
-	pthread_mutex_lock(&(q->lock));
-	popped = q->first;
-	q->first = (queue_el*)q->first->next_el;
-	q->size -= 1;
-	pthread_mutex_unlock(&(q->lock));
+	pthread_mutex_lock(&(Q->Lock));
+	Popped = Q->First;
+	Q->First = (queue_el*)Q->First->NextEl;
+	Q->Size -= 1;
+	pthread_mutex_unlock(&(Q->Lock));
 
-	buf = popped->packet;
-	*size = popped->packet_size;
+	Buf = Popped->Packet;
+	*Size = Popped->PacketSize;
 
-	free(popped);
+	free(Popped);
 
-	return buf;
+	return Buf;
 }
 
 void
-delQueue(queue* q)
+delQueue(queue* Q)
 {
-	pthread_mutex_destroy(&(q->lock));
-	free(q);
+	pthread_mutex_destroy(&(Q->Lock));
+	free(Q);
 }
 
 

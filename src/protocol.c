@@ -1,4 +1,3 @@
-
 #include "protocol.h"
 
 bool
@@ -8,16 +7,19 @@ isMaster()
 }
 
 void
-handleSD(SD_p* message){
+handleSD(SD_p* message)
+{
 
 }
 
 void
-handlePB(PB_p* message){
+handlePB(PB_p* message)
+{
 
 }
 
 void
-handlePR(PR_p* message){
+handlePR(PR_p* message)
+{
 
 }

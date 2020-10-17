@@ -14,10 +14,14 @@ getMessage()
 {
 	return NULL;
 }
+
 void*
 WS_listener(void* dummy)
 {
 	printf("WS Listener on\n");
-	while(1){sleep(1);}
+	while(1)
+    {
+        sleep(1);
+    }
 }
 

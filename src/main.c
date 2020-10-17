@@ -1,21 +1,23 @@
 #include "main.h"
+#include "data.h"
 
-int
 /*
  * Main function
  * Parses the command line arguments (sets verbosity and debugging)
  * Starts the main protocol loop
  */
+int
 main(int argc, char **argv)
 {
 	int c;
 
-	meta.debug = false;
-	meta.post= false;
-	meta.log = NULL;
-	self.is_master = UNSET;
+	Meta.Debug = false;
+	Meta.Post= false;
+	Meta.Log = NULL;
+	Self.IsMaster = UNSET;
 
-	while (1) {
+	while (1) 
+    {
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"log",		no_argument,		0, 'l'},
@@ -28,31 +30,37 @@ main(int argc, char **argv)
 
 		if (c == -1)	break;
 
-		switch (c) {
+		switch(c) {
 			case 'r':
-				if (optarg[0] == 'M') {
-					self.is_master = true;
+				if (optarg[0] == 'M') 
+                {
+					Self.IsMaster = true;
 					printf("Forcing node to master\n");
-				} else if (optarg[0] == 'S') {
-					self.is_master = false;
+				} 
+                else if (optarg[0] == 'S') 
+                {
+					Self.IsMaster = false;
 					printf("Forcing node to slave\n");
-				} else {
+				} 
+                else 
+                {
 					fatalErr("Node can only be master (M) or slave (S)\n");
 				}
 				break;
 
 			case 'l':
-				if ((meta.log = fopen("./log", "a")) == NULL) {
+				if((Meta.log = fopen("./log", "a")) == NULL) 
+                {
 					fatalErr("Could not open log. Errno set to: %d\n", errno);
 				}
 				break;
 
 			case 'd':
-				meta.debug = true;
+				Meta.Debug = true;
 				break;
 
 			case 'p':
-				meta.post= true;
+				Meta.Post= true;
 				break;
 
 			case '?':
@@ -66,7 +74,10 @@ main(int argc, char **argv)
 
 	printf("Starting protocol\n");	
 	
-	if (meta.post) testAll();
+	if (Meta.Post) 
+    {
+        testAll();
+    }
 	
 	setup();
 
@@ -81,24 +92,28 @@ void
 setup()
 {
 	int rc;
-	self.is_master = isMaster();
+	Self.IsMaster = isMaster();
 
-	self.outbound_q = newQueue();
-	self.inbound_q = newQueue();
+	Self.OutboundQueue= newQueue();
+	Self.InboundQueue = newQueue();
 
-	if (rc = pthread_create(&(meta.WF_listener_t), NULL, WF_listener, NULL)) {
+	if (rc = pthread_create(&(Meta.WF_listener_t), NULL, WF_listener, NULL)) 
+    {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
-	if (rc = pthread_create(&(meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL)) {
+	if (rc = pthread_create(&(Meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL)) 
+    {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 	
-	if (rc = pthread_create(&(meta.WS_listener_t), NULL, WS_listener, NULL)) {
+	if (rc = pthread_create(&(Meta.WS_listener_t), NULL, WS_listener, NULL)) 
+    {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
-	if (rc = pthread_create(&(meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL)) {
+	if (rc = pthread_create(&(Meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL)) 
+    {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 }
@@ -106,31 +121,33 @@ setup()
 void
 handler()
 {
-	void* message;
+	void* Message;
 
-	while (1) {
-		message = getMessage();
-		if (message== NULL) continue;
-		switch (((byte*)message)[0]) {
+	while (1) 
+    {
+		Message = getMessage();
+		if(Message == NULL) continue;
+		switch (((byte*)Message)[0]) 
+        {
 			case SD:
-				handleSD((SD_p*)message);
+				handleSD((SD_p*)Message);
 				break;
 			case PB:
-				handlePB((PB_p*)message);
+				handlePB((PB_p*)Message);
 				break;
 			case PR:
-				handlePR((PR_p*)message);
+				handlePR((PR_p*)Message);
 				break;
 			default:
-				printf("Unrecognized message type %d\n", ((byte*)message)[0]);
+				printf("Unrecognized Message type %d\n", ((byte*)Message)[0]);
 		}
-		free(message);
+		free(Message);
 	}
 }
 
 void
 clean()
 {
-	if (meta.log) fclose(meta.log);
+	if (Meta.Log) fclose(Meta.Log);
 }
 

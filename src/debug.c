@@ -1,4 +1,3 @@
-
 #include "debug.h"
 
 void dumpBin(char* buf, int size, const char *fmt,...)
@@ -6,19 +5,22 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 	va_list args;
     va_start(args, fmt);
     vfprintf(stdout, fmt, args);
-	for(int i = 0; i < size; i++){
+	for(int i = 0; i < size; i++)
+    {
 		fprintf(stdout, "0x%02hhx ", buf[i]);
 	}
 	fprintf(stdout, "\n");
 
 	va_end(args);
-	if (meta.log) {
+	if (Meta.log) 
+    {
 		va_start(args, fmt);
-		vfprintf(meta.log, fmt, args);
-		for(int i = 0; i < size; i++){
-			fprintf(meta.log, "0x%02hhx ", buf[i]);
+		vfprintf(Meta.log, fmt, args);
+		for(int i = 0; i < size; i++)
+        {
+			fprintf(Meta.log, "0x%02hhx ", buf[i]);
 		}
-		fprintf(meta.log, "\n");
+		fprintf(Meta.log, "\n");
 		va_end(args);
 	}
 }
@@ -30,12 +32,12 @@ printfLog(const char *fmt, ...)
     va_start(args, fmt);
     vfprintf(stdout, fmt, args);
 	va_end(args);
-	if (meta.log) {
-		fprintf(meta.log, "[!] ");
+	if (Meta.log) {
+		fprintf(Meta.log, "[!] ");
 		va_start(args, fmt);
-		vfprintf(meta.log, fmt, args);
+		vfprintf(Meta.log, fmt, args);
 		va_end(args);
-		//fflush(meta.log);
+		//fflush(Meta.log);
 	}
 	fflush(stdout);
 }
@@ -44,17 +46,17 @@ printfLog(const char *fmt, ...)
 void
 printfErr(const char *fmt, ...)
 {
-	if (!meta.debug) return;
+	if (!Meta.debug) return;
 	va_list args;
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
     va_end(args);
-	if (meta.log) {
-		fprintf(meta.log, "[X] ");
+	if (Meta.log) {
+		fprintf(Meta.log, "[X] ");
 		va_start(args, fmt);
-		vfprintf(meta.log, fmt, args);
+		vfprintf(Meta.log, fmt, args);
 		va_end(args);
-		//fflush(meta.log);
+		//fflush(Meta.log);
 	}
 }
 
@@ -64,12 +66,15 @@ fatalErr(const char *fmt, ...)
 {
 	FILE* t;
 	va_list args;
-	if ((t = fopen("./fatal", "w")) != NULL) {
+	if((t = fopen("./fatal", "w")) != NULL) 
+    {
 		va_start(args, fmt);
 		vfprintf(t, fmt, args);
 		fflush(t);
 		va_end(args);
-	} else {
+	} 
+    else 
+    {
 		fprintf(stderr, "Could not create \"fatal\" file\n");
 	}
 	va_start(args, fmt);
