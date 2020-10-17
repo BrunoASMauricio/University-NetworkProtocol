@@ -148,6 +148,9 @@ handler()
 void
 clean()
 {
-	if (Meta.Log) fclose(Meta.Log);
+	if (Meta.Log) 
+    {
+        fclose(Meta.Log);
+    }
 }
 
