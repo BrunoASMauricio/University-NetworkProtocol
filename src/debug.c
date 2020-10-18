@@ -12,15 +12,15 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 	fprintf(stdout, "\n");
 
 	va_end(args);
-	if (Meta.log) 
+	if (Meta.Log)
     {
 		va_start(args, fmt);
-		vfprintf(Meta.log, fmt, args);
+		vfprintf(Meta.Log, fmt, args);
 		for(int i = 0; i < size; i++)
         {
-			fprintf(Meta.log, "0x%02hhx ", buf[i]);
+			fprintf(Meta.Log, "0x%02hhx ", buf[i]);
 		}
-		fprintf(Meta.log, "\n");
+		fprintf(Meta.Log, "\n");
 		va_end(args);
 	}
 }
@@ -32,12 +32,12 @@ printfLog(const char *fmt, ...)
     va_start(args, fmt);
     vfprintf(stdout, fmt, args);
 	va_end(args);
-	if (Meta.log) {
-		fprintf(Meta.log, "[!] ");
+	if (Meta.Log) {
+		fprintf(Meta.Log, "[!] ");
 		va_start(args, fmt);
-		vfprintf(Meta.log, fmt, args);
+		vfprintf(Meta.Log, fmt, args);
 		va_end(args);
-		//fflush(Meta.log);
+		//fflush(Meta.Log);
 	}
 	fflush(stdout);
 }
@@ -46,17 +46,17 @@ printfLog(const char *fmt, ...)
 void
 printfErr(const char *fmt, ...)
 {
-	if (!Meta.debug) return;
+	if (!Meta.Debug) return;
 	va_list args;
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
     va_end(args);
-	if (Meta.log) {
-		fprintf(Meta.log, "[X] ");
+	if (Meta.Log) {
+		fprintf(Meta.Log, "[X] ");
 		va_start(args, fmt);
-		vfprintf(Meta.log, fmt, args);
+		vfprintf(Meta.Log, fmt, args);
 		va_end(args);
-		//fflush(Meta.log);
+		//fflush(Meta.Log);
 	}
 }
 

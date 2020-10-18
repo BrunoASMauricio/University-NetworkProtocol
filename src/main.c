@@ -49,7 +49,7 @@ main(int argc, char **argv)
 				break;
 
 			case 'l':
-				if((Meta.log = fopen("./log", "a")) == NULL) 
+				if((Meta.Log = fopen("./log", "a")) == NULL) 
                 {
 					fatalErr("Could not open log. Errno set to: %d\n", errno);
 				}
@@ -148,7 +148,7 @@ handler()
 void
 clean()
 {
-	if (Meta.Log) 
+	if (Meta.Log)
     {
         fclose(Meta.Log);
     }

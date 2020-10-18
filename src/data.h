@@ -105,7 +105,7 @@ newQueue();
  * into the queue "q" according to the priority "pr"
  */
 void
-addToQueue(void* Packet, int Type, queue Q, int Pr);
+addToQueue(void* Packet, int Type, queue* Q, int Pr);
 
 /*
  * Pop the next queued packet.
