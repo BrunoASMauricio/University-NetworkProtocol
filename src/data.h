@@ -38,31 +38,6 @@ typedef struct{
 	long int Data;
 }sample;
 
-typedef struct{
-	byte Type;
-	byte SeqNmb;
-	byte TTL;
-	byte SourceIP[2];
-	byte NextHopIP[2];
-	byte SampleAmm;
-	sample* Samples;
-}SD_p;
-
-typedef struct{
-	byte Type;
-	byte PBID[2];
-	byte OrigIP[2];
-}PB_p;
-
-typedef struct{
-	byte Type;
-	byte PBID[2];
-	unsigned short Delay;
-	byte SourceIP[2];
-	byte NextHopIP[2];
-}PR_p;
-
-
 /*
  * Queue related data types
  */
@@ -101,19 +76,20 @@ queue*
 newQueue();
 
 /*
- * Inserts the packet pointed to by "packet", of type "type"
- * into the queue "q" according to the priority "pr"
+ * Stores the buffer POINTER value "Buffer", and the size "Size"
+ * in the queue "Q" according to the priority "Pr".
+ * DOES NOT COPY THE DATA IN THE BUFFER, STORES THE RAW POINTER
  */
 void
-addToQueue(void* Packet, int Type, queue* Q, int Pr);
+addToQueue(void* Buffer, int Size, queue* Q, int Pr);
 
 /*
  * Pop the next queued packet.
- * Places the packet buffer location in the *buffer pointer
- * Returns the size of the packet
+ * Places the size of the packet in *Size
+ * Returns the buffers memmory location
  */
 void*
-popFromQueue(int* buffer, queue* Q);
+popFromQueue(int* Size, queue* Q);
 
 /*
  * Deallocates a queue
