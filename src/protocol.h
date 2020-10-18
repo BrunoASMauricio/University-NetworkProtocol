@@ -2,15 +2,23 @@
 #define PROTOCOL_H
 
 #include <netdb.h>
+#include <stddef.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+
+typedef uint8_t byte;
+
 
 /*
  * Performs a network test
- * Returns true if this node is the master
+ * sets Self.isMaster to the best guessed value
  * (has an internet connection)
- * false otherwise
- * not yet completed, lacks "Unset" to update self
+ * TODO: real check is to check HW connection
  */
-bool
+void
 isMaster();
 
 

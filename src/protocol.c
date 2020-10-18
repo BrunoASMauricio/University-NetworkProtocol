@@ -1,18 +1,29 @@
 #include "protocol.h"
-#include <ctype.h>
 
 
-bool 
+void 
 isMaster()
 {
-	char *Hostname;   
+	const char *Hostname;   
 	struct hostent *HostInfo;
-
+	
+	if(Self.IsMaster != UNSET)
+	{
+		return;
+	}
+	
 	Hostname = "google.com";
 	HostInfo = gethostbyname (Hostname);
 
-	if (HostInfo == NULL) return false;
-	else return true;
+	if (HostInfo == NULL)
+	{
+		Self.IsMaster=false;
+	}
+	else
+	{
+		Self.IsMaster=true;
+	}
+	
 }
 
 void
@@ -85,10 +96,10 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 byte*
 getIP()
 {
-    byte* ip = malloc(sizeof(byte)*2);
+    byte* ip =(byte*)malloc(sizeof(byte)*2);
     FILE* fp;
 
-    const char mac_add_string [17];
+    char mac_add_string [17];
     unsigned char mac_add_byte[6];
 
     fp= fopen("/sys/class/net/enp0s5/address","r"); //this only works in debian
