@@ -2,7 +2,7 @@
 
 DEBUG = -Wall -Wextra
 
-FLAGS = -lpthread
+FLAGS = -lpthread -pthread
 
 CC = g++
 
