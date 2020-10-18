@@ -19,6 +19,8 @@ Code parameters:
 Usage example:
     ./NP -ldp -r S
 
+Compiling:
+	Just type "make" in the same directory, the makefile resides in.
 
 Code Structure:
 	main	Parse command line arguments;
@@ -26,7 +28,7 @@ Code Structure:
 			Launch RX/TX threads;
 			clean on exit.
 
-	data	Global data structures
+	data	Global data structures, as well as the main functions that interact with said structures
 
 	protocol Handles most protocol specific logic
 
@@ -37,9 +39,36 @@ Code Structure:
 	debug	Provides debugging and logging
 			Also contains self testing routines
 
-Compiling:
-	Just type "make" in the same directory, the makefile resides in.
+Data structures:
+	The two main data structures are "meta_data" and "node";
 
+	meta_data:
+		Contains data to control the program itself (threads, logging, debugging, etc)
+		Should only have 1 instace, called "Meta", which is global (instanciated in data.h)
+		Interactions MUST BE THREAD SAFE!
+
+	node:
+		Contains protocol relevant data (queues, protocol control information, etc)
+		Should only have 1 instace, called "Self", which is global (instanciated in data.h)
+		Interactions MUST BE THREAD SAFE!
+	
+	queue:
+		Implementation of an ordered FIFO.
+		All functions implemented MUST BE THREAD SAFE!
+
+	SD_p, PB_p and PR_p:
+		Packet holding data structure
+
+	sample:
+		Holds the information of a single sample
+	
+
+Considerations for real runs:
+    Deactivate sleep/hibernation
+    
+    Launch with high priority
+        https://www.tecmint.com/set-linux-process-priority-using-nice-and-renice-commands/
+        nice -20 ./NP
 
 
 
