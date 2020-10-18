@@ -71,7 +71,7 @@ addToQueue(void* Packet, int Size, queue* Q, int Pr)
 
 
 void*
-PopFromQueue(int* Size, queue* Q)
+popFromQueue(int* Size, queue* Q)
 {	
 	queue_el* Popped;
 	void* Buf;

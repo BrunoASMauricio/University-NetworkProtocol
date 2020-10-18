@@ -112,8 +112,8 @@ addToQueue(void* Packet, int Type, queue* Q, int Pr);
  * Places the packet buffer location in the *buffer pointer
  * Returns the size of the packet
  */
-int
-popFromQueue(void** buffer, queue* q);
+void*
+popFromQueue(int* buffer, queue* Q);
 
 /*
  * Deallocates a queue
