@@ -7,19 +7,19 @@ isMaster()
 }
 
 void
-handleSD(SD_p* message)
+handleSD(void* message)
 {
 
 }
 
 void
-handlePB(PB_p* message)
+handlePB(void* message)
 {
 
 }
 
 void
-handlePR(PR_p* message)
+handlePR(void* message)
 {
 
 }

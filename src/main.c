@@ -130,13 +130,13 @@ handler()
 		switch (((byte*)Message)[0]) 
         {
 			case SD:
-				handleSD((SD_p*)Message);
+				handleSD(Message);
 				break;
 			case PB:
-				handlePB((PB_p*)Message);
+				handlePB(Message);
 				break;
 			case PR:
-				handlePR((PR_p*)Message);
+				handlePR(Message);
 				break;
 			default:
 				printf("Unrecognized Message type %d\n", ((byte*)Message)[0]);
