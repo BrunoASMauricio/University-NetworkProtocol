@@ -94,7 +94,7 @@ setup()
 	int rc;
 	Self.IsMaster = isMaster();
 
-	Self.OutboundQueue= newQueue();
+	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
 
