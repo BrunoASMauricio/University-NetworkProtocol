@@ -66,6 +66,7 @@ typedef struct{
 	byte IsMaster;
 	queue* OutboundQueue;
 	queue* InboundQueue;
+	queue* InternalQueue;
 	// ...
 } node;
 
