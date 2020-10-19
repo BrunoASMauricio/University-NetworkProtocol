@@ -96,6 +96,7 @@ setup()
 
 	Self.OutboundQueue= newQueue();
 	Self.InboundQueue = newQueue();
+	Self.InternalQueue = newQueue();
 
 	if (rc = pthread_create(&(Meta.WF_listener_t), NULL, WF_listener, NULL)) 
     {
