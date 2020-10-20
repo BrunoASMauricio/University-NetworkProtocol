@@ -12,14 +12,6 @@
 #include <unistd.h>
 #include <errno.h>
 
-
-#include "data.c"
-#include "debug.c"
-#include "protocol.c"
-#include "RX.c"
-#include "TX.c"
-
-
 /*
  * Performs node setup
  */
@@ -39,6 +31,13 @@ handler();
  */
 void
 clean();
+
+
+#include "data.c"
+#include "debug.c"
+#include "protocol.c"
+#include "RX.c"
+#include "TX.c"
 
 
 

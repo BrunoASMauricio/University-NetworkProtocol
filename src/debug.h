@@ -2,6 +2,7 @@
 #define DEBUG_H
 
 #include <stdarg.h>
+#include "main.h"
 
 #define printf printfLog
 
@@ -30,6 +31,18 @@ void
  * End program with EXIT_FAILURE
  */
 fatalErr(const char *fmt, ...);
+
+void
+/*
+ * Test the queue manipulation functions
+ */
+testQueues();
+
+void
+/*
+ * Perform network/CPU measurements
+ * */
+performMeasurements();
 
 void
 /*

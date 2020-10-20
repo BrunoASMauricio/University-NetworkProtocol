@@ -72,8 +72,8 @@ fatalErr(const char *fmt, ...)
 		vfprintf(t, fmt, args);
 		fflush(t);
 		va_end(args);
-	} 
-    else 
+	}
+    else
     {
 		fprintf(stderr, "Could not create \"fatal\" file\n");
 	}
@@ -82,6 +82,7 @@ fatalErr(const char *fmt, ...)
     vfprintf(stderr, fmt, args);
 	fflush(stderr);
     va_end(args);
+	clean();
 	exit(EXIT_FAILURE);
 }
 
@@ -127,9 +128,27 @@ testQueues()
 	dummy2 = (char*)popFromQueue(&dummy, aq);
 	printf("%s\n\n", dummy2);
 
-	delQueue(aq);
-	
+	delQueue(aq);	
 }
+
+void
+performMeasurements(){
+	struct timespec res;
+	struct timespec res2;
+
+	long avg = 0;
+	long total = 0;
+	for(int i = 0; i < 100; i++)
+	{
+		clock_gettime(CLOCK_REALTIME, &res);
+		clock_gettime(CLOCK_REALTIME, &res2);
+		avg += ((res2.tv_sec - res.tv_sec) * (int64_t)1000000000UL) + (res2.tv_nsec - res.tv_nsec);
+		total++;
+		// sleep(1); <-- this changes the average, why
+	}
+	printf("clock_gettime(CLOCK_REAL_TIME) average sampling delay: %lld\n", avg/total);
+}
+
 void
 testAll(){
 	char a[6];
@@ -139,6 +158,7 @@ testAll(){
 	a[3] = 0xff;
 	a[4] = 0x00;
 	a[5] = 0x11;
+
 	printf("Starting protocol test\n---------\n");
 
 	printf("Testing printfLog. Expected output:\n");
@@ -159,5 +179,9 @@ testAll(){
 
 
 	printf("Ending protocol test\n---------\n");
+	printf("Starting protocol measurements\n---------\n");
+	performMeasurements();
+	printf("Ending protocol measurements\n---------\n");
+
 
 }
