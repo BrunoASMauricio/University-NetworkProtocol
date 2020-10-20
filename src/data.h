@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "main.h"
 #include "debug.h"
+#include "udp.h"
 
 #define UNSET 255
 #define DEFAULT_QUEUE_SIZE
@@ -21,6 +22,9 @@ typedef struct{
 	pthread_t WF_dispatcher_t;
 	pthread_t WS_listener_t;
 	pthread_t HW_dispatcher_t;
+
+	socket_s* Input_socket;
+	socket_s* Output_socket;
 	bool Post;
 	bool Debug;
 	FILE* Log;

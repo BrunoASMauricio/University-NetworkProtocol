@@ -36,20 +36,20 @@ main(int argc, char **argv)
                 {
 					Self.IsMaster = true;
 					printf("Forcing node to master\n");
-				} 
-                else if (optarg[0] == 'S') 
+				}
+                else if (optarg[0] == 'S')
                 {
 					Self.IsMaster = false;
 					printf("Forcing node to slave\n");
-				} 
-                else 
+				}
+                else
                 {
 					fatalErr("Node can only be master (M) or slave (S)\n");
 				}
 				break;
 
 			case 'l':
-				if((Meta.Log = fopen("./log", "a")) == NULL) 
+				if((Meta.Log = fopen("./log", "a")) == NULL)
                 {
 					fatalErr("Could not open log. Errno set to: %d\n", errno);
 				}
@@ -74,7 +74,7 @@ main(int argc, char **argv)
 
 	printf("Starting protocol\n");	
 	
-	if (Meta.Post) 
+	if (Meta.Post)
     {
         testAll();
     }
@@ -98,22 +98,29 @@ setup()
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
 
-	if (rc = pthread_create(&(Meta.WF_listener_t), NULL, WF_listener, NULL)) 
+
+	Meta.Input_socket = newSocket(INBOUND_PORT);
+	startSocket(Meta.Input_socket);
+
+	Meta.Output_socket = newSocket(OUTBOUND_PORT);
+	startSocket(Meta.Output_socket);
+
+	if (rc = pthread_create(&(Meta.WF_listener_t), NULL, WF_listener, NULL))
     {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
-	if (rc = pthread_create(&(Meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL)) 
+	if (rc = pthread_create(&(Meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL))
     {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 	
-	if (rc = pthread_create(&(Meta.WS_listener_t), NULL, WS_listener, NULL)) 
+	if (rc = pthread_create(&(Meta.WS_listener_t), NULL, WS_listener, NULL))
     {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
-	if (rc = pthread_create(&(Meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL)) 
+	if (rc = pthread_create(&(Meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL))
     {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
@@ -124,11 +131,11 @@ handler()
 {
 	void* Message;
 
-	while (1) 
+	while (1)
     {
 		Message = getMessage();
 		if(Message == NULL) continue;
-		switch (((byte*)Message)[0]) 
+		switch (((byte*)Message)[0])
         {
 			case SD:
 				handleSD(Message);
@@ -149,6 +156,14 @@ handler()
 void
 clean()
 {
+	if (Meta.Input_socket->s != -1)
+	{
+		close(Meta.Input_socket->s);
+	}
+	if (Meta.Output_socket->s != -1)
+	{
+		close(Meta.Input_socket->s);
+	}
 	if (Meta.Log)
     {
         fclose(Meta.Log);
