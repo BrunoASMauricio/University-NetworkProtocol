@@ -2,12 +2,8 @@
 #define PROTOCOL_H
 
 #include <netdb.h>
-#include <stddef.h>
 #include <ctype.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
+
 
 typedef uint8_t byte;
 
