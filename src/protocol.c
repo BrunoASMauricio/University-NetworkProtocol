@@ -2,7 +2,7 @@
 
 
 void 
-isMaster()
+setMaster()
 {
 	const char *Hostname;   
 	struct hostent *HostInfo;

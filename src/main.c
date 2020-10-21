@@ -92,7 +92,7 @@ void
 setup()
 {
 	int rc;
-	isMaster();
+	setMaster();
 
 	Self.OutboundQueue= newQueue();
 	Self.InboundQueue = newQueue();

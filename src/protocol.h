@@ -15,7 +15,7 @@ typedef uint8_t byte;
  * TODO: real check is to check HW connection
  */
 void
-isMaster();
+setMaster();
 
 
 void
