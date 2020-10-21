@@ -73,6 +73,7 @@ typedef struct{
 	queue* OutboundQueue;
 	queue* InboundQueue;
 	queue* InternalQueue;
+	byte IP[2];
 	// ...
 } node;
 

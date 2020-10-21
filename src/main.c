@@ -92,7 +92,8 @@ void
 setup()
 {
 	int rc;
-	Self.IsMaster = isMaster();
+	memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
+	setMaster();
 
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
@@ -156,15 +157,15 @@ handler()
 void
 clean()
 {
-	if (Meta.Input_socket->s != -1)
+	if(Meta.Input_socket->s != -1)
 	{
 		close(Meta.Input_socket->s);
 	}
-	if (Meta.Output_socket->s != -1)
+	if(Meta.Output_socket->s != -1)
 	{
 		close(Meta.Input_socket->s);
 	}
-	if (Meta.Log)
+	if(Meta.Log)
     {
         fclose(Meta.Log);
     }
