@@ -91,6 +91,7 @@ typedef struct{
 	byte IsMaster;
 	queue* OutboundQueue;
 	queue* InboundQueue;
+	byte IP[2];
 	// ...
 } node;
 

@@ -96,7 +96,7 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 byte*
 getIP()
 {
-    byte* ip =(byte*)malloc(sizeof(byte)*2);
+    byte * ip=(byte*)malloc(sizeof(byte)*2);
     FILE* fp;
 
     char mac_add_string [17];
