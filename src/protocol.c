@@ -102,7 +102,7 @@ getIP()
     char mac_add_string [17];
     unsigned char mac_add_byte[6];
 
-    //NOTE(GoncaloXavier): Implemented by Rita, Linux only dependecy
+    //NOTE(Rita): Debian dependency due to specific interface name
     fp = fopen("/sys/class/net/enp0s5/address","r"); 
 
     if(fp == NULL)
