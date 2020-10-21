@@ -65,7 +65,9 @@ typedef struct{
 	int Size;
 } queue;
 
-
+/*
+ * Internal queue is only handled by the WS and HW interfaces
+ */
 typedef struct{
 	byte IsMaster;
 	queue* OutboundQueue;
