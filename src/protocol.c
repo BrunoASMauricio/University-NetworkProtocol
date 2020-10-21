@@ -15,7 +15,7 @@ setMaster()
 	Hostname = "google.com";
 	HostInfo = gethostbyname (Hostname);
 
-	if (HostInfo == NULL)
+	if(HostInfo == NULL)
 	{
 		Self.IsMaster=false;
 	}
@@ -46,7 +46,7 @@ handlePR(PR_p* message)
 unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigned char* pbyAddress)
 {
     const char cSep = ':';
-	for (int iConunter = 0; iConunter < 6; ++iConunter)
+	for(int iConunter = 0; iConunter < 6; ++iConunter)
 	{
 		unsigned int iNumber = 0;
 		char ch;
@@ -54,7 +54,7 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 		//Convert letter into lower case.
 		ch = tolower (*pszMACAddress++);
 
-		if ((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
+		if((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
 		{
 			return NULL;
 		}
@@ -66,12 +66,12 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 		iNumber = isdigit (ch) ? (ch - '0') : (ch - 'a' + 10);
 		ch = tolower (*pszMACAddress);
 
-		if ((iConunter < 5 && ch != cSep) || 
+		if((iConunter < 5 && ch != cSep) || 
 			(iConunter == 5 && ch != '\0' && !isspace (ch)))
 		{
 			++pszMACAddress;
 
-			if ((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
+			if((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
 			{
 				return NULL;
 			}
@@ -80,7 +80,7 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 			iNumber += isdigit (ch) ? (ch - '0') : (ch - 'a' + 10);
 			ch = *pszMACAddress;
 
-			if (iConunter < 5 && ch != cSep)
+			if(iConunter < 5 && ch != cSep)
 			{
 				return NULL;
 			}
@@ -96,13 +96,14 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 byte*
 getIP()
 {
-    byte * ip=(byte*)malloc(sizeof(byte)*2);
+    byte* ip = (byte*)malloc(sizeof(byte)*2);
     FILE* fp;
 
     char mac_add_string [17];
     unsigned char mac_add_byte[6];
 
-    fp= fopen("/sys/class/net/enp0s5/address","r"); //this only works in debian
+    //NOTE(GoncaloXavier): Implemented by Rita, Linux only dependecy
+    fp = fopen("/sys/class/net/enp0s5/address","r"); 
 
     if(fp == NULL)
     {
@@ -118,8 +119,8 @@ getIP()
         return NULL;
     }
 
-    ip[0]=mac_add_byte[4];
-    ip[1]=mac_add_byte[5];
+    ip[0] = mac_add_byte[4];
+    ip[1] = mac_add_byte[5];
 
     return ip;
 }

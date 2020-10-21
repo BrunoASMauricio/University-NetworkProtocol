@@ -95,7 +95,7 @@ setup()
 	memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 	setMaster();
 
-	Self.OutboundQueue= newQueue();
+	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 
 	if (rc = pthread_create(&(Meta.WF_listener_t), NULL, WF_listener, NULL)) 
@@ -149,7 +149,7 @@ handler()
 void
 clean()
 {
-	if (Meta.Log) 
+	if(Meta.Log) 
     {
         fclose(Meta.Log);
     }
