@@ -86,6 +86,106 @@ fatalErr(const char *fmt, ...)
 	exit(EXIT_FAILURE);
 }
 
+void 
+testRoutingTable()
+{
+
+    table *Tbl;
+    
+    Tbl=newTable();
+
+    printf("Entry with higher qualilty must be on the top...\nPlease check if the table size corresponds with the announced one\n");
+
+    printf("Adding a 1st entry...\n");
+    
+    byte IP[2]={2,3};
+    double Qual = 8888.2;
+    double Avg = 222.4;
+    double Eff = 777.6;
+
+    table_entry *Entry;
+    Entry=insertOrUpdateEntry(Tbl,IP,Qual,Avg,Eff);
+    if(Entry==NULL) printf("Failed to insert entry\n");
+
+    printTableContent(Tbl);
+    printf("\n\n");
+
+    printf("Adding a 2nd entry...\n");
+
+    byte IP_[2]={4,4};
+    double Qual1 = 88.2;
+    double Avg1 = 222.4;
+    double Eff1 = 777.6;
+     
+    table_entry *Entry1;
+    Entry1=insertOrUpdateEntry(Tbl, IP_, Qual1, Avg1, Eff1);
+
+    printTableContent(Tbl);
+    printf("\n\n");
+
+    printf("Adding a 3rd entry...\n");
+
+    byte IP_0[2]={7,8};
+    double Qual2 = 1000.2;
+    double Avg2 = 222.4;
+    double Eff2 = 777.6;
+
+    table_entry *Entry2;
+    Entry2=insertOrUpdateEntry(Tbl, IP_0, Qual2, Avg2, Eff2);
+
+    printTableContent(Tbl);
+    printf("\n\n");
+
+    printf("Adding a 4th entry...\n");
+
+    byte IP_1[2]={1,1};
+    double Qual3 = 10000.2;
+    double Avg3 = 222.4;
+    double Eff3 = 777.6;
+
+    table_entry *Entry3;
+    Entry3=insertOrUpdateEntry(Tbl, IP_1, Qual3, Avg3, Eff3);  
+
+    printTableContent(Tbl);
+    printf("\n\n");
+
+    printf("Adding a 5th entry...\n");
+
+    byte IP_2[2]={2,2};
+    double Qual4 = 2000.2;
+    double Avg4 = 222.4;
+    double Eff4 = 777.6;
+     
+    table_entry *entry4;
+    entry4=insertOrUpdateEntry(Tbl, IP_2, Qual4, Avg4, Eff4);  
+
+    printTableContent(Tbl);
+    printf("\n\n");
+
+    printf("Updating entry with IP: 11 ...\n");
+
+    double QualUpd = 0.2;
+    insertOrUpdateEntry(Tbl, IP_1, QualUpd, Avg4, Eff4);  
+
+    printTableContent(Tbl);
+    printf("\n\n");
+
+    printf("Updating entry with IP: 44 ...\n");
+
+    double QualUpd_1 = 100.2;
+    insertOrUpdateEntry(Tbl, IP_, QualUpd_1, Avg4, Eff4);  
+
+    printTableContent(Tbl);
+    printf("\n\n");
+
+    printf("Updating entry with IP: 11 ...\n");
+    double QualUpd_2 = 1500.2;
+    insertOrUpdateEntry(Tbl, IP_1, QualUpd_2, Avg4, Eff4);  
+
+    printTableContent(Tbl);
+    printf("\n\n");
+}
+
 void
 testQueues()
 {
@@ -173,7 +273,7 @@ testAll(){
 	printf("Testing queue data structures\n");
 
 	testQueues();
-
+	testRoutingTable();
 
 
 

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "data.h"
+#include "routing_table.h"
 
 /*
  * Main function
@@ -92,7 +93,7 @@ void
 setup()
 {
 	int rc;
-	memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
+	//memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 	setMaster();
 
 	Self.OutboundQueue = newQueue();
