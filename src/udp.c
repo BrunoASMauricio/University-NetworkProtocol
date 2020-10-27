@@ -3,10 +3,11 @@
 
 socket_s* newSocket(int port)
 {
+	struct sockaddr_in servaddr;
 	socket_s* ret = (socket_s*)malloc(sizeof(socket_s));
 	ret->s = -1;
 	ret->port = port;
-	ret->sock_len = sizeof(sockaddr_in);
+	ret->sock_len = sizeof(servaddr);
 
 	memset((char *) &(ret->sockaddr), 0, ret->sock_len);
 	ret->sockaddr.sin_family = AF_INET;
