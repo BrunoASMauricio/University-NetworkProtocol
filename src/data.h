@@ -107,5 +107,6 @@ delQueue(queue* Q);
 
 meta_data Meta;
 node Self;
+byte  *ip;
 
 #endif
