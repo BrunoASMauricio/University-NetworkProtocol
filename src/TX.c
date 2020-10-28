@@ -22,7 +22,7 @@ HW_dispatcher(void*dummy)
 {
     printf("HW Dispatcher on\n");
     
-    int tam_master=0;  
+    int LengMaster=0;  
     byte *b; 
     
     socket_s* sockfd = newSocket(PORTHW);
@@ -30,19 +30,19 @@ HW_dispatcher(void*dummy)
 
     while (1)
     {
-        //  Sending========>    ID    sample      //
-       //                       2bytes 2bytes    //               
+        //  Sending========>    ID    sample      // 
+       //                       2bytes 2bytes    //  possible changes of these values: timestamp still to be defined //             
         
         if( Self.IsMaster == 1)
         {
-            b = (byte*) popFromQueue(&tam_master,Self.InternalQueue);
+            b = (byte*) popFromQueue(&LengMaster,Self.InternalQueue);
             
-            if (b == NULL) tam_master = 0;
-            if (tam_master > 0 )
+            if (b == NULL) LengMaster = 0;
+            if (LengMaster > 0 )
             {
                 sendToSocket(sockfd, b ,sizeof(byte)*4);               
             }
-            tam_master=0; 
+            LengMaster=0; 
         } 
         else 
         {
