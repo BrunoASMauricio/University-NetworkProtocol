@@ -14,9 +14,9 @@ typedef uint8_t byte;
 typedef struct table_entry
 {
     byte Neigh_IP[2];
-    double Distance;
-    double AvgSnr;
-    double EffectiveDistance;
+    short Distance;
+    short AvgSnr;
+    short  EffectiveDistance;
     struct table_entry *next;
 } table_entry;
 
@@ -56,7 +56,7 @@ table_entry* newEntry();
  * returns NULL if anything goes wrong
  */
 
-table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance);
+table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance);
 /**
  * prints routing table's content
  * return: number of entries if there's no problems

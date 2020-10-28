@@ -45,7 +45,7 @@ table_entry* newEntry(byte NeighIP[2], double Distance, double AvgSnr, double Ef
 
 }
 
-table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance)
+table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance)
 {
     if(tbl == NULL) return NULL;
 
@@ -160,7 +160,7 @@ int printTableContent(table *tbl)
 
     while(Aux != NULL){
 
-        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %lf Next: %p\n",tbl->size, Aux->Neigh_IP[0], Aux->Neigh_IP[1], Aux->Distance, Aux->next);
+        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %hi Next: %p\n",tbl->size, Aux->Neigh_IP[0], Aux->Neigh_IP[1], Aux->Distance, Aux->next);
         Aux=Aux->next;
         n++;
     }
