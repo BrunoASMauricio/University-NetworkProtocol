@@ -5,6 +5,7 @@
 #include "main.h"
 #include "debug.h"
 #include "udp.h"
+#include "routing_table.h"
 
 #define UNSET 255
 #define DEFAULT_QUEUE_SIZE
@@ -74,6 +75,7 @@ typedef struct{
 	queue* InboundQueue;
 	queue* InternalQueue;
 	byte IP[2];
+	table* Table;
 	// ...
 } node;
 

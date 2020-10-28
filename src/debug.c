@@ -94,7 +94,7 @@ testRoutingTable()
     
     Tbl=newTable();
 
-    printf("Entry with higher qualilty must be on the top...\nPlease check if the table size corresponds with the announced one\n");
+    printf("Entry with lowest distance must be on the top...\nPlease check if the table size corresponds with the announced one\n");
 
     printf("Adding a 1st entry...\n");
     
@@ -191,7 +191,7 @@ testRoutingTable()
 
 	printf("1st entry distance : %hi, 1st entry NextHop_IP: %d%d\n", entry5->Distance, entry5->Neigh_IP[0],entry5->Neigh_IP[1] );
 
-	printf("Gettings second position... \n");
+	printf("Getting second position... \n");
 	entry5= getEntryByPos(Tbl, 2);
 	printf("2nd entry distance : %hi, 2nd entry NextHop_IP: %d%d\n", entry5->Distance, entry5->Neigh_IP[0],entry5->Neigh_IP[1] );
 
