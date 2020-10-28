@@ -156,8 +156,8 @@ testRoutingTable()
     double Avg4 = 222.4;
     double Eff4 = 777.6;
      
-    table_entry *entry4;
-    entry4=insertOrUpdateEntry(Tbl, IP_2, Qual4, Avg4, Eff4);  
+    table_entry *Entry4;
+    Entry4=insertOrUpdateEntry(Tbl, IP_2, Qual4, Avg4, Eff4);  
 
     printTableContent(Tbl);
     printf("\n\n");
@@ -184,6 +184,17 @@ testRoutingTable()
 
     printTableContent(Tbl);
     printf("\n\n");
+
+	printf("Getting first position... \n");
+	table_entry* entry5;
+	entry5= getEntryByPos(Tbl, 1);
+
+	printf("1st entry distance : %lf, 1st entry NextHop_IP: %d%d\n", entry5->Distance, entry5->Neigh_IP[0],entry5->Neigh_IP[1] );
+
+	printf("Gettings second position... \n");
+	entry5= getEntryByPos(Tbl, 2);
+	printf("2nd entry distance : %lf, 2nd entry NextHop_IP: %d%d\n", entry5->Distance, entry5->Neigh_IP[0],entry5->Neigh_IP[1] );
+
 }
 
 void

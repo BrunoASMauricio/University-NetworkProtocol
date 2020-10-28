@@ -14,9 +14,9 @@ typedef uint8_t byte;
 typedef struct table_entry
 {
     byte Neigh_IP[2];
-    double Quality;
+    double Distance;
     double AvgSnr;
-    double EffectiveQuality;
+    double EffectiveDistance;
     struct table_entry *next;
 } table_entry;
 
@@ -51,6 +51,13 @@ table* newTable();
 table_entry* newEntry();
 
 /**
+ * inserts new entry on the routing table or updates an entry if the received IP is already there
+ * returns newly inserted or updated entry
+ * returns NULL if anything goes wrong
+ */
+
+table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance);
+/**
  * prints routing table's content
  * return: number of entries if there's no problems
  *         0 if tbl->size doesn't match the number of loop's iteration
@@ -70,6 +77,13 @@ bool removeEntry(table *tbl, byte neigh_IP[2]);
  * returns a pointer to the table entry associated with the IP.
  */
 table_entry* searchByIp(table *tbl, byte neigh_IP[2]);
+
+/**
+ * returns entry by pos
+ * returns null if anything goes wrong
+ */
+table_entry* getEntryByPos(table *tbl, int pos);
+ 
 
 #define TABLE_H
 #endif

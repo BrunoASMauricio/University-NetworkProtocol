@@ -23,7 +23,7 @@ table* newTable()
     return tbl;
 }
 
-table_entry* newEntry(byte NeighIP[2], double Quality, double AvgSnr, double EffectiveQuality)
+table_entry* newEntry(byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance)
 {
 
     /* allocate memory for new entry*/
@@ -33,11 +33,11 @@ table_entry* newEntry(byte NeighIP[2], double Quality, double AvgSnr, double Eff
     /* init with values*/
     memcpy(Entry->Neigh_IP,NeighIP, sizeof(Entry->Neigh_IP));
     
-    Entry->Quality=Quality;
+    Entry->Distance=Distance;
 
     /*check this after everything*/
     Entry->AvgSnr=AvgSnr;
-    Entry->EffectiveQuality= EffectiveQuality;
+    Entry->EffectiveDistance= EffectiveDistance;
 
     Entry->next=NULL;
 
@@ -45,7 +45,7 @@ table_entry* newEntry(byte NeighIP[2], double Quality, double AvgSnr, double Eff
 
 }
 
-table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Quality, double AvgSnr, double EffectiveQuality)
+table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance)
 {
     if(tbl == NULL) return NULL;
 
@@ -58,7 +58,7 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Quality, d
     /*if the table is empty and we just have to put there the entry*/
     if (tbl->size == 0)
     {
-        tbl->begin=newEntry(NeighIP, Quality, AvgSnr, EffectiveQuality);
+        tbl->begin=newEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
         if(tbl->begin == NULL)
         {
             pthread_mutex_unlock(&(tbl->lock));
@@ -74,7 +74,7 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Quality, d
    
     if(entry == NULL)
     {
-        aux=newEntry(NeighIP, Quality, AvgSnr, EffectiveQuality);
+        aux=newEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
         if(aux == NULL) 
         {
             pthread_mutex_unlock(&(tbl->lock));
@@ -88,11 +88,11 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Quality, d
         byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
         memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
         double StoreAvg= entry->AvgSnr;
-        double StoreEff= entry->EffectiveQuality;
+        double StoreEff= entry->EffectiveDistance;
         
         removeEntry(tbl, entry->Neigh_IP);
 
-        aux=newEntry(Store_IP, Quality, StoreAvg, StoreEff);
+        aux=newEntry(Store_IP, Distance, StoreAvg, StoreEff);
         tbl->size++;
     }
     /*
@@ -101,7 +101,7 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Quality, d
 
     if(tbl->begin->next == NULL) //if it exists and there's only one entry in the table, we are talking about the same entry
     {  
-        if (tbl->begin->Quality > aux->Quality)
+        if (tbl->begin->Distance < aux->Distance)
         {   
             tbl->begin->next=aux;
             tbl->begin->next->next=NULL;
@@ -125,7 +125,7 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], double Quality, d
 
         while( aux1 != NULL){
 
-            if(aux->Quality > aux1->Quality) break;
+            if(aux->Distance < aux1->Distance) break;
 
             aux2=aux1; //to store the previous
             aux1=aux1->next;
@@ -160,7 +160,7 @@ int printTableContent(table *tbl)
 
     while(Aux != NULL){
 
-        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Quality: %lf Next: %p\n",tbl->size, Aux->Neigh_IP[0], Aux->Neigh_IP[1], Aux->Quality, Aux->next);
+        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %lf Next: %p\n",tbl->size, Aux->Neigh_IP[0], Aux->Neigh_IP[1], Aux->Distance, Aux->next);
         Aux=Aux->next;
         n++;
     }
@@ -175,6 +175,7 @@ int printTableContent(table *tbl)
         return tbl->size;
     }
 }
+
 table_entry* searchByIp(table *tbl, byte neigh_IP[2])
 {
     
@@ -256,4 +257,24 @@ bool removeEntry(table *tbl, byte neigh_IP[2])
     return false;
 }
 
+table_entry* getEntryByPos(table *tbl, int pos){
 
+    if(tbl == NULL)
+    { 
+        printf("Tbl pointer is null\n");
+        return NULL;
+    }
+
+    table_entry* current = tbl->begin;
+    table_entry* store = NULL;
+    int i =0;
+
+    while(current != NULL && i !=pos){
+
+        store=current;
+        current=current->next;
+        i++;
+    }
+    return store;
+
+}
