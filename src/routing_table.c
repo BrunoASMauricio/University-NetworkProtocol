@@ -265,6 +265,8 @@ table_entry* getEntryByPos(table *tbl, int pos){
         return NULL;
     }
 
+    pthread_mutex_lock(&(tbl->lock));
+
     table_entry* current = tbl->begin;
     table_entry* store = NULL;
     int i =0;
@@ -275,6 +277,8 @@ table_entry* getEntryByPos(table *tbl, int pos){
         current=current->next;
         i++;
     }
+    
+    pthread_mutex_unlock(&(tbl->lock));
     return store;
 
 }
