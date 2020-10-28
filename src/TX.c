@@ -31,7 +31,9 @@ HW_dispatcher(void*dummy)
     while (1)
     {
         //  Sending========>    ID    sample      // 
-       //                       2bytes 2bytes    //  possible changes of these values: timestamp still to be defined //             
+       //                       2bytes 2bytes    //  possible changes of these values: timestamp still to be defined // 
+      //
+     //     Note: add 50ms to each timestamp then send to HW           
         
         if( Self.IsMaster == 1)
         {
