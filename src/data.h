@@ -10,6 +10,7 @@
 #define UNSET 255
 #define SAMPLE_SIZE 16
 #define PROTOCOL_VERSION 2
+#define MAXIMUM_PACKET_SIZE 4496	// 256 node network TB
 
 typedef uint8_t byte;
 
