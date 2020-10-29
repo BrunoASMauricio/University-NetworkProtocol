@@ -24,14 +24,18 @@ HW_dispatcher(void*dummy)
     
     int LengMaster=0;  
     byte *b; 
-    
+    byte *ip = (byte*)malloc(sizeof(byte)*TAMIP);
+    byte *TimeStamp = (byte*)malloc(sizeof(byte)*TAMTIMESTAMP );
+    byte *Sample = (byte*)malloc(sizeof(byte)*TAMSAMPLE);
+    byte *TotalSample = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE);
+
     socket_s* sockfd = newSocket(PORTHW);
     startSocket(sockfd);
 
     while (1)
     {
-        //  Sending========>    ID    sample      // 
-       //                       2bytes 2bytes    //  possible changes of these values: timestamp still to be defined // 
+        //  Sending========>    IP     TimeStamp sample      // 
+       //                       2bytes 2bytes    2bytes     //  possible changes of these values // 
       //
      //     Note: add 50ms to each timestamp then send to HW           
         
@@ -42,7 +46,19 @@ HW_dispatcher(void*dummy)
             if (b == NULL) LengMaster = 0;
             if (LengMaster > 0 )
             {
-                sendToSocket(sockfd, b ,sizeof(byte)*4);               
+                // b tem [IP TIMESTAMP  SAMPLE1..SAMPLE2..etc]
+                memcpy(ip, b, TAMIP);
+                memcpy(TimeStamp, b+TAMIP, TAMTIMESTAMP);
+
+                for(int i=0; i<NUMSAMPLES;i++){
+                    memcpy(Sample, b+TAMIP+TAMTIMESTAMP, TAMSAMPLE);
+                    //passar agr a info para o outro [IP TIME SAMPLES]
+                    memcpy(TotalSample, ip,TAMIP );
+                    memcpy(TotalSample+TAMIP,TimeStamp,TAMTIMESTAMP );
+                    memcpy(TotalSample+TAMTIMESTAMP+TAMIP, Sample,TAMSAMPLE );
+                    
+                    sendToSocket(sockfd, TotalSample ,sizeof(byte)*TAMTOTALSAMPLE); 
+                }      
             }
             LengMaster=0; 
         } 
