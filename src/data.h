@@ -138,6 +138,19 @@ popFromQueue(int* Size, queue* Q);
 void
 delQueue(queue* Q);
 
+/*
+ * Generate a new message structure from
+ * buffer
+ */
+in_message*
+newMessage(int size, void* buffer, timespec res);
+
+/*
+ * Clean a message structure
+ */
+void
+delMessage(in_message* Message);
+
 meta_data Meta;
 node Self;
 
