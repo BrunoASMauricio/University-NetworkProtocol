@@ -38,6 +38,13 @@ void
  */
 testQueues();
 
+/*
+ * Test PacketSize function
+ */
+void
+testPacketSize();
+
+
 void
 /*
  * Perform network/CPU measurements

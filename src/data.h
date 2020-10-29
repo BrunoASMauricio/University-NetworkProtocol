@@ -8,7 +8,8 @@
 #include "udp.h"
 
 #define UNSET 255
-#define DEFAULT_QUEUE_SIZE
+#define SAMPLE_SIZE 16
+#define PROTOCOL_VERSION 2
 
 typedef uint8_t byte;
 
@@ -32,6 +33,8 @@ typedef struct{
 } meta_data;
 
 // TOUCH THESE :)
+
+const int Packet_Sizes[11] = {-1, 56, 56, 80, 64, 144, 56, 40, 40, 40, 40};
 
 enum packet_type{
 	SD = 1,

@@ -97,6 +97,8 @@ testQueues()
 	int dummy;
 	char* dummy2;
 
+	printf("Testing queue data structures\n");
+
 	aq	= newQueue();
 	addToQueue((void*)buff4, strlen(buff4), aq, -2);
 	addToQueue((void*)buff3, strlen(buff3), aq, -1);
@@ -129,6 +131,24 @@ testQueues()
 	printf("%s\n\n", dummy2);
 
 	delQueue(aq);	
+}
+
+void
+testPacketSize(){
+	/*
+	printf("Testing PacketSize\n");
+
+	char SD_Test[999] = {0xff, 0x02, 0x99, ...};
+	char TB_Test[999] = {0xff, 0x02, 0x99, ...};
+	if(PacketSize(SD_Test) != 999)
+	{
+		printfErr("Packet Size returned wrong value. Expected %d, got %d\n", PacketSize(SD_Test), 999);
+	}
+	if(PacketSize(TB_Test) != 999)
+	{
+		printfErr("Packet Size returned wrong value. Expected %d, got %d\n", PacketSize(SD_Test), 999);
+	}
+	*/
 }
 
 void
@@ -170,12 +190,9 @@ testAll(){
 	
 	dumpBin(a, sizeof(a), ">>Hello %d: ", 4);
 
-	printf("Testing queue data structures\n");
-
 	testQueues();
-
-
-
+	
+	testPacketSize();
 
 
 	printf("Ending protocol test\n---------\n");
