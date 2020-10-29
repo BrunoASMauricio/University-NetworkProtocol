@@ -26,3 +26,56 @@ HW_dispatcher(void*dummy)
         sleep(1);
     }
 }
+
+
+void SD_TX(int Sample_Ammount, void* Samples)
+{
+	return;
+}
+
+void PB_TX(byte PBID[2])
+{
+	return;
+}
+
+void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
+{
+	return;
+}
+
+void PC_TX(byte Reached_IP, byte PBID[2], byte SNR)
+{
+	return;
+}
+
+void TA_TX(byte Originator_IP[2], byte PBID[2])
+{
+	return;
+}
+
+void TB_TX(byte PBID[2], timetable* tm, in_message* message)
+{
+	return;
+}
+
+void NE_TX(byte Proxy_IP[2])
+{
+	return;
+}
+
+void NEP_TX(byte Outsiders_IP[2])
+{
+	return;
+}
+
+void NER_TX(byte Outsiders_IP[2])
+{
+	return;
+}
+
+void NEA_TX(byte Outsiders_IP[2], byte PBID[2])
+{
+	return;
+}
+
+
