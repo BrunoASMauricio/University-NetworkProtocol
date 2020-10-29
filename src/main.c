@@ -130,7 +130,7 @@ void
 handler()
 {
 	void* Message;
-
+	
 	while (1)
     {
 		Message = getMessage();
