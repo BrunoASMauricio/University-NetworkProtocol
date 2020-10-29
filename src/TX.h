@@ -7,18 +7,12 @@
 #include "main.h"
 
 #define PORTHW     8080 
-#define MAXLINE 1024 
-#define MAXBITSIP 16 //bits 
-#define MAXSAMPLES 10  
-#define MAXBITSSAMPLE 16 // bits
 
-// LEN IN BITS
-#define INITIP  8
-#define LENIP   16
-#define INITSA  48
-#define LENSA   8
-#define INITS   56
-#define LENS    16
+#define TAMTIMESTAMP    2   // 2 bytes the timestamp
+#define TAMSAMPLE   2   // 2 bytes the sample of WS
+#define TAMIP   2   //  2 bytes the ip
+#define TAMTOTALSAMPLE TAMIP+TAMSAMPLE+TAMTIMESTAMP //TOTAL TIME
+#define NUMSAMPLES 10 //could be alterated
 
 #define TX_H
 
