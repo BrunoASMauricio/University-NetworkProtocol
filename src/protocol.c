@@ -30,13 +30,17 @@ int
 getPacketSize(void* buf){
 	int type, version;
 	version = ((char*)buf)[0] & 0xf0 >> 4;
+
 	if(version != PROTOCOL_VERSION)
 	{
 		printfErr("Wrong version. Got %d, was expecting %d\n", version, PROTOCOL_VERSION);
 		return -1;
 	}
+
    	type = ((char*)buf)[0] & 0x0f;
-	switch(type){
+	   
+	switch(type)
+	{
 		case SD:
 			return Packet_Sizes[SD] + ((char*)buf)[7]*SAMPLE_SIZE;
 		case TB:
