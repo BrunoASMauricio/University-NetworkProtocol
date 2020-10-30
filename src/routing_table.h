@@ -1,7 +1,4 @@
-
 #ifndef TABLE_H
-
-
 
 typedef uint8_t byte;
 
@@ -31,8 +28,6 @@ typedef struct table_entry
     int size;
 	pthread_mutex_t lock;
  } table;
-
-
 
 /********************************/
 
