@@ -255,7 +255,6 @@ testQueues()
 }
 
 void
-<<<<<<< src/debug.c
 testPacketSize(){
 	/*
 	printf("Testing PacketSize\n");
