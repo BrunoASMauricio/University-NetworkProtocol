@@ -50,7 +50,8 @@ HW_dispatcher(void*dummy)
                 memcpy(ip, b, TAMIP);
                 memcpy(TimeStamp, b+TAMIP, TAMTIMESTAMP);
 
-                for(int i=0; i<NUMSAMPLES;i++){
+                for(int i=0; i<NUMSAMPLES;i++)
+                {
                     memcpy(Sample, b+TAMIP+TAMTIMESTAMP, TAMSAMPLE);
                     //passar agr a info para o outro [IP TIME SAMPLES]
                     memcpy(TotalSample, ip,TAMIP );
@@ -58,7 +59,11 @@ HW_dispatcher(void*dummy)
                     memcpy(TotalSample+TAMTIMESTAMP+TAMIP, Sample,TAMSAMPLE );
                     
                     sendToSocket(sockfd, TotalSample ,sizeof(byte)*TAMTOTALSAMPLE); 
-                }      
+                }
+
+                // LAST THING TO DO: after sending the first set of N Samples will be incremented 50ms (1/20) to the next N Samples on timestamp //
+               //                                                                    and will always repeat this for the next N samples         //
+
             }
             LengMaster=0; 
         } 
