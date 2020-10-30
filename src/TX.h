@@ -28,17 +28,17 @@ sendMessage(void* msg);
 void SD_TX(int Sample_Ammount, void* Samples);
 
 /*
- * Creates a PB message
+ * Creates a PB message and adds to outbound queue 
  */
 void PB_TX();
 
 /*
- * Handles a PR message
+ * Creates a PR message and adds to outbound queue 
  */
 void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR);
 
 /*
- * Handles a PC message
+ * Creates a PC message and adds to outbound queue 
  */
 void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR);
 
