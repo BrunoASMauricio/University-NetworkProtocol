@@ -51,7 +51,9 @@ void PB_TX()
     PBPacket[5]= (FirstEntry->Distance >> 8) &0xff;
     PBPacket[6]= FirstEntry->Distance &0xff;
 
-	addToQueue(newOutMessage(size, PBPacket), size, Self.OutboundQueue, 1);
+	out_message* message = newOutMessage(size, PBPacket);
+
+	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 
 	return;
 }
@@ -77,7 +79,8 @@ void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
     PRPacket[8]=FirstEntry->Distance &0xff;
     PRPacket[9]=SNR;
 
-	addToQueue(newOutMessage(size, PRPacket), size, Self.OutboundQueue, 1);
+	out_message* message = newOutMessage(size, PRPacket);
+	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 	return;
 }
 
@@ -99,7 +102,8 @@ void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
     PCPacket[6]=PBID[1];
     PCPacket[7]=SNR;
 
-	addToQueue(newOutMessage(size, PCPacket), size, Self.OutboundQueue, 1);
+	out_message* message = newOutMessage(size, PCPacket);
+	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 
 	return;
 }
