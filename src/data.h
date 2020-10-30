@@ -51,6 +51,16 @@ enum packet_type{
 	NEA
 };
 
+/*
+ * Holds a message to send
+ */
+typedef struct{
+	int size;				// Buffer allocated size/total message size
+	void* buf;				// Buffer where the message is stored
+} out_message;
+/*
+ * Holds a received message
+ */
 typedef struct{
 	int size;				// Buffer allocated size/total message size
 	void* buf;				// Buffer where the message is stored
@@ -146,13 +156,26 @@ delQueue(queue* Q);
  * buffer
  */
 in_message*
-newMessage(int size, void* buffer, timespec res);
+newInMessage(int size, void* buffer, timespec res);
 
 /*
  * Clean a message structure
  */
 void
-delMessage(in_message* Message);
+delInMessage(in_message* Message);
+
+/*
+ * Generate a new message structure from
+ * buffer
+ */
+out_message*
+newOutMessage(int size, void* buffer);
+
+/*
+ * Clean a message structure
+ */
+void
+delOutMessage(out_message* Message);
 
 meta_data Meta;
 node Self;

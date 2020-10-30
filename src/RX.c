@@ -39,7 +39,7 @@ WF_listener(void* dummy)
 			continue;
 		}
 
-		addToQueue(newMessage(packet_size, buff, res), 8, Self.InboundQueue, 1);
+		addToQueue(newInMessage(packet_size, buff, res), 8, Self.InboundQueue, 1);
 
 		// We received more than one packet
 		if(packet_size < read_bytes)

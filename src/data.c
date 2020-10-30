@@ -102,7 +102,7 @@ delQueue(queue* Q)
 	free(Q);
 }
 
-in_message* newMessage(int size, void* buffer, timespec res)
+in_message* newInMessage(int size, void* buffer, timespec res)
 {
 	in_message* ret = (in_message*)malloc(sizeof(in_message));
 
@@ -114,7 +114,28 @@ in_message* newMessage(int size, void* buffer, timespec res)
 	return ret;
 }
 
-void delMessage(in_message* Message)
+void delInMessage(in_message* Message)
+{
+	if(Message == NULL)
+	{
+		return;
+	}
+	free(Message->buf);
+	free(Message);
+}
+
+
+out_message* newOutMessage(int size, void* buffer)
+{
+	out_message* ret = (out_message*)malloc(sizeof(out_message));
+
+	ret->size = size;
+	ret->buf = (void*)malloc(size);
+
+	return ret;
+}
+
+void delOutMessage(out_message* Message)
 {
 	if(Message == NULL)
 	{
