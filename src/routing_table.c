@@ -1,21 +1,19 @@
 #include "routing_table.h"
 
-
 table* newTable()
 {
-
-     table *tbl = (table*) malloc(sizeof(table));
+    table *tbl = (table*) malloc(sizeof(table));
 
     if(tbl == NULL)
     {
         printf("Could not create routing table\n");
         return NULL;
     }
-    if (pthread_mutex_init(&(tbl->lock), NULL) != 0)
-        {
-        fatalErr("mutex init failed for table lock\n");
-        }
 
+    if (pthread_mutex_init(&(tbl->lock), NULL) != 0)
+    {
+        fatalErr("mutex init failed for table lock\n");
+    }
 
     tbl->begin = NULL;
     tbl->size=0; //starts with size 0
@@ -25,9 +23,9 @@ table* newTable()
 
 table_entry* newEntry(byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance)
 {
-
     /* allocate memory for new entry*/
     table_entry *Entry = (table_entry*)malloc(sizeof(table_entry));
+
     if (Entry==NULL) return NULL;
 
     /* init with values*/
@@ -42,7 +40,6 @@ table_entry* newEntry(byte NeighIP[2], double Distance, double AvgSnr, double Ef
     Entry->next=NULL;
 
     return Entry;
-
 }
 
 table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance)
@@ -59,11 +56,13 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
     if (tbl->size == 0)
     {
         tbl->begin=newEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
-        if(tbl->begin == NULL)
-        {
-            pthread_mutex_unlock(&(tbl->lock));
-            return NULL;
-        }
+
+            if(tbl->begin == NULL)
+            {
+                pthread_mutex_unlock(&(tbl->lock));
+                return NULL;
+            }
+
         tbl->size++;
         pthread_mutex_unlock(&(tbl->lock));
         return tbl->begin;
@@ -75,11 +74,13 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
     if(entry == NULL)
     {
         aux=newEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
-        if(aux == NULL) 
-        {
-            pthread_mutex_unlock(&(tbl->lock));
-            return NULL;
-        }
+
+            if(aux == NULL) 
+            {
+                pthread_mutex_unlock(&(tbl->lock));
+                return NULL;
+            }
+            
         tbl->size++;
     } 
     else //if there's already an entry
@@ -123,8 +124,8 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
         aux1=tbl->begin;
         aux2=aux1;
 
-        while( aux1 != NULL){
-
+        while( aux1 != NULL)
+        {
             if(aux->Distance < aux1->Distance) break;
 
             aux2=aux1; //to store the previous
@@ -148,20 +149,18 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
     
     pthread_mutex_unlock(&(tbl->lock));
     return NULL;
-
 }
 
 int printTableContent(table *tbl)
 {
-
     pthread_mutex_lock(&(tbl->lock));
-    table_entry *Aux = tbl->begin;
+    table_entry *aux = tbl->begin;
     int n=0;
 
-    while(Aux != NULL){
-
-        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %hi Next: %p\n",tbl->size, Aux->Neigh_IP[0], Aux->Neigh_IP[1], Aux->Distance, Aux->next);
-        Aux=Aux->next;
+    while(aux != NULL)
+    {
+        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %hi Next: %p\n",tbl->size, aux->Neigh_IP[0], aux->Neigh_IP[1], aux->Distance, aux->next);
+        aux=aux->next;
         n++;
     }
     if (n != tbl->size) 
@@ -178,7 +177,6 @@ int printTableContent(table *tbl)
 
 table_entry* searchByIp(table *tbl, byte neigh_IP[2])
 {
-    
     table_entry *Ptr = tbl->begin;
 
     while(Ptr != NULL)
@@ -187,17 +185,14 @@ table_entry* searchByIp(table *tbl, byte neigh_IP[2])
             {
                 return Ptr;
             }
+
             Ptr = Ptr->next;
-
         }
-    
     return NULL;
-
 }
 
 bool removeEntry(table *tbl, byte neigh_IP[2])
 {
-
     table_entry *Current = NULL;
     table_entry *Prev = NULL;
  
@@ -208,7 +203,6 @@ bool removeEntry(table *tbl, byte neigh_IP[2])
         return false;
     } 
 
-    
     if(memcmp(tbl->begin->Neigh_IP, neigh_IP, sizeof(tbl->begin->Neigh_IP)) == 0)
     {
         if(tbl->begin->next!= NULL)
@@ -233,7 +227,7 @@ bool removeEntry(table *tbl, byte neigh_IP[2])
     else if((memcmp(tbl->begin->Neigh_IP, neigh_IP, sizeof(tbl->begin->Neigh_IP)) != 0) && (tbl->begin->next == NULL)) 
     {
         printf("IP %d.%d not found in table\n", neigh_IP[0],neigh_IP[1]);
-      
+
         return false;
     }
 
@@ -243,7 +237,6 @@ bool removeEntry(table *tbl, byte neigh_IP[2])
     {
         Prev = Current;
         Current = Current->next;
-      
     }        
 
     if((memcmp(Current-> Neigh_IP, neigh_IP, sizeof(tbl->begin->Neigh_IP)) == 0)) 
@@ -252,13 +245,13 @@ bool removeEntry(table *tbl, byte neigh_IP[2])
         free(Current);  
         tbl->size--;
     } 
-    else printf("IP %d.%d not found in table\n", neigh_IP[0],neigh_IP[1] );
+    else printf("IP %d.%d not found in table\n", neigh_IP[0],neigh_IP[1]);
      
     return false;
 }
 
-table_entry* getEntryByPos(table *tbl, int pos){
-
+table_entry* getEntryByPos(table *tbl, int pos)
+{
     if(tbl == NULL)
     { 
         printf("Tbl pointer is null\n");
@@ -271,8 +264,8 @@ table_entry* getEntryByPos(table *tbl, int pos){
     table_entry* store = NULL;
     int i =0;
 
-    while(current != NULL && i !=pos){
-
+    while(current != NULL && i !=pos)
+    {
         store=current;
         current=current->next;
         i++;
@@ -280,5 +273,4 @@ table_entry* getEntryByPos(table *tbl, int pos){
     
     pthread_mutex_unlock(&(tbl->lock));
     return store;
-
 }
