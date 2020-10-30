@@ -1,6 +1,6 @@
 #include "routing_table.h"
 
-table* newTable()
+table* routNewTable()
 {
     table *tbl = (table*) malloc(sizeof(table));
 
