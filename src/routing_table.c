@@ -13,7 +13,7 @@ table* newTable()
     }
     if (pthread_mutex_init(&(tbl->lock), NULL) != 0)
         {
-        //fatalErr("mutex init failed for table lock\n");
+        fatalErr("mutex init failed for table lock\n");
         }
 
 
