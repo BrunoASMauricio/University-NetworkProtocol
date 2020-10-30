@@ -72,7 +72,6 @@ HW_dispatcher(void*dummy)
             printf(" \n I'm a Slave. Nothing to do here.\n");
         }
     }
-<<<<<<< src/TX.c
     free(b);   
     close(sockfd->port); 
 }
