@@ -130,7 +130,7 @@ setup()
 void
 handler()
 {
-	void* Message;
+	in_message* Message;
 
 	while (1)
     {
@@ -139,13 +139,34 @@ handler()
 		switch (((byte*)Message)[0])
         {
 			case SD:
-				handleSD(Message);
+				SD_RX(Message);
 				break;
 			case PB:
-				handlePB(Message);
+				PB_RX(Message);
 				break;
 			case PR:
-				handlePR(Message);
+				PR_RX(Message);
+				break;
+			case PC:
+				PC_RX(Message);
+				break;
+			case TA:
+				TA_RX(Message);
+				break;
+			case TB:
+				TB_RX(Message);
+				break;
+			case NE:
+				NE_RX(Message);
+				break;
+			case NEP:
+				NEP_RX(Message);
+				break;
+			case NER:
+				NER_RX(Message);
+				break;
+			case NEA:
+				NEA_RX(Message);
 				break;
 			default:
 				printf("Unrecognized Message type %d\n", ((byte*)Message)[0]);

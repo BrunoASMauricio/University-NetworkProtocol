@@ -1,3 +1,4 @@
+
 #ifndef DATA
 #define DATA
 
@@ -35,21 +36,49 @@ typedef struct{
 enum packet_type{
 	SD = 1,
 	PB,
-	PR
+	PR,
+	PC,
+	TB,
+	TA,
+	NE,
+	NEP,
+	NER,
+	NEA
 };
+
+typedef struct{
+	int size;				// Buffer allocated size/total message size
+	void* buf;				// Buffer where the message is stored
+	long int received_time;	// input timestamp
+	short SNR;				// link quality (perhaps not SNR)
+} in_message;
 
 typedef struct{
 	long int Data;
 }sample;
 
+
+typedef struct{
+	pthread_mutex_t lock;
+	byte PBID[2];
+	byte** IPs;
+	int IP_amm;
+	void* bitmap;
+	byte bitmap_size;
+	long int sync_timestamp;
+	short validity_delay;
+} timetable_msg;
+
+typedef struct{
+	byte timeslot_size;
+	short table_size;
+	byte local_slots;
+} timetable;
+
+
 /*
  * Queue related data types
  */
-enum priority{
-	Normal = 0,
-	Sync
-};
-
 
 typedef struct{
 	void* Packet;
@@ -64,6 +93,7 @@ typedef struct{
 	pthread_mutex_t Lock;
 	int Size;
 } queue;
+
 
 /*
  * Internal queue is only handled by the WS and HW interfaces
