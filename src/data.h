@@ -120,6 +120,7 @@ typedef struct{
 	queue* InternalQueue;
 	byte IP[2];
 	table* Table;
+	short PB_PBID;
 	// ...
 } node;
 

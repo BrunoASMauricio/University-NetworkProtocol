@@ -28,9 +28,9 @@ sendMessage(void* msg);
 void SD_TX(int Sample_Ammount, void* Samples);
 
 /*
- * Handles a PB message
+ * Creates a PB message
  */
-void PB_TX(byte PBID[2]);
+void PB_TX();
 
 /*
  * Handles a PR message
@@ -40,7 +40,7 @@ void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR);
 /*
  * Handles a PC message
  */
-void PC_TX(byte Reached_IP, byte PBID[2], byte SNR);
+void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR);
 
 /*
  * Handles a TA message

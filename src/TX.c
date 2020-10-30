@@ -33,18 +33,74 @@ void SD_TX(int Sample_Ammount, void* Samples)
 	return;
 }
 
-void PB_TX(byte PBID[2])
+void PB_TX()
 {
+	int size = sizeof(byte)*7;
+	byte* PBPacket = (byte*)malloc(size);
+	
+    if(PBPacket == NULL){
+        fatalErr("Couldn't assign memory to PB Packet \n");
+    }
+
+    table_entry* FirstEntry =routGetEntryByPos(Self.Table, 1);
+    PBPacket[0]=(PROTOCOL_VERSION<<4)+2;
+    PBPacket[1]=Self.IP[0];
+    PBPacket[2]=Self.IP[1];
+    PBPacket[3]= (Self.PB_PBID >> 8) &0xff;
+    PBPacket[4]= Self.PB_PBID &0xff ;
+    PBPacket[5]= (FirstEntry->Distance >> 8) &0xff;
+    PBPacket[6]= FirstEntry->Distance &0xff;
+
+	addToQueue(newOutMessage(size, PBPacket), size, Self.OutboundQueue, 1);
+
 	return;
 }
 
 void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
 {
+	int size= sizeof(byte)*10;
+	byte* PRPacket = (byte*)malloc(size);
+
+    if(PRPacket == NULL){
+        fatalErr("Couldn't assign memory to PB Packet \n");
+    }
+
+    table_entry* FirstEntry = routGetEntryByPos(Self.Table, 1);
+    PRPacket[0]=(PROTOCOL_VERSION<<4)+3;
+    PRPacket[1]=Self.IP[0];
+    PRPacket[2]=Self.IP[1];
+    PRPacket[3]=Originator_IP[0];
+    PRPacket[4]=Originator_IP[1];
+    PRPacket[5]=PBID[0];
+    PRPacket[6]=PBID[1];
+    PRPacket[7]=(FirstEntry->Distance >> 8) &0xff;
+    PRPacket[8]=FirstEntry->Distance &0xff;
+    PRPacket[9]=SNR;
+
+	addToQueue(newOutMessage(size, PRPacket), size, Self.OutboundQueue, 1);
 	return;
 }
 
-void PC_TX(byte Reached_IP, byte PBID[2], byte SNR)
+void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
 {
+	int size= sizeof(byte)*8;
+	byte* PCPacket = (byte*)malloc(size);
+
+    if(PCPacket == NULL){
+        fatalErr("Couldn't assign memory to PB Packet \n");
+    }
+
+    PCPacket[0]=(PROTOCOL_VERSION<<4)+4;
+    PCPacket[1]=Self.IP[0];
+    PCPacket[2]=Self.IP[1];
+    PCPacket[3]=Reached_IP[0];
+    PCPacket[4]=Reached_IP[1];
+    PCPacket[5]=PBID[0];
+    PCPacket[6]=PBID[1];
+    PCPacket[7]=SNR;
+
+	addToQueue(newOutMessage(size, PCPacket), size, Self.OutboundQueue, 1);
+
 	return;
 }
 

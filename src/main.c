@@ -95,12 +95,14 @@ setup()
 	int rc;
 	//memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 	setMaster();
+	Self.PB_PBID=1;
+
+	
 
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
 	Self.Table= routNewTable();
-
 
 	Meta.Input_socket = newSocket(INBOUND_PORT);
 	startSocket(Meta.Input_socket);
