@@ -27,7 +27,8 @@ setMaster()
 }
 
 int
-getPacketSize(void* buf){
+getPacketSize(void* buf)
+{
 	int type, version;
 	version = ((char*)buf)[0] & 0xf0 >> 4;
 

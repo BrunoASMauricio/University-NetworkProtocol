@@ -120,6 +120,7 @@ void delInMessage(in_message* Message)
 	{
 		return;
 	}
+
 	free(Message->buf);
 	free(Message);
 }
@@ -141,6 +142,7 @@ void delOutMessage(out_message* Message)
 	{
 		return;
 	}
+	
 	free(Message->buf);
 	free(Message);
 }
