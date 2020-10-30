@@ -1,5 +1,5 @@
 #include "protocol.h"
-
+#include "debug.c"
 
 void 
 setMaster()
@@ -29,7 +29,35 @@ setMaster()
 void
 handleSD(void* message)
 {
+	int operator = 15; //0000 1111
 	
+	if(message[0]&operator != 1)
+	{
+	fatalErr("Error: how did you even get here, a not SD packet is inside SD, message[0]) %d", message[0]&operator;
+	}
+
+	if(message[2] == 0)
+	{
+		fatalErr("Error: TTL was 0 when should not");
+	}
+
+	if(Self.IsMaster = true)
+	{
+		//add para a queue da interface de HW do rodrigo [IP | SAMPLE]  e depois mudar para isto[IP | SAMPE | TIMESTAMP]
+		double DataToHW[message[7] + 2];
+		DataToHW[0]=message[3];
+		DataToHW[1]=message[4];//dao source IP á HW
+		
+		for  (int i = 0; i < message[7]; i++)
+		{
+			DataToHW[i+2] = message[7+i];
+		}
+		
+
+	}
+
+
+
 }
 
 void
