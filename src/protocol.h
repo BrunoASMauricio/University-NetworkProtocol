@@ -17,6 +17,12 @@ typedef uint8_t byte;
 void
 setMaster();
 
+/*
+ * Returns the size of the packet in buf
+ * Returns -1 on undefine message type/wrong version
+ */
+int
+getPacketSize(void* buf);
 
 void
 handleSD(void* message);

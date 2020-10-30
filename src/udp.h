@@ -3,7 +3,7 @@
 
 #define INBOUND_PORT 2020
 #define OUTBOUND_PORT 2021
-#define MAX_TRANS_SIZE 2048
+#define MAX_TRANS_SIZE 4496
 
 #include<arpa/inet.h>
 #include<sys/socket.h>

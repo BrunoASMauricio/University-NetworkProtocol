@@ -9,7 +9,9 @@
 #include "routing_table.h"
 
 #define UNSET 255
-#define DEFAULT_QUEUE_SIZE
+#define SAMPLE_SIZE 16
+#define PROTOCOL_VERSION 2
+#define MAXIMUM_PACKET_SIZE 4496	// 256 node network TB
 
 typedef uint8_t byte;
 
@@ -34,6 +36,8 @@ typedef struct{
 
 // TOUCH THESE :)
 
+const int Packet_Sizes[11] = {-1, 56, 56, 80, 64, 144, 56, 40, 40, 40, 40};
+
 enum packet_type{
 	SD = 1,
 	PB,
@@ -47,6 +51,16 @@ enum packet_type{
 	NEA
 };
 
+/*
+ * Holds a message to send
+ */
+typedef struct{
+	int size;				// Buffer allocated size/total message size
+	void* buf;				// Buffer where the message is stored
+} out_message;
+/*
+ * Holds a received message
+ */
 typedef struct{
 	int size;				// Buffer allocated size/total message size
 	void* buf;				// Buffer where the message is stored
@@ -136,6 +150,32 @@ popFromQueue(int* Size, queue* Q);
  */
 void
 delQueue(queue* Q);
+
+/*
+ * Generate a new message structure from
+ * buffer
+ */
+in_message*
+newInMessage(int size, void* buffer, timespec res);
+
+/*
+ * Clean a message structure
+ */
+void
+delInMessage(in_message* Message);
+
+/*
+ * Generate a new message structure from
+ * buffer
+ */
+out_message*
+newOutMessage(int size, void* buffer);
+
+/*
+ * Clean a message structure
+ */
+void
+delOutMessage(out_message* Message);
 
 meta_data Meta;
 node Self;

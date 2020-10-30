@@ -26,6 +26,36 @@ setMaster()
 	
 }
 
+int
+getPacketSize(void* buf)
+{
+	int type, version;
+	version = ((char*)buf)[0] & 0xf0 >> 4;
+
+	if(version != PROTOCOL_VERSION)
+	{
+		printfErr("Wrong version. Got %d, was expecting %d\n", version, PROTOCOL_VERSION);
+		return -1;
+	}
+
+   	type = ((char*)buf)[0] & 0x0f;
+	   
+	switch(type)
+	{
+		case SD:
+			return Packet_Sizes[SD] + ((char*)buf)[7]*SAMPLE_SIZE;
+		case TB:
+			return Packet_Sizes[TB] + ((short*)buf)[8]*2*8 + ((short*)buf)[8];
+		default:
+			if(type > sizeof(Packet_Sizes) -1)
+			{
+				printfErr("Unrecognized Message type %d\n", type);
+				return -1;
+			}
+			return Packet_Sizes[type];
+	}
+}
+
 void
 handleSD(void* message)
 {
