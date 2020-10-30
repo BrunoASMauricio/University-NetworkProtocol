@@ -35,12 +35,10 @@ clean();
 
 #include "data.c"
 #include "udp.c"
+#include "routing_table.c"
 #include "debug.c"
 #include "protocol.c"
 #include "RX.c"
 #include "TX.c"
-
-
-
 
 #endif

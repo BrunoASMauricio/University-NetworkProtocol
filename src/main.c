@@ -1,5 +1,6 @@
 #include "main.h"
 #include "data.h"
+#include "routing_table.h"
 
 /*
  * Main function
@@ -98,6 +99,7 @@ setup()
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
+	Self.Table= newTable();
 
 
 	Meta.Input_socket = newSocket(INBOUND_PORT);

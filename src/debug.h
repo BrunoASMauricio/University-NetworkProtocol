@@ -33,6 +33,12 @@ void
 fatalErr(const char *fmt, ...);
 
 void
+/**
+ * Test the routing table manipulation functions
+ */
+ testRoutingTable();
+ 
+void
 /*
  * Test the queue manipulation functions
  */
