@@ -99,7 +99,7 @@ setup()
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
-	Self.Table= newTable();
+	Self.Table= routNewTable();
 
 
 	Meta.Input_socket = newSocket(INBOUND_PORT);
