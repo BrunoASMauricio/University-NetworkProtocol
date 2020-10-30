@@ -96,6 +96,11 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 byte*
 getIP()
 {
+
+	if(Self.IP[0] != 0 && Self.IP[1] != 0){
+		return Self.IP;
+	}
+
     byte* ip = (byte*)malloc(sizeof(byte)*2);
     FILE* fp;
 
