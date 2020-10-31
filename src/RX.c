@@ -14,6 +14,8 @@ WF_listener(void* dummy)
 	printf("WF Listener on\n");
 	while(1)
 	{
+        //NOTE(GoncaloXavier): buff+PrevBytes -> prevent overwrite in case of more 
+        //than 1 packet recevided last iteration.
 		ReadBytes = getFromSocket(Meta.Input_socket, buff+PrevBytes);
 		PrevBytes = 0;
 
