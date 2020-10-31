@@ -8,11 +8,11 @@
 
 #define PORTHW     8080 
 
-#define TAMTIMESTAMP    2   // 2 bytes the timestamp
-#define TAMSAMPLE   2   // 2 bytes the sample of WS
-#define TAMIP   2   //  2 bytes the ip
-#define TAMTOTALSAMPLE TAMIP+TAMSAMPLE+TAMTIMESTAMP //TOTAL TIME
-#define NUMSAMPLES 10 //could be alterated
+#define TIMESTAMPLENGTH     2   // 2 bytes the timestamp
+#define SAMPLELENGTH        2   // 2 bytes the sample of WS
+#define IPLENGTH            2   //2 bytes the ip
+#define TOTALSAMPLELENGTH IPLENGTH+SAMPLELENGTH+TIMESTAMPLENGTH //TOTAL LENGTH
+#define NUMSAMPLES          10 //could be alterated
 
 #define TX_H
 
