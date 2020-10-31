@@ -65,28 +65,7 @@ handleSD(void* message)
 void
 handlePB(void* message)
 {
-		byte sender_ip=	(((byte *)message)[1]<<8) + ((byte *)message)[2];
-		byte pbid_pair=	(((byte *)message)[3]<<8) + ((byte *)message)[4];
-		byte distance	=	(((byte *)message)[5]<<8) + ((byte *)message)[6];
-
-
-		if(distance != 65535)
-		{
-			if(true/*pbid_searchPair(ip_pair, pbid_pair, tbl)*/)	//checks if ip-pbid pair is in the table
-			{
-				//if pair ip-pbid is present in table, the node should send a PR packet.
-				//calculate SNR
-				byte snr=0xff;		//example
-				PR_TX(&sender_ip,&pbid_pair,snr);
-
-			}
-			else	//if not in ip-pbid table, it should send a network entry packet.
-			{
-				//createNEPacket();
-			}
-
-		}
-		return;
+		
 }
 
 void
