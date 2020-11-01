@@ -5,21 +5,24 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 	va_list args;
     va_start(args, fmt);
     vfprintf(stdout, fmt, args);
+
 	for(int i = 0; i < size; i++)
     {
 		fprintf(stdout, "0x%02hhx ", buf[i]);
 	}
+
 	fprintf(stdout, "\n");
 
 	va_end(args);
+
 	if (Meta.Log)
     {
 		va_start(args, fmt);
 		vfprintf(Meta.Log, fmt, args);
-		for(int i = 0; i < size; i++)
-        {
-			fprintf(Meta.Log, "0x%02hhx ", buf[i]);
-		}
+			for(int i = 0; i < size; i++)
+        	{
+				fprintf(Meta.Log, "0x%02hhx ", buf[i]);
+			}
 		fprintf(Meta.Log, "\n");
 		va_end(args);
 	}
@@ -32,13 +35,16 @@ printfLog(const char *fmt, ...)
     va_start(args, fmt);
     vfprintf(stdout, fmt, args);
 	va_end(args);
-	if (Meta.Log) {
+
+	if (Meta.Log) 
+	{
 		fprintf(Meta.Log, "[!] ");
 		va_start(args, fmt);
 		vfprintf(Meta.Log, fmt, args);
 		va_end(args);
 		//fflush(Meta.Log);
 	}
+
 	fflush(stdout);
 }
 
@@ -51,7 +57,9 @@ printfErr(const char *fmt, ...)
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
     va_end(args);
-	if (Meta.Log) {
+
+	if (Meta.Log) 
+	{
 		fprintf(Meta.Log, "[X] ");
 		va_start(args, fmt);
 		vfprintf(Meta.Log, fmt, args);
@@ -66,6 +74,7 @@ fatalErr(const char *fmt, ...)
 {
 	FILE* t;
 	va_list args;
+
 	if((t = fopen("./fatal", "w")) != NULL) 
     {
 		va_start(args, fmt);
@@ -77,11 +86,13 @@ fatalErr(const char *fmt, ...)
     {
 		fprintf(stderr, "Could not create \"fatal\" file\n");
 	}
+
 	va_start(args, fmt);
 	fprintf(stderr, "[XX]");
     vfprintf(stderr, fmt, args);
 	fflush(stderr);
     va_end(args);
+	
 	clean();
 	exit(EXIT_FAILURE);
 }
@@ -89,7 +100,6 @@ fatalErr(const char *fmt, ...)
 void 
 testRoutingTable()
 {
-
     table *Tbl;
     
     Tbl=newTable();
@@ -334,6 +344,7 @@ testQueues()
 }
 
 void
+<<<<<<< src/debug.c
 testPacketSize(){
 	/*
 	printf("Testing PacketSize\n");
@@ -352,12 +363,14 @@ testPacketSize(){
 }
 
 void
-performMeasurements(){
+performMeasurements()
+{
 	struct timespec res;
 	struct timespec res2;
 
 	long avg = 0;
 	long total = 0;
+
 	for(int i = 0; i < 100; i++)
 	{
 		clock_gettime(CLOCK_REALTIME, &res);
@@ -366,6 +379,7 @@ performMeasurements(){
 		total++;
 		// sleep(1); <-- this changes the average, why
 	}
+
 	printf("clock_gettime(CLOCK_REAL_TIME) average sampling delay: %lld\n", avg/total);
 }
 
@@ -398,11 +412,8 @@ testAll(){
 
 	testTimeTable();
 
-
 	printf("Ending protocol test\n---------\n");
 	printf("Starting protocol measurements\n---------\n");
 	performMeasurements();
 	printf("Ending protocol measurements\n---------\n");
-
-
 }

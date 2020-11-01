@@ -4,17 +4,18 @@
 void*
 WF_listener(void* dummy)
 {
-	char buff[MAXIMUM_PACKET_SIZE*2];		// *2 to prevent overflow on buff+prev_bytes
-	int packet_size;
-	int read_bytes = 0;
-	int prev_bytes = 0;
+	char buff[MAXIMUM_PACKET_SIZE*2];		// *2 to prevent overflow on buff+PrevBytes
+	int PacketSize;
+	int ReadBytes = 0;
+	int PrevBytes = 0;
 	in_message* message;
 	timespec res;
 
 	printf("WF Listener on\n");
-	while(1){
-		read_bytes = getFromSocket(Meta.Input_socket, buff+prev_bytes);
-		prev_bytes = 0;
+	while(1)
+	{
+		ReadBytes = getFromSocket(Meta.Input_socket, buff+PrevBytes);
+		PrevBytes = 0;
 
 		if(clock_gettime(CLOCK_REALTIME, &res) == -1)
 		{
@@ -23,32 +24,33 @@ WF_listener(void* dummy)
 			continue;
 		}
 
-		packet_size = getPacketSize(buff);
-		if(packet_size == -1)
+		PacketSize = getPacketSize(buff);
+
+		if(PacketSize == -1)
 		{
-			dumpBin(buff, read_bytes, "Packet size returned -1, dumping buffer\n");
+			dumpBin(buff, ReadBytes, "Packet size returned -1, dumping buffer\n");
 			continue;
 		}
 
-		if(packet_size > read_bytes)
+		if(PacketSize > ReadBytes)
 		{
 			// Undefined behaviour, just ignore for now
 			// Eventually we could try to receive more and "complete the packet"?
 			// This could fail so a "timer" would be needed. Too complex?
-			dumpBin(buff, read_bytes, "Packet size (%d) is more than what was received (%d).\n", packet_size, read_bytes);
+			dumpBin(buff, ReadBytes, "Packet size (%d) is more than what was received (%d).\n", PacketSize, ReadBytes);
 			continue;
 		}
 
-		addToQueue(newInMessage(packet_size, buff, res), 8, Self.InboundQueue, 1);
+		addToQueue(newInMessage(PacketSize, buff, res), 8, Self.InboundQueue, 1);
 
 		// We received more than one packet
-		if(packet_size < read_bytes)
+		if(PacketSize < ReadBytes)
 		{
 			// Copy the last of the read bytes, to the beggining of the buffer
-			prev_bytes = packet_size;
-			for(int i = 0; packet_size+i < read_bytes; packet_size++, i++)
+			PrevBytes = PacketSize;
+			for(int i = 0; PacketSize+i < ReadBytes; PacketSize++, i++)
 			{
-				buff[i] = buff[packet_size+i];
+				buff[i] = buff[PacketSize+i];
 			}
 		}
 
