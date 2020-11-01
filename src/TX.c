@@ -70,7 +70,11 @@ HW_dispatcher(void*dummy)
             printf(" \n I'm a Slave. Nothing to do here.\n");
         }
     }
-    free(Popped);   
+    free(Popped);
+    free(ip);   
+    free(TimeStamp);   
+    free(Sample); 
+    free(TotalSample);    
     close(sockfd->port); 
 }
 
