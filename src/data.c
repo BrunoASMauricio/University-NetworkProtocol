@@ -1,6 +1,6 @@
 #include "data.h"
 
-#define SETBIT(bit,byte) byte != (1 << bit)
+#define SETBIT(bit,byte) byte |= (1 << bit)
 #define CLEARBIT(bit,byte) byte &= ~(1 << bit)
 
 queue*
