@@ -23,7 +23,7 @@ HW_dispatcher(void*dummy)
     printf("HW Dispatcher on\n");
     
     int PacketSize=0;  
-    byte *Popped; 
+    byte *Popped = (byte*)malloc(sizeof(byte)*(IPLENGTH+TIMESTAMPLENGTH+(SAMPLELENGTH*NUMSAMPLES)));  
     byte *ip = (byte*)malloc(sizeof(byte)*IPLENGTH);
     byte *TimeStamp = (byte*)malloc(sizeof(byte)*TIMESTAMPLENGTH);
     byte *Sample = (byte*)malloc(sizeof(byte)*SAMPLELENGTH);
@@ -46,9 +46,9 @@ HW_dispatcher(void*dummy)
             if (Popped == NULL) PacketSize = 0;
             if (PacketSize > 0 )
             {
-                // [IP TIMESTAMP  SAMPLE1..SAMPLE2..etc]
+                
                 memcpy(TotalSample, Popped, IPLENGTH);
-                memcpy(TotalSample, Popped+IPLENGTH, TIMESTAMPLENGTH);
+                memcpy(TotalSample+IPLENGTH, Popped+IPLENGTH, TIMESTAMPLENGTH);
 
                 for(int i=0; i<NUMSAMPLES;i++)
                 {
@@ -59,7 +59,7 @@ HW_dispatcher(void*dummy)
                     sendToSocket(sockfd, TotalSample ,sizeof(byte)*TOTALSAMPLELENGTH); 
                 }
 
-                // LAST THING TO DO: after sending the first set of N Samples will be incremented 50ms (1/20) to the next N Samples on timestamp //
+                // LAST THING TO DO: after sending the first set of Samples will be incremented 50ms (1/20) to the next Samples on timestamp //
                //                                                                    and will always repeat this for the next N samples         //
 
             }
