@@ -52,9 +52,9 @@ HW_dispatcher(void*dummy)
 
                 for(int i=0; i<NUMSAMPLES;i++)
                 {
-                    memcpy(Sample, Popped+IPLENGTH+TIMESTAMPLENGTH+SAMPLELENGTH*i, SAMPLELENGTH);                    
-                    
-                    memcpy(TotalSample+TIMESTAMPLENGTH+IPLENGTH,Sample,SAMPLELENGTH);
+                    memcpy(TotalSample + IPLENGTH + TIMESTAMPLENGTH, 
+                            Popped + IPLENGTH + TIMESTAMPLENGTH + SAMPLELENGTH*i, 
+                                SAMPLELENGTH);
                     
                     sendToSocket(sockfd, TotalSample ,sizeof(byte)*TOTALSAMPLELENGTH); 
                 }
