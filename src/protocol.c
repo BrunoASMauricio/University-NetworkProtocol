@@ -38,7 +38,7 @@ getPacketSize(void* buf){
    	type = ((char*)buf)[0] & 0x0f;
 	switch(type){
 		case SD:
-			return Packet_Sizes[SD] + ((char*)buf)[7]*SAMPLE_SIZE;
+			return Packet_Sizes[SD] + ((char*)buf)[6]*SAMPLE_SIZE;
 		case TB:
 			return Packet_Sizes[TB] + ((short*)buf)[8]*2*8 + ((short*)buf)[8];
 		default:

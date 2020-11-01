@@ -80,14 +80,17 @@ typedef struct{
 	int IP_amm;
 	void* bitmap;
 	byte bitmap_size;
-	long int sync_timestamp;
+	unsigned long int sync_timestamp;
 	short validity_delay;
 } timetable_msg;
 
+// All 64 bits to avoid operation mistakes
+// Most of the operations would be 64 bits either way
 typedef struct{
-	byte timeslot_size;
-	short table_size;
-	byte local_slots;
+	unsigned long int timeslot_size;	//timeslot size (1 byte padded)
+	unsigned long int table_size;		//timetable size (2 bytes padded)
+	unsigned long int  local;			//local slot (0 to N(umber of nodes)) (1 byte padded)
+	unsigned long int sync;
 } timetable;
 
 
@@ -120,6 +123,7 @@ typedef struct{
 	queue* InternalQueue;
 	byte IP[2];
 	table* Table;
+	timetable* TimeTable;
 	// ...
 } node;
 
