@@ -1,6 +1,117 @@
 #include "protocol.h"
 
 
+void startRetransmission(retransmitable message_type)
+{
+	timespec Res;
+	unsigned long int Act;
+	pthread_mutex_lock(&(Self.Rt.Lock));
+
+	SETBIT(message_type, Self.Rt.Retransmitables);
+	
+	clock_gettime(CLOCK_REALTIME, &Res);
+	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+	switch(message_type){
+		case rTB:
+			Self.Rt.Time_TB = Act + RETRANSMISSION_DELAY_TB;
+			break;
+		case rPR:
+			Self.Rt.Time_PR = Act + RETRANSMISSION_DELAY_PR;
+			break;
+		case rNE:
+			Self.Rt.Time_NE = Act + RETRANSMISSION_DELAY_NE;
+			break;
+		case rNER:
+			Self.Rt.Time_NER = Act + RETRANSMISSION_DELAY_NER;
+			break;
+	}
+	
+	pthread_mutex_unlock(&(Self.Rt.Lock));
+}
+void stopRetransmission(retransmitable message_type)
+{
+	pthread_mutex_lock(&(Self.Rt.Lock));
+	CLEARBIT(message_type, Self.Rt.Retransmitables);
+	pthread_mutex_unlock(&(Self.Rt.Lock));
+}
+
+void* retransmit(void* dummy)
+{
+	unsigned long int earliest;
+	unsigned long int Act;
+	timespec Res;
+	printf("Retransmission thread on\n");
+	while(1)
+	{
+		earliest = 0;
+		clock_gettime(CLOCK_REALTIME, &Res);
+		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+
+		pthread_mutex_lock(&(Self.Rt.Lock));
+		
+		if(Self.Rt.Retransmitables & rTB)
+		{
+			if(Act > Self.Rt.Time_TB)
+			{
+				// TB_TX();
+				Self.Rt.Time_TB += RETRANSMISSION_DELAY_TB;
+			}
+			else if(Self.Rt.Time_TB > earliest)
+			{
+				earliest = Self.Rt.Time_TB;
+			}
+		}
+		if(Self.Rt.Retransmitables & rPR)
+		{
+			if(Act > Self.Rt.Time_PR)
+			{
+				// PR_TX();
+				Self.Rt.Time_PR += RETRANSMISSION_DELAY_PR;
+			}
+			else if(Self.Rt.Time_PR > earliest)
+			{
+				earliest = Self.Rt.Time_PR;
+			}
+		}
+		if(Self.Rt.Retransmitables & rNE)
+		{
+			if(Act > Self.Rt.Time_NE)
+			{
+				// NE_TX();
+				Self.Rt.Time_NE += RETRANSMISSION_DELAY_NE;
+			}
+			else if(Self.Rt.Time_NE > earliest)
+			{
+				earliest = Self.Rt.Time_NE;
+			}
+		}
+		if(Self.Rt.Retransmitables & rNER)
+		{
+			if(Act > Self.Rt.Time_NER)
+			{
+				// NER_TX();
+				Self.Rt.Time_NER += RETRANSMISSION_DELAY_NER;
+			}
+			else if(Self.Rt.Time_NER > earliest)
+			{
+				earliest = Self.Rt.Time_NER;
+			}
+		}
+
+		pthread_mutex_unlock(&(Self.Rt.Lock));
+		
+		if(earliest)
+		{
+			usleep(earliest/1000);
+		}
+		else
+		{
+			usleep(DEFAULT_RETRANSMIT_CHECK);
+		}
+	}
+	return NULL;
+}
+
 void 
 setMaster()
 {

@@ -26,6 +26,7 @@ typedef struct{
 	pthread_t WF_dispatcher_t;
 	pthread_t WS_listener_t;
 	pthread_t HW_dispatcher_t;
+	pthread_t Retransmission_t;
 
 	socket_s* Input_socket;
 	socket_s* Output_socket;
@@ -74,22 +75,45 @@ typedef struct{
 
 
 typedef struct{
-	pthread_mutex_t lock;
+	pthread_mutex_t Lock;
 	byte PBID[2];
 	byte** IPs;
 	int IP_amm;
-	void* bitmap;
-	byte bitmap_size;
-	long int sync_timestamp;
-	short validity_delay;
+	void* Bitmap;
+	byte Bitmap_size;
+	long int Sync_timestamp;
+	short Validity_delay;
 } timetable_msg;
 
 typedef struct{
-	byte timeslot_size;
-	short table_size;
-	byte local_slots;
+	byte Timeslot_size;
+	short Table_size;
+	byte Local_slots;
 } timetable;
 
+/*
+ * The retransmitable messages
+ */
+enum retransmitable{
+	rTB = 1,
+	rPR,
+	rNE,
+	rNER
+};
+
+/*
+ * Struct that helps control message
+ * retransmission
+ */
+typedef struct{
+	pthread_mutex_t Lock;
+	timetable_msg* Tm;
+	byte Retransmitables;		// The retransmission bitmap
+	unsigned long int Time_TB;
+	unsigned long int Time_PR;
+	unsigned long int Time_NE;
+	unsigned long int Time_NER;
+}retransmission;
 
 /*
  * Queue related data types
@@ -120,6 +144,7 @@ typedef struct{
 	queue* InternalQueue;
 	byte IP[2];
 	table* Table;
+	retransmission Rt;
 	// ...
 } node;
 
