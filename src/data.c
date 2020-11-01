@@ -412,8 +412,6 @@ pbid_ip_table* pbidInitializeTable()
   return table_head;
 }
 
-
-
 void pbidInsertPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head)
 {
 	pbid_ip_pairs* table = table_head->first_pair;
@@ -589,4 +587,22 @@ buildNERMessage(byte* NextHopIP, byte* OutsiderIP)
     out_message* NERMessage = newOutMessage(Packet_Sizes[NER], packet);
     
     return NERMessage;
+}
+
+out_message* 
+buildNEPMessage(byte* SenderIP, byte* OutsiderIP)
+{
+    void* buff;
+    
+    byte packet[5]; 
+    //NOTE(GoncaloXavier): Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NE;
+    packet[1] = SenderIP[0];
+    packet[2] = SenderIP[1];
+    packet[3] = OutsiderIP[0];
+    packet[4] = OutsiderIP[1];
+    
+    out_message* NEPMessage = newOutMessage(Packet_Sizes[NEP], packet);
+    
+    return NEPMessage;
 }

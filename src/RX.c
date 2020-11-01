@@ -1,7 +1,5 @@
 #include "RX.h"
 #include "data.h"
-#include "protocol.h"
-
 
 void*
 WF_listener(void* dummy)
@@ -393,11 +391,19 @@ void TB_RX(in_message* msg)
 
 void NE_RX(in_message* msg)
 {
+    //NOTE(GoncaloXavier): Maybe this will be implemented by NE Handling,
+    //writing here to get use case 1st, can delete later based on Handling 
+    //implementation
+    //Assuming we get from msg->SenderIP and OutsideIP in byte*:
+    //Use case: buildNEPMessage(SenderIP, OutsiderIP);
 	return;
 }
 
 void NEP_RX(in_message* msg)
 {
+    //If node received NEP, it should cancel retransmission of NE 
+    //stopRetransmission(retransmitable message_type);
+    //Use case: stopRetransmission(rNE);????
 	return;
 }
 
