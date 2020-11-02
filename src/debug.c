@@ -255,6 +255,27 @@ testQueues()
 }
 
 void
+testLists()
+{
+	List* L = newList();
+	printf("Testing lists\n");
+	char buff0[10] = "EL0";
+	char buff1[10] = "EL1";
+	char buff2[10] = "EL2";
+	insertInList(L, buff0, -1);
+	insertInList(L, buff1, 1);
+	insertInList(L, buff2, 5);
+	removeFromList(L, 1);
+	removeFromList(L, 1);
+	removeFromList(L, 1); // These two should not work because now there is
+	removeFromList(L, 1); // only 1 element (position 0)
+	printf("Got:\n");
+	printList(L);
+	printf("Expected:\nList size: 1\nEL0\n");
+	delList(L);
+}
+
+void
 testPacketSize(){
 	/*
 	printf("Testing PacketSize\n");
@@ -319,6 +340,8 @@ testAll(){
 	testPacketSize();
 
 	testRoutingTable();
+
+	testLists();
 
 
 	printf("Ending protocol test\n---------\n");

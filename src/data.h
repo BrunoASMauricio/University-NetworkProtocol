@@ -133,6 +133,21 @@ typedef struct{
 	int Size;
 } queue;
 
+/*
+ * List related data types
+ */
+
+typedef struct{
+	void* Next;
+	void* Buff;
+}List_el;
+
+typedef struct{
+	pthread_mutex_t Lock;
+	List_el* First;
+	List_el* Last;
+	int Size;
+}List;
 
 /*
  * Internal queue is only handled by the WS and HW interfaces
@@ -201,6 +216,35 @@ newOutMessage(int size, void* buffer);
  */
 void
 delOutMessage(out_message* Message);
+
+List* newList();
+
+void delList(List* L);
+
+
+void
+/*
+ * Inserts a new element with the stored buffer, at position position
+ * in the list
+ * If the position is negative, inserts in the beggining of the list
+ * If the position is equal or higher than the list size, in the end
+ */
+insertInList(List* L, void* buffer, int position);
+
+void
+/*
+ * Prints the contents in the buffers of a list
+ * Assumes they are '\0' terminated
+ */
+printList(List* L);
+
+void*
+/*
+ * Removes element at the given position
+ * Returns removed element buffer or NULL if position
+ * is negative or higher than list size
+ */
+removeFromList(List* L, int position);
 
 meta_data Meta;
 node Self;

@@ -44,6 +44,12 @@ void
  */
 testQueues();
 
+void
+/*
+ * Tests the basic list implementation
+ */
+testLists();
+
 /*
  * Test PacketSize function
  */
