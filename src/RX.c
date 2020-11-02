@@ -404,6 +404,8 @@ void NEP_RX(in_message* msg)
     //If node received NEP, it should cancel retransmission of NE 
     //stopRetransmission(retransmitable message_type);
     //Use case: stopRetransmission(rNE);????
+    //Change possible Self.Status to simbolize that it already communicated 
+    //with proxy
 	return;
 }
 
