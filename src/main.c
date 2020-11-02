@@ -101,6 +101,8 @@ setup()
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
 	Self.Table = routNewTable();
+	Self.SubSlaves = newIPList();
+	Self.OutsideSlaves= newIPList();
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {

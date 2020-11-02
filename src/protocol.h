@@ -54,6 +54,25 @@ generateTB();
 void
 setMaster();
 
+// The following 6 functions are wrappers for the IP list functions
+void
+insertSubSlave(byte IP[2]);
+
+bool
+getSubSlave(byte IP[2]);
+
+void
+removeSubSlave(byte IP[2]);
+
+void
+insertSubSlave(byte IP[2]);
+
+bool
+getSubSlave(byte IP[2]);
+
+void
+removeSubSlave(byte IP[2]);
+
 /*
  * Returns the size of the packet in buf
  * Returns -1 on undefine message type/wrong version

@@ -276,6 +276,29 @@ testLists()
 }
 
 void
+testIPLists()
+{
+	IPList* IPL = newIPList();
+	byte IP0[2] = {1,2};
+	byte IP1[2] = {3,4};
+	byte IP2[2] = {5,6};
+
+	printf("Testing IP Lists\n");
+	printf("Got:\n");
+	printf("%d\n", getIPFromList(IPL, IP0));
+	insertIPList(IPL, IP0);
+	insertIPList(IPL, IP0);
+	printf("%d\n", getIPFromList(IPL, IP0));
+	insertIPList(IPL, IP1);
+	removeIPList(IPL, IP0);
+	printf("%d ", IPL->L->Size);
+	printf("%d ", getIPFromList(IPL, IP1));
+	printf("%d\n", getIPFromList(IPL, IP0));
+	printf("Expected:\n0\n1\n1 1 0\n");
+	delIPList(IPL);
+}
+
+void
 testPacketSize(){
 	/*
 	printf("Testing PacketSize\n");
@@ -342,6 +365,8 @@ testAll(){
 	testRoutingTable();
 
 	testLists();
+
+	testIPLists();
 
 
 	printf("Ending protocol test\n---------\n");

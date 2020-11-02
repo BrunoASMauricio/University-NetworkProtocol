@@ -112,10 +112,46 @@ void* retransmit(void* dummy)
 	return NULL;
 }
 
-void 
+void
+insertSubSlave(byte IP[2])
+{
+	insertIPList(Self.SubSlaves, IP);
+}
+
+bool
+getSubSlave(byte IP[2])
+{
+	return getIPFromList(Self.SubSlaves, IP);
+}
+
+void
+removeSubSlave(byte IP[2])
+{
+	removeIPList(Self.SubSlaves, IP);
+}
+
+void
+insertOutsideSlave(byte IP[2])
+{
+	insertIPList(Self.OutsideSlaves, IP);
+}
+
+bool
+getOutsideSlave(byte IP[2])
+{
+	return getIPFromList(Self.OutsideSlaves, IP);
+}
+
+void
+removeOutsideSlave(byte IP[2])
+{
+	removeIPList(Self.OutsideSlaves, IP);
+}
+
+void
 setMaster()
 {
-	const char *Hostname;   
+	const char *Hostname;
 	struct hostent *HostInfo;
 	
 	if(Self.IsMaster != UNSET)
@@ -150,13 +186,13 @@ getPacketSize(void* buf)
 	}
 
    	type = ((char*)buf)[0] & 0x0f;
-	   
+	
 	switch(type)
 	{
 		case SD:
 			return Packet_Sizes[SD] + ((char*)buf)[6]*SAMPLE_SIZE;
 		case TB:
-            //NOTE(GoncaloXavier): As per clarification on MR !9 - WF: 
+            //NOTE(GoncaloXavier): As per clarification on MR !9 - WF:
             //((short*)buf)[8]*2*8->Table size (2 bytes) nº of IP's * IP size
             //((short*)buf)[8] -> bitmap size
 			return Packet_Sizes[TB] + ((short*)buf)[8]*2*8 + ((short*)buf)[8];
@@ -203,14 +239,14 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 			return NULL;
 		}
 
-		//Convert into number. 
+		//Convert into number.
 		//       a. If character is digit then ch - '0'
 		//	b. else (ch - 'a' + 10) it is done 
 		//	because addition of 10 takes correct value.
 		iNumber = isdigit (ch) ? (ch - '0') : (ch - 'a' + 10);
 		ch = tolower (*pszMACAddress);
 
-		if((iConunter < 5 && ch != cSep) || 
+		if((iConunter < 5 && ch != cSep) ||
 			(iConunter == 5 && ch != '\0' && !isspace (ch)))
 		{
 			++pszMACAddress;
@@ -259,7 +295,7 @@ getIP()
        printf("Could not open mac address file. Errno set to: %d\n", errno);
        return NULL;
     }
-    
+	
     fscanf(fp,"%s",mac_add_string );
 
     if( ConverMacAddressStringIntoByte(mac_add_string, mac_add_byte)== NULL)

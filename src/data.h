@@ -143,12 +143,15 @@ typedef struct{
 }List_el;
 
 typedef struct{
-	pthread_mutex_t Lock;
 	List_el* First;
 	List_el* Last;
 	int Size;
 }List;
 
+typedef struct{
+	pthread_mutex_t Lock;
+	List* L;
+}IPList;
 /*
  * Internal queue is only handled by the WS and HW interfaces
  */
@@ -160,6 +163,8 @@ typedef struct{
 	byte IP[2];
 	table* Table;
 	retransmission Rt;
+	IPList* SubSlaves;
+	IPList* OutsideSlaves;
 	// ...
 } node;
 
@@ -245,6 +250,45 @@ void*
  * is negative or higher than list size
  */
 removeFromList(List* L, int position);
+
+IPList*
+/*
+ * Returns an IP List
+ * IP List operations are THREAD SAFE
+ */
+newIPList();
+
+void
+/*
+ * Destroys an IP List
+ * THREAD SAFE
+ */
+delIPList(IPList* IPL);
+
+bool
+/*
+ * Returns true if the IP is in the given IP list,
+ * false otherwise
+ * THREAD SAFE
+ */
+getIPFromList(IPList* IPL, byte IP[2]);
+
+void
+/*
+ * Insert an IP into an IP List
+ * Only does so if it doesn't already exist
+ * THREAD SAFE
+ */
+insertIPList(IPList* IPL, byte IP[2]);
+
+void
+/*
+ * Remove an IP from an IP List
+ * THREAD SAFE
+ */
+removeIPList(IPList* IPL, byte IP[2]);
+
+
 
 meta_data Meta;
 node Self;

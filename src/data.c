@@ -111,10 +111,6 @@ List* newList()
 	L->First= NULL;
 	L->Last= NULL;
 	L->Size = 0;
-	if (pthread_mutex_init(&(L->Lock), NULL) != 0)
-    {
-        fatalErr("mutex init failed for new list lock\n");
-    }
 	return L;
 }
 
@@ -124,7 +120,6 @@ void delList(List* L)
 	{
 		removeFromList(L, 0);
 	}
-	pthread_mutex_destroy(&(L->Lock));
 	free(L);
 }
 
@@ -137,14 +132,11 @@ void insertInList(List* L, void* buffer, int position)
 	New_el->Buff = buffer;
 	New_el->Next= NULL;
 
-	pthread_mutex_lock(&(L->Lock));
-
 	if(L->Size <= 0)
 	{
 		L->First = New_el;
 		L->Last = New_el;
 		L->Size += 1;
-		pthread_mutex_unlock(&(L->Lock));
 		return;
 	}
 
@@ -153,7 +145,7 @@ void insertInList(List* L, void* buffer, int position)
 		L->Last->Next = New_el;
 		L->Last = New_el;
 	}
-	else if(position == 0)
+	else if(position <= 0)
 	{
 		New_el->Next = L->First;
 		L->First = New_el;
@@ -169,8 +161,6 @@ void insertInList(List* L, void* buffer, int position)
 		Helper->Next = New_el;
 	}
 	L->Size += 1;
-
-	pthread_mutex_unlock(&(L->Lock));
 }
 
 void printList(List* L)
@@ -190,11 +180,8 @@ void* removeFromList(List* L, int position)
 	List_el* Helper;
 	List_el* ToFree;
 
-	pthread_mutex_lock(&(L->Lock));
-
 	if(L->Size == 0 || position >= L->Size)
 	{
-		pthread_mutex_unlock(&(L->Lock));
 		return NULL;
 	}
 
@@ -203,6 +190,7 @@ void* removeFromList(List* L, int position)
 		Helper = (List_el*)L->First->Next;
 		buffer = L->First->Buff;
 		free(L->First);
+		L->First = Helper;
 	}
 	else
 	{
@@ -218,9 +206,89 @@ void* removeFromList(List* L, int position)
 	}
 	L->Size -= 1;
 
-	pthread_mutex_unlock(&(L->Lock));
-
 	return buffer;
+}
+
+
+IPList* newIPList()
+{
+	IPList* IPL = (IPList*)malloc(sizeof(IPList));
+	IPL->L = newList();
+	if (pthread_mutex_init(&(IPL->Lock), NULL) != 0)
+    {
+        fatalErr("mutex init failed for new IP list lock\n");
+    }
+	return IPL;
+}
+
+void delIPList(IPList* IPL)
+{
+	pthread_mutex_destroy(&(IPL->Lock));
+	delList(IPL->L);
+	free(IPL);
+}
+
+
+bool
+getIPFromList(IPList* IPL, byte IP[2])
+{
+	List_el* Helper;
+	pthread_mutex_lock(&(IPL->Lock));
+	Helper = IPL->L->First;
+	while(Helper != NULL)
+	{
+		if(((byte*)(Helper->Buff))[0] == IP[0] &&
+		   ((byte*)(Helper->Buff))[1] == IP[1])
+		{
+			pthread_mutex_unlock(&(IPL->Lock));
+			return true;
+		}
+		Helper = (List_el*)Helper->Next;
+	}
+	pthread_mutex_unlock(&(IPL->Lock));
+	return false;
+}
+
+void
+insertIPList(IPList* IPL, byte IP[2])
+{
+	List_el* Helper;
+	pthread_mutex_lock(&(IPL->Lock));
+	Helper = IPL->L->First;
+	while(Helper != NULL)
+	{
+		if(((byte*)(Helper->Buff))[0] == IP[0] &&
+		   ((byte*)(Helper->Buff))[1] == IP[1])
+		{
+			// Already exists
+			pthread_mutex_unlock(&(IPL->Lock));
+			return;
+		}
+		Helper = (List_el*)Helper->Next;
+	}
+	insertInList(IPL->L, IP, -1);
+	pthread_mutex_unlock(&(IPL->Lock));
+}
+
+void
+removeIPList(IPList* IPL, byte IP[2])
+{
+	List_el* Helper;
+	pthread_mutex_lock(&(IPL->Lock));
+	Helper = IPL->L->First;
+	for(int i = 0; Helper != NULL; i++)
+	{
+		if(((byte*)(Helper->Buff))[0] == IP[0] &&
+		   ((byte*)(Helper->Buff))[1] == IP[1])
+		{
+			// Not the most efficient way, but simple
+			removeFromList(IPL->L, i);
+			pthread_mutex_unlock(&(IPL->Lock));
+			return;
+		}
+		Helper = (List_el*)Helper->Next;
+	}
+	pthread_mutex_unlock(&(IPL->Lock));
 }
 
 in_message* newInMessage(int size, void* buffer, timespec res)
