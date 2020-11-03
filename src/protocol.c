@@ -176,8 +176,9 @@ setMaster()
 int
 getPacketSize(void* buf)
 {
-	int type, version;
-	version = ((char*)buf)[0] & 0xf0 >> 4;
+	byte type, version;
+	int helper;
+	version = (((byte*)buf)[0] >> 4) & 0x0f;
 
 	if(version != PROTOCOL_VERSION)
 	{
@@ -190,12 +191,30 @@ getPacketSize(void* buf)
 	switch(type)
 	{
 		case SD:
-			return Packet_Sizes[SD] + ((char*)buf)[6]*SAMPLE_SIZE;
+			helper = ((char*)buf)[6]*SAMPLE_SIZE;
+			if(8*(helper/8) != helper)
+			{
+				helper = helper/8 +1;
+			}
+			else
+			{
+				helper /= 8;
+			}
+			return Packet_Sizes[SD] + helper;
 		case TB:
             //NOTE(GoncaloXavier): As per clarification on MR !9 - WF:
             //((short*)buf)[8]*2*8->Table size (2 bytes) nº of IP's * IP size
             //((short*)buf)[8] -> bitmap size
-			return Packet_Sizes[TB] + ((short*)buf)[8]*2*8 + ((short*)buf)[8];
+			helper = ((short*)buf)[8];
+			if(8*(helper/8) != helper)
+			{
+				helper = helper/8 +1;
+			}
+			else
+			{
+				helper /= 8;
+			}
+			return Packet_Sizes[TB] + ((short*)buf)[8]*2 + helper;
 		default:
 			if(type > sizeof(Packet_Sizes) -1)
 			{
@@ -345,6 +364,22 @@ bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 	return (0x80 >> place) & local_byte[0];
 }
 
+timetable* newTimeTable()
+{
+	timetable* tm = (timetable*)malloc(sizeof(timetable));
+	if(pthread_mutex_init(&(tm->Lock), NULL) != 0)
+    {
+        fatalErr("mutex init failed for new IP list lock\n");
+    }
+	return tm;
+}
+
+void delTimeTable(timetable* tm)
+{
+	pthread_mutex_destroy(&(tm->Lock));
+	free(tm);
+}
+
 void* generateTB()
 {
 	timespec res;
@@ -352,25 +387,54 @@ void* generateTB()
 	byte rest;
 	byte* IP;
 	int ip_amm;
+	short* IPHolder;
+	int size;
+
 	pthread_mutex_lock(&(Self.SubSlaves->Lock));
+	printf("Building TB\n");
 	ip_amm = Self.SubSlaves->L->Size;
-	buff = (void*)malloc(Packet_Sizes[TB]+ip_amm*(2*8+1));
-	((byte*)buff)[0] = (0xff00 & (PROTOCOL_VERSION<<4)) | TB;
+	size = (ip_amm+1)*(2*8+1);
+	if(8*(size/8) != size)
+	{
+		size = size/8 + 1;
+	}
+	else
+	{
+		size /= 8;
+	}
+	size += Packet_Sizes[TB];
+
+	buff = (void*)malloc(size);
+	printf("Allocating %d bytes for TB\n", size);
+	((byte*)buff)[0] = (0xf0 & (PROTOCOL_VERSION<<4)) | TB;
 	((byte*)buff)[1] = Self.IP[0];
 	((byte*)buff)[2] = Self.IP[1];
 	((byte*)buff)[3] = Self.TB_PBID[0];
 	((byte*)buff)[4] = Self.TB_PBID[1];
+	clock_gettime(CLOCK_REALTIME, &res);
 	((unsigned long int*)((byte*)buff+5))[0] = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
+	printf(" OUT %lu\n", ((unsigned long int*)((byte*)buff+5))[0]);
 	((short*)(((byte*)buff+13)))[0] = DEFAULT_VALIDITY_DELAY;
 	(((byte*)buff+15))[0] = DEFAULT_TIMESLOT_SIZE;
-	((short*)(((byte*)buff+16)))[0] = ip_amm;
+	((short*)(((byte*)buff+16)))[0] = ip_amm+1;	// Account for self
+	printf("Sub-Slave IP Ammount %d\n", ip_amm);
 	for(int i = 0; i < ip_amm; i++)
 	{
-		((short*)(((byte*)buff+18)))[i] = ((short*)getIPFromList(Self.SubSlaves, i))[0];
+		pthread_mutex_unlock(&(Self.SubSlaves->Lock));
+		IPHolder = getIPFromList(Self.SubSlaves, i);
+		pthread_mutex_lock(&(Self.SubSlaves->Lock));
+		((short*)(((byte*)buff+18)))[i] = IPHolder[0];
+		printf("Adding IP: %d %d at %d\n", ((byte*)IPHolder)[0],  ((byte*)IPHolder)[1], 18+2*i);
 	}
+	printf("Adding self IP\n");
+	((short*)(((byte*)buff+18)))[ip_amm] = ((short*)Self.IP)[0];
+	ip_amm += 1;
 
+	printf("Adding bitmap at %d\n", 18+ip_amm*2);
+	
 	for(int i = 0; i < ip_amm/8; i++)
 	{
+		printf("Cool\n");
 		((byte*)buff)[18+ip_amm*2+i] = 0xff;
 	}
 	rest = ip_amm - 8*(ip_amm/8);
@@ -378,7 +442,8 @@ void* generateTB()
 	{
 		// No point in "cutting" the last bits, because the bitmap must
 		// already cut them
-		((byte*)buff)[16+ip_amm*2+(ip_amm/8)] = (0xff<<(8-rest));
+		printf("Cool 2\n");
+		((byte*)buff)[18+ip_amm*2+(ip_amm/8)] = (0xff<<(8-rest));
 	}
 	
 	pthread_mutex_unlock(&(Self.SubSlaves->Lock));

@@ -338,6 +338,113 @@ performMeasurements()
 }
 
 void
+mockTB_RX(void* buff)
+{
+	bool send_TA = false;
+	bool retransmit_TB = false;
+	byte* local_byte;
+	short* IPHolder;
+	int ip_amm;
+	byte slot;
+	// New PBID? Accept new timeslot
+	
+	pthread_mutex_lock(&(Self.TimeTable->Lock));
+	if(true)
+	{
+		Self.TimeTable->Local_slot = -1;
+		ip_amm = ((short*)(((byte*)buff+16)))[0];
+		Self.TimeTable->Table_size = ip_amm;
+		for(int i = 0; i < ip_amm; i++)
+		{
+			if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
+			{
+				Self.TimeTable->Local_slot = i;
+				slot = i;
+				printf("Our slot: %d\n",i);
+				break;
+			}
+		}
+		if(Self.TimeTable->Local_slot == -1)
+		{
+			dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
+			// SET STATE TO OUTSIDE NETWORK
+			return;
+		}
+		Self.TimeTable->Timeslot_size = (((byte*)buff+15))[0];
+	}
+
+	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
+	slot = slot - 8 * (slot/8);
+	send_TA = (0x80 >> slot) & local_byte[0];
+
+	printf("Should I send a TA? %d\n", send_TA);
+	for(int i = 0; i < Self.SubSlaves->L->Size; i++)
+	{
+		IPHolder = getIPFromList(Self.SubSlaves, i);
+		if(i == 2)
+		{
+			((byte*)IPHolder)[0] = 9;
+		}
+		local_byte = (byte*)getBitmapValue(IPHolder, (byte*)buff+18+ip_amm*2, ip_amm, (byte*)buff+18);
+		retransmit_TB |= (bool)local_byte;
+		printf("Should I retransmit TB because of %d %d? %d\n", ((byte*)IPHolder)[0], ((byte*)IPHolder)[1], local_byte);
+	}
+	if(send_TA)
+	{
+		// TA_TX()
+	}
+	if(retransmit_TB)
+	{
+		// TB_TX()
+	}
+	pthread_mutex_unlock(&(Self.TimeTable->Lock));
+	return;
+}
+
+void
+testTB()
+{
+	byte SubSlave0[2] = {1,2};
+	byte SubSlave1[2] = {3,4};
+	byte SubSlave2[2] = {5,6};
+	byte OurIP[2] = {7,8};
+	byte prev_ip[2];
+	timespec res;
+	void* buff;
+	
+	prev_ip[0] = Self.IP[0];
+	prev_ip[1] = Self.IP[1];
+
+	Self.IP[0] = OurIP[0];
+	Self.IP[1] = OurIP[1];
+
+	Self.SubSlaves = newIPList();
+
+	insertSubSlave(SubSlave0);
+	insertSubSlave(SubSlave1);
+	insertSubSlave(SubSlave2);
+	
+	buff = generateTB();
+	printf("TB Size\nGot: %d\nExpected: 27\n", getPacketSize(buff));fflush(stdout);
+	dumpBin((char*)buff, getPacketSize(buff), "Dumping TB:\n");
+
+	printf(" IN %lu\n", ((unsigned long int*)((byte*)buff+5))[0]);
+	Self.TimeTable = newTimeTable();
+	mockTB_RX(buff);
+	delTimeTable(Self.TimeTable);
+	Self.TimeTable = NULL;
+
+	removeSubSlave(SubSlave0);
+	removeSubSlave(SubSlave1);
+	removeSubSlave(SubSlave2);
+	Self.IP[0] = prev_ip[0];
+	Self.IP[1] = prev_ip[1];
+
+	delIPList(Self.SubSlaves);
+	Self.SubSlaves = NULL;
+}
+
+void
 testAll(){
 	char a[6];
 	a[0] = 0xaf;
@@ -367,6 +474,8 @@ testAll(){
 	testLists();
 
 	testIPLists();
+
+	testTB();
 
 
 	printf("Ending protocol test\n---------\n");

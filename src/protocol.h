@@ -74,7 +74,7 @@ void
 removeSubSlave(byte IP[2]);
 
 /*
- * Returns the size of the packet in buf
+ * Returns the size of the packet in buf, in bytes
  * Returns -1 on undefine message type/wrong version
  */
 int

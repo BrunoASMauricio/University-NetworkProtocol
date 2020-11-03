@@ -134,7 +134,9 @@ void TB_RX(in_message* msg)
 	void* buff = msg->buf;
 	bool send_TA = false;
 	bool retransmit_TB = false;
+	byte* local_byte;
 	int ip_amm;
+	byte slot;
 	// New PBID? Accept new timeslot
 	
 	pthread_mutex_lock(&(Self.TimeTable->Lock));
@@ -160,7 +162,9 @@ void TB_RX(in_message* msg)
 		}
 		Self.TimeTable->Timeslot_size = (((byte*)buff+15))[0];
 	}
-	send_TA = ((0x01 << (ip_amm-Self.TimeTable->Local_slot)) & ((unsigned long int *)buff+18+ip_amm*2)[0]);
+	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
+	slot = slot - 8 * (slot/8);
+	send_TA = (0x80 >> slot) & local_byte[0];
 	for(int i = 0; i < Self.SubSlaves->L->Size; i++)
 	{
 		retransmit_TB |= getBitmapValue(getIPFromList(Self.SubSlaves, i), (byte*)buff+18+ip_amm*2, ip_amm, (byte*)buff+18);

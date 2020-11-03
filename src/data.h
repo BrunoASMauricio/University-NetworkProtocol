@@ -38,8 +38,8 @@ typedef struct{
 } meta_data;
 
 // TOUCH THESE :)
-
-const int Packet_Sizes[11] = {-1, 56, 56, 80, 64, 144, 56, 40, 40, 40, 40};
+// Packet sizes in bytes
+const int Packet_Sizes[11] = {-1, 56/8, 56/8, 80/8, 64/8, 144/8, 56/8, 40/8, 40/8, 40/8, 40/8};
 
 enum packet_type{
 	SD = 1,
