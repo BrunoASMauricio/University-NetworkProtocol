@@ -81,15 +81,17 @@ void SD_RX(in_message* msg)
 
 void PB_RX(in_message* msg)
 {
-	byte sendergitIp[2];
+	byte senderIp[2];
+	byte PBID[2];
 	senderIp[0]=((byte*)msg->buf)[1];
 	senderIp[1]=((byte*)msg->buf)[2];
-	short pbid=(((byte *)msg->buf)[3]<<8) + ((byte *)msg->buf)[4];
-	short distance	=(((short *)msg->buf)[5]<<8) + ((short *)msg->buf)[6];
+	PBID[0]=((byte *)msg->buf)[3];
+	PBID[1]=((byte *)msg->buf)[4];
+	unsigned short distance	=(((byte *)msg->buf)[5]<<8) + ((byte *)msg->buf)[6];
 
 	if(Self.Status == Outside){ //if the node is an outside slave 
 
-		if(distance!= 65535)
+		if(distance!= (unsigned short)65535)
 		{
 			NE_TX(senderIp);//sends a NE
 			//DO I NEED TO DEAL WITH TIMEOUT RETRANSMISSION HERE?
@@ -98,11 +100,22 @@ void PB_RX(in_message* msg)
 	}
 	else
 	{
-		/*if(truewe already delt with this pb))*/
+		/*if(PBID-IP IS NEW)
+		{
+			//stores pair in PBID table
+			PR_TX(senderIp, PBID, msg->SNR);
+			//routInsertOrUpdateEntry(Self.Table, senderIp, distance, msg->SNR, 0);
+			//sets timeout FOR RETRANSMISSION
+
+		}
+		else//if the pair it's not new
+		{
+
+		}*/
 	}
 	
 	
-	//delInMessage(msg);
+	delInMessage(msg);
 	return;
 }
 
@@ -113,6 +126,14 @@ void PR_RX(in_message* msg)
 
 void PC_RX(in_message* msg)
 {
+
+	byte SenderIP[2];
+	SenderIP[0]=((byte*)msg->buf)[1];
+	SenderIP[1]=((byte*)msg->buf)[2];
+
+	//if we already saw this PC
+	//stop retransmissions 
+	delInMessage(msg);
 	return;
 }
 
