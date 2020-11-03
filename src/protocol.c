@@ -6,16 +6,18 @@ setMaster()
 {
 	const char *Hostname;   
 	struct hostent *HostInfo;
+	int error = 0;
 	
 	if(Self.IsMaster != UNSET)
 	{
 		return;
 	}
 	
-	Hostname = "google.com";
-	HostInfo = gethostbyname (Hostname);
-
-	if(HostInfo == NULL)
+	socket_s* sockfd = newSocket(PORTHW);
+	
+  
+	if ((sockfd->s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1 ||
+	inet_aton("127.0.0.1" , &(sockfd->sockaddr.sin_addr)) == 0 )
 	{
 		Self.IsMaster=false;
 	}
