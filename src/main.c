@@ -97,6 +97,14 @@ setup()
 	setMaster();
 	Self.PB_PBID=1;
 
+	if(Self.IsMaster==false) //setting node as an outside one
+	{
+		Self.Status=Outside;
+	}
+	else
+	{
+		Self.Status=NA;
+	}
 	
 
 	Self.OutboundQueue = newQueue();

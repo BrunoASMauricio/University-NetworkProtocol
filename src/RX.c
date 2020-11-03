@@ -81,25 +81,27 @@ void SD_RX(in_message* msg)
 
 void PB_RX(in_message* msg)
 {
-	byte sender_ip[2];
-	sender_ip[0]		=	((byte*)msg->buf)[1];
-	sender_ip[1]		=	((byte*)msg->buf)[2];
-	byte pbid				=	(((byte *)msg->buf)[3]<<8) + ((byte *)msg->buf)[4];
-	short distance	=	(((short *)msg->buf)[5]<<8) + ((short *)msg->buf)[6];
+	byte sendergitIp[2];
+	senderIp[0]=((byte*)msg->buf)[1];
+	senderIp[1]=((byte*)msg->buf)[2];
+	short pbid=(((byte *)msg->buf)[3]<<8) + ((byte *)msg->buf)[4];
+	short distance	=(((short *)msg->buf)[5]<<8) + ((short *)msg->buf)[6];
 
-	if(true/*pbid_searchPair(sender_ip, pbid, )*/)	//checks if ip-pbid pair is in the table
-	{
-		//routInsertOrUpdateEntry(tbl,sender_ip,distance,?,?);
-		if(distance != 65535)
-		{
-			//PR_TX(&sender_ip,&pbid,msg->SNR);
-		}
-		else
-		{
-		//NE_TX(sender_ip);
-		}
+	if(Self.Status == Outside){ //if the node is an outside slave 
 
+		if(distance!= 65535)
+		{
+			NE_TX(senderIp);//sends a NE
+			//DO I NEED TO DEAL WITH TIMEOUT RETRANSMISSION HERE?
+			return; 
+		}	
 	}
+	else
+	{
+		/*if(truewe already delt with this pb))*/
+	}
+	
+	
 	//delInMessage(msg);
 	return;
 }
