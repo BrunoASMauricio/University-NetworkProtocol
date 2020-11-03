@@ -309,3 +309,81 @@ getIP()
 
     return ip;
 }
+
+/*
+typedef struct{
+	pthread_mutex_t Lock;
+	byte PBID[2];
+	IPList* IPs;
+	void* Bitmap;
+	byte Bitmap_size;
+	long int Sync_timestamp;
+	short Validity_delay;
+} timetable_msg;
+*/
+
+bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
+{
+	int place = -1;
+	byte* local_byte;
+	for(int i = 0; i < size; i++)
+	{
+		if(((short*)IPs)[i] == IP[0])
+		{
+			place = i;
+			break;
+		}
+	}
+	if(place == -1)
+	{
+		printfErr("Could not find IP in bitmap");
+		dumpBin((char*)IPs, size, "IPs: ");
+		return false;
+	}
+	local_byte = (byte*)bitmap + (place/8);
+	place = place - 8 * (place/8);
+	return (0x80 >> place) & local_byte[0];
+}
+
+void* generateTB()
+{
+	timespec res;
+	void* buff;
+	byte rest;
+	byte* IP;
+	int ip_amm;
+	pthread_mutex_lock(&(Self.SubSlaves->Lock));
+	ip_amm = Self.SubSlaves->L->Size;
+	buff = (void*)malloc(Packet_Sizes[TB]+ip_amm*(2*8+1));
+	((byte*)buff)[0] = (0xff00 & (PROTOCOL_VERSION<<4)) | TB;
+	((byte*)buff)[1] = Self.IP[0];
+	((byte*)buff)[2] = Self.IP[1];
+	((byte*)buff)[3] = Self.TB_PBID[0];
+	((byte*)buff)[4] = Self.TB_PBID[1];
+	((unsigned long int*)((byte*)buff+5))[0] = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
+	((short*)(((byte*)buff+13)))[0] = DEFAULT_VALIDITY_DELAY;
+	(((byte*)buff+15))[0] = DEFAULT_TIMESLOT_SIZE;
+	((short*)(((byte*)buff+16)))[0] = ip_amm;
+	for(int i = 0; i < ip_amm; i++)
+	{
+		((short*)(((byte*)buff+18)))[i] = ((short*)getIPFromList(Self.SubSlaves, i))[0];
+	}
+
+	for(int i = 0; i < ip_amm/8; i++)
+	{
+		((byte*)buff)[18+ip_amm*2+i] = 0xff;
+	}
+	rest = ip_amm - 8*(ip_amm/8);
+	if(rest)
+	{
+		// No point in "cutting" the last bits, because the bitmap must
+		// already cut them
+		((byte*)buff)[16+ip_amm*2+(ip_amm/8)] = (0xff<<(8-rest));
+	}
+	
+	pthread_mutex_unlock(&(Self.SubSlaves->Lock));
+	
+	return buff;
+}
+
+

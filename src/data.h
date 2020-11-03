@@ -12,6 +12,8 @@
 #define SAMPLE_SIZE 16
 #define PROTOCOL_VERSION 2
 #define MAXIMUM_PACKET_SIZE 4496	// 256 node network TB
+#define DEFAULT_VALIDITY_DELAY 1000	//in ns
+#define DEFAULT_TIMESLOT_SIZE 1		//in ms
 
 typedef uint8_t byte;
 
@@ -73,24 +75,6 @@ typedef struct{
 	long int Data;
 }sample;
 
-
-typedef struct{
-	pthread_mutex_t Lock;
-	byte PBID[2];
-	byte** IPs;
-	int IP_amm;
-	void* Bitmap;
-	byte Bitmap_size;
-	long int Sync_timestamp;
-	short Validity_delay;
-} timetable_msg;
-
-typedef struct{
-	byte Timeslot_size;
-	short Table_size;
-	byte Local_slots;
-} timetable;
-
 /*
  * The retransmitable messages
  */
@@ -100,20 +84,6 @@ enum retransmitable{
 	rNE,
 	rNER
 };
-
-/*
- * Struct that helps control message
- * retransmission
- */
-typedef struct{
-	pthread_mutex_t Lock;
-	timetable_msg* Tm;
-	byte Retransmitables;		// The retransmission bitmap
-	unsigned long int Time_TB;
-	unsigned long int Time_PR;
-	unsigned long int Time_NE;
-	unsigned long int Time_NER;
-}retransmission;
 
 /*
  * Queue related data types
@@ -152,6 +122,40 @@ typedef struct{
 	pthread_mutex_t Lock;
 	List* L;
 }IPList;
+
+/*
+typedef struct{
+	pthread_mutex_t Lock;
+	byte PBID[2];
+	IPList* IPs;
+	void* Bitmap;
+	byte Bitmap_size;
+	long int Sync_timestamp;
+	short Validity_delay;
+} timetable_msg;
+*/
+
+typedef struct{
+	pthread_mutex_t Lock;
+	byte Timeslot_size;
+	short Table_size;
+	byte Local_slot;
+} timetable;
+
+/*
+ * Struct that helps control message
+ * retransmission
+ */
+typedef struct{
+	pthread_mutex_t Lock;
+	//timetable_msg* Tm;
+	byte Retransmitables;		// The retransmission bitmap
+	unsigned long int Time_TB;
+	unsigned long int Time_PR;
+	unsigned long int Time_NE;
+	unsigned long int Time_NER;
+}retransmission;
+
 /*
  * Internal queue is only handled by the WS and HW interfaces
  */
@@ -162,9 +166,11 @@ typedef struct{
 	queue* InternalQueue;
 	byte IP[2];
 	table* Table;
+	timetable* TimeTable;
 	retransmission Rt;
 	IPList* SubSlaves;
 	IPList* OutsideSlaves;
+	byte TB_PBID[2];
 	// ...
 } node;
 

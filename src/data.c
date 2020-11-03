@@ -229,6 +229,26 @@ void delIPList(IPList* IPL)
 }
 
 
+short*
+getIPFromList(IPList* IPL, int position)
+{
+	List_el* Helper;
+	
+	if(position < 0 || position > IPL->L->Size)
+	{
+		return NULL;
+	}
+
+	pthread_mutex_lock(&(IPL->Lock));
+	Helper = IPL->L->First;
+	for(int i = 0; i < position; i++)
+	{
+		Helper = (List_el*)Helper->Next;
+	}
+	pthread_mutex_unlock(&(IPL->Lock));
+	return (short*)Helper->Buff;
+}
+
 bool
 getIPFromList(IPList* IPL, byte IP[2])
 {

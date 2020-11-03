@@ -38,12 +38,12 @@ void*
 */
 retransmit(void* dummy);
 
-void
+//void
 /*
 * Re/Generates the retransmission TimeTable
 * If the "deadline" is reached, generates it and sets up retransmission
 */
-generateTB();
+//generateTB();
 
 /*
  * Performs a network test
