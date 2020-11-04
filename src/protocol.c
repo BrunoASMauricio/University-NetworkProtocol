@@ -25,6 +25,7 @@ setMaster()
 		Self.IsMaster=true;
 	}
 	
+	closeSocket(sockfd);
 }
 
 int

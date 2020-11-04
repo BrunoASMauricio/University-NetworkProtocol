@@ -19,5 +19,6 @@ socket_s* newSocket(int port);
 void startSocket(socket_s* sk);
 void sendToSocket(socket_s* sk, void* buff, int size);
 int getFromSocket(socket_s* sk, void* buff);
+void closeSocket(socket_s* sk);
 
 #endif

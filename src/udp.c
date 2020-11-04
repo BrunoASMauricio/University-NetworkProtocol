@@ -37,3 +37,8 @@ int getFromSocket(socket_s* sk, void* buff)
 {
 	return recvfrom(sk->s, buff, MAX_TRANS_SIZE, 0, (struct sockaddr*) &(sk->sockaddr), &(sk->sock_len));
 }
+
+void closeSocket(socket_s* sk){
+
+	close(sk->s); //no need for shutdows because it's not TCP
+}
