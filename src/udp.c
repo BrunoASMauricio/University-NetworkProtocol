@@ -39,6 +39,5 @@ int getFromSocket(socket_s* sk, void* buff)
 }
 
 void closeSocket(socket_s* sk){
-
 	close(sk->s); //no need for shutdows because it's not TCP
 }
