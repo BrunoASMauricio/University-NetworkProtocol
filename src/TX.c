@@ -37,6 +37,7 @@ void PB_TX()
 {
 	int size = sizeof(byte)*7;
 	byte* PBPacket = (byte*)malloc(size);
+    short MasterDistance =0;
 	
     if(PBPacket == NULL){
         fatalErr("Couldn't assign memory to PB Packet \n");
@@ -46,15 +47,23 @@ void PB_TX()
     PBPacket[0]=(PROTOCOL_VERSION<<4)+2;
     PBPacket[1]=Self.IP[0];
     PBPacket[2]=Self.IP[1];
-    PBPacket[3]= (Self.PB_PBID >> 8) &0xff;
-    PBPacket[4]= Self.PB_PBID &0xff ;
-    PBPacket[5]= (FirstEntry->Distance >> 8) &0xff;
-    PBPacket[6]= FirstEntry->Distance &0xff;
+    PBPacket[3]= (Self.RoutingPBID >> 8) &0xff;
+    PBPacket[4]= Self.RoutingPBID &0xff ;
+
+    if(Self.IsMaster == false){
+        PBPacket[5]= (FirstEntry->Distance >> 8) &0xff;
+        PBPacket[6]= FirstEntry->Distance &0xff;
+    }
+    else{
+        PBPacket[5]= (MasterDistance >> 8) &0xff;
+        PBPacket[6]= MasterDistance &0xff;
+    }
+ 
 
 	out_message* message = newOutMessage(size, PBPacket);
     addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 
-    free(PBPacket);
+    free(PBPacket); //COULD SOMEONE CHECK IF THIS FREE MAKES SENSE?
 
 	return;
 }
@@ -83,7 +92,7 @@ void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
 	out_message* message = newOutMessage(size, PRPacket);
 	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 
-    free(PRPacket);
+    free(PRPacket); 
 	return;
 }
 

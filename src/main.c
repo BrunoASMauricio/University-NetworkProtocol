@@ -95,7 +95,7 @@ setup()
 	int rc;
 	//memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 	setMaster();
-	Self.PB_PBID=1;
+	Self.RoutingPBID=1;
 
 	if(Self.IsMaster==false) //setting node as an outside one
 	{

@@ -98,29 +98,42 @@ void PB_RX(in_message* msg)
 			return; 
 		}	
 	}
-	else
+	/*else
 	{
-		/*if(PBID-IP IS NEW)
+		/*if(pibdSearchPair(senderIp,PBID,Self.PBID_PB, Self.RoutingPBIDTable)==0)
 		{
-			//stores pair in PBID table
+			pbidInsertPair(senderIP,PBID,Self.PBID_PB); //stores pair in PBID table
 			PR_TX(senderIp, PBID, msg->SNR);
-			//routInsertOrUpdateEntry(Self.Table, senderIp, distance, msg->SNR, 0);
 			//sets timeout FOR RETRANSMISSION
-
 		}
-		else//if the pair it's not new
-		{
-
-		}*/
 	}
-	
-	
+
 	delInMessage(msg);
-	return;
+	return;*/
 }
 
 void PR_RX(in_message* msg)
 {
+	byte SenderIp[2];
+	byte originatorIp[2];
+	byte PBID[2];
+	SenderIp[0]=((byte*)msg->buf)[1];
+	SenderIp[1]=((byte*)msg->buf)[2];
+	originatorIp[0]=((byte*)msg->buf)[3];
+	originatorIp[1]=((byte*)msg->buf)[4];
+	PBID[0]=((byte *)msg->buf)[5];
+	PBID[1]=((byte *)msg->buf)[6];
+
+	unsigned short distance =(((byte *)msg->buf)[7]<<8) + ((byte *)msg->buf)[8];
+
+	if(originatorIp[0]== Self.IP[0] && originatorIp[1]== Self.IP[1]) //the node is receiving a PR from a PB it generated
+	{
+		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, 0);
+		PC_TX(SenderIp,PBID,msg->SNR);
+		Self.RoutingPBID++;
+	}
+	
+	delInMessage(msg);
 	return;
 }
 
@@ -128,11 +141,18 @@ void PC_RX(in_message* msg)
 {
 
 	byte SenderIP[2];
+	byte ReachedIP[2];
 	SenderIP[0]=((byte*)msg->buf)[1];
 	SenderIP[1]=((byte*)msg->buf)[2];
+	ReachedIP[0]=((byte*)msg->buf)[3];
+	ReachedIP[1]=((byte*)msg->buf)[4];
 
-	//if we already saw this PC
-	//stop retransmissions 
+	if(ReachedIP[0]== Self.IP[0] && ReachedIP[1]== Self.IP[1])
+	{
+		//routInsertOrUpdateEntry(Self.Table, SenderIP, distance, msg->SNR, 0); gotta check the distance with Bruno M
+		//stop retransmissions 
+	}	
+	
 	delInMessage(msg);
 	return;
 }
