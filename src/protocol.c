@@ -6,7 +6,6 @@ setMaster()
 {
 	const char *Hostname;   
 	struct hostent *HostInfo;
-	int error = 0;
 	
 	if(Self.IsMaster != UNSET)
 	{
