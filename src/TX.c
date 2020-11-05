@@ -26,7 +26,7 @@ WF_dispatcher(void* dummy)
 		// Not on the network, just send it
 		if(Self.TimeTable == NULL)
 		{
-			sendToSocket(Meta.Output_socket, To_send->buf, To_send->size);
+			sendToSocket(Meta.WF_TX, To_send->buf, To_send->size);
 			delOutMessage(To_send);
 			To_send = NULL;
 		}
@@ -47,7 +47,7 @@ WF_dispatcher(void* dummy)
 			if (Vact < Self.TimeTable->table_size * (Vact / Self.TimeTable->table_size) + Self.TimeTable->timeslot_size - TRANSMISSION_DELAY)
 			{
 				//printf("In timeslot: %lu\n", act);
-				sendToSocket(Meta.Output_socket, To_send->buf, To_send->size);
+				sendToSocket(Meta.WF_TX, To_send->buf, To_send->size);
 				delOutMessage(To_send);
 				To_send = NULL;
 			}

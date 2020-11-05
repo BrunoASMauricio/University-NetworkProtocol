@@ -14,7 +14,7 @@ WF_listener(void* dummy)
 	printf("WF Listener on\n");
 	while(1)
 	{
-		ReadBytes = getFromSocket(Meta.Input_socket, buff+PrevBytes);
+		ReadBytes = getFromSocket(Meta.WF_RX, buff+PrevBytes);
 		PrevBytes = 0;
 
 		if(clock_gettime(CLOCK_REALTIME, &res) == -1)

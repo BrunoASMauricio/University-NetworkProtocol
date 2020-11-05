@@ -16,24 +16,36 @@ main(int argc, char **argv)
 	Meta.Post= false;
 	Meta.Log = NULL;
 	Self.IsMaster = UNSET;
+	Self.IP[0] = 0xff;
+	Self.SyncTimestamp = true;
 
-	while (1) 
+	Meta.HW_port = DEFAULT_HW_PORT;
+	Meta.WS_port = DEFAULT_WS_PORT;
+	Meta.WF_TX_port = DEFAULT_WF_TX_PORT;
+	Meta.WF_RX_port = DEFAULT_WF_RX_PORT;
+
+	while (1)
     {
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"log",		no_argument,		0, 'l'},
 			{"post",	no_argument,		0, 'p'},
 			{"debug",	no_argument,		0, 'd'},
+			{"HW",		required_argument,		0, 'H'},
+			{"WS",		required_argument,		0, 'W'},
+			{"WF_TX",	required_argument,		0, 'T'},
+			{"WF_RX",	required_argument,		0, 'R'},
+			{"IP",		required_argument,			0, 'I'},
 			{0,			0,					0,  0 }
 		};
 
-		c = getopt_long(argc, argv, "lpdr:", long_options, &option_index);
+		c = getopt_long(argc, argv, "lpdr:H:W:T:R:I:s", long_options, &option_index);
 
 		if (c == -1)	break;
 
 		switch(c) {
 			case 'r':
-				if (optarg[0] == 'M') 
+				if (optarg[0] == 'M')
                 {
 					Self.IsMaster = true;
 					printf("Forcing node to master\n");
@@ -64,16 +76,45 @@ main(int argc, char **argv)
 				Meta.Post= true;
 				break;
 
+			case 'H':
+				Meta.HW_port = atoi(optarg);
+				break;
+			case 'W':
+				printf(">>%s\n", optarg);
+				Meta.WS_port = atoi(optarg);
+				break;
+			case 'T':
+				Meta.WF_TX_port = atoi(optarg);
+				break;
+			case 'R':
+				Meta.WF_RX_port = atoi(optarg);
+				break;
+			case 'I':
+				Self.IP[0] = 0x82;
+				Self.IP[1] = atoi(optarg);
+				break;
+			case 's':
+				Self.SyncTimestamp = true;
+				break;
 			case '?':
 				fatalErr("Undefined argument\n");
 				break;
-
 			default:
 				printf("?? getopt returned character code 0%o ??\n", c);
 		}
 	}
 
 	printf("Starting protocol\n");	
+	printf("Configured ports:\n");
+	printf("HW: %d\n", Meta.HW_port);
+	printf("WS: %d\n", Meta.WS_port);
+	printf("WF_TX: %d\n", Meta.WF_TX_port);
+	printf("WF_RX: %d\n", Meta.WF_RX_port);
+	if(Self.IP[0] != 0xff)
+	{
+		printf("Configured with IP %d %d\n", Self.IP[0], Self.IP[1]);
+	}
+
 	
 	if (Meta.Post)
     {
@@ -102,11 +143,11 @@ setup()
 	Self.Table= newTable();
 
 
-	Meta.Input_socket = newSocket(INBOUND_PORT);
-	startSocket(Meta.Input_socket);
+	Meta.WF_RX = newSocket(Meta.WF_RX_port);
+	startSocket(Meta.WF_RX);
 
-	Meta.Output_socket = newSocket(OUTBOUND_PORT);
-	startSocket(Meta.Output_socket);
+	Meta.WF_TX = newSocket(Meta.WF_TX_port);
+	startSocket(Meta.WF_TX);
 
 	if (rc = pthread_create(&(Meta.WF_listener_t), NULL, WF_listener, NULL))
     {
@@ -180,13 +221,13 @@ handler()
 void
 clean()
 {
-	if(Meta.Input_socket->s != -1)
+	if(Meta.WF_TX->s != -1)
 	{
-		close(Meta.Input_socket->s);
+		close(Meta.WF_TX->s);
 	}
-	if(Meta.Output_socket->s != -1)
+	if(Meta.WF_RX->s != -1)
 	{
-		close(Meta.Input_socket->s);
+		close(Meta.WF_RX->s);
 	}
 	if(Meta.Log)
     {

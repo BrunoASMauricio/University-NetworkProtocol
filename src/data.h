@@ -13,6 +13,12 @@
 #define PROTOCOL_VERSION 2
 #define MAXIMUM_PACKET_SIZE 4496	// 256 node network TB
 
+#define DEFAULT_HW_PORT 901
+#define DEFAULT_WS_PORT 902
+#define DEFAULT_WF_TX_PORT 903
+#define DEFAULT_WF_RX_PORT 904
+
+
 typedef uint8_t byte;
 
 /*
@@ -27,11 +33,16 @@ typedef struct{
 	pthread_t WS_listener_t;
 	pthread_t HW_dispatcher_t;
 
-	socket_s* Input_socket;
-	socket_s* Output_socket;
+	socket_s* WF_RX;
+	socket_s* WF_TX;
 	bool Post;
 	bool Debug;
 	FILE* Log;
+	
+	int WF_TX_port;
+	int WF_RX_port;
+	int HW_port;
+	int WS_port;
 } meta_data;
 
 // TOUCH THESE :)
@@ -124,6 +135,7 @@ typedef struct{
 	byte IP[2];
 	table* Table;
 	timetable* TimeTable;
+	bool SyncTimestamp;
 	// ...
 } node;
 
