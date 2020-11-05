@@ -1,4 +1,7 @@
 #include "debug.h"
+#include "data.h"
+#include "routing_table.h"
+#include <stdio.h>
 
 void dumpBin(char* buf, int size, const char *fmt,...)
 {
@@ -669,6 +672,18 @@ testBuildNER()
 
 
 void
+testBuildNEP()
+{
+    byte SourceIP[2] = {0x01, 0x02};
+    byte DestIP[2] = {0x03, 0x04};
+    out_message* NEPpacket = buildNEPMessage(SourceIP ,DestIP);
+    printf("Testing buildNEPMessage. Expected output:\n");
+    printf(">>NEPpacket: 5 0x%X 0x01 0x02 0x03 0x04\n", 
+                                (PROTOCOL_VERSION<<4)+NEP, SourceIP, DestIP );
+    dumpBin((char*)(NEPpacket->buf), NEPpacket->size, ">>NEPpacket: %X ");
+}
+
+void
 testAll(){
 	char a[6];
 	a[0] = 0xaf;
@@ -694,6 +709,10 @@ testAll(){
 	testPacketSize();
 
 	testRoutingTable();
+
+    testBuildNEP();
+
+    testBuildNEP();
 
 	testTimeTable();
 

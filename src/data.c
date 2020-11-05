@@ -357,7 +357,7 @@ out_message* newOutMessage(int size, void* buffer)
 
 	ret->size = size;
 	ret->buf = (void*)malloc(size);
-	memcpy(ret->buf, buffer, size);
+    memcpy(ret->buf, buffer, size);
 
 	return ret;
 }
@@ -594,9 +594,9 @@ buildNEPMessage(byte* SenderIP, byte* OutsiderIP)
 {
     void* buff;
     
-    byte packet[5]; 
+    byte packet[5];
     //NOTE(GoncaloXavier): Version | Packet Type
-    packet[0] = (PROTOCOL_VERSION<<4) + NE;
+    packet[0] = (PROTOCOL_VERSION<<4) + NEP;
     packet[1] = SenderIP[0];
     packet[2] = SenderIP[1];
     packet[3] = OutsiderIP[0];
