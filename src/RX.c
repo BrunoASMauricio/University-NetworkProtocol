@@ -142,7 +142,6 @@ void TB_RX(in_message* msg)
 	pthread_mutex_lock(&(Self.TimeTable->Lock));
 	if(((byte*)buff)[0] != Self.TB_PBID[0] && ((byte*)buff)[1] == Self.TB_PBID[1])
 	{
-
 		Self.TimeTable->Local_slot = -1;
 		Self.TimeTable->Table_size = ((short*)(((byte*)buff+16)))[0];
 		ip_amm = Self.TimeTable->Table_size;
@@ -162,21 +161,26 @@ void TB_RX(in_message* msg)
 		}
 		Self.TimeTable->Timeslot_size = (((byte*)buff+15))[0];
 	}
+
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
 	slot = slot - 8 * (slot/8);
 	send_TA = (0x80 >> slot) & local_byte[0];
+
 	for(int i = 0; i < Self.SubSlaves->L->Size; i++)
 	{
 		retransmit_TB |= getBitmapValue(getIPFromList(Self.SubSlaves, i), (byte*)buff+18+ip_amm*2, ip_amm, (byte*)buff+18);
 	}
+
 	if(send_TA)
 	{
 		// TA_TX()
 	}
+
 	if(retransmit_TB)
 	{
 		// TB_TX()
 	}
+	
 	pthread_mutex_unlock(&(Self.TimeTable->Lock));
 	return;
 }

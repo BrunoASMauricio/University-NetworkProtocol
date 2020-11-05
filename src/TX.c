@@ -57,7 +57,6 @@ void TB_TX(byte PBID[2], void* buff)
 {
 	// Lock TB_PBID table
 	// Lock SubSlaves
-	
 	addToQueue(newOutMessage(getPacketSize(buff), buff), 8, Self.OutboundQueue, 1);
 	
 	return;

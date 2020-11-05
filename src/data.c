@@ -153,10 +153,12 @@ void insertInList(List* L, void* buffer, int position)
 	else
 	{
 		Helper = (List_el*)L->First;
+
 		for(int i = 0; i < position; i++)
 		{
 			Helper = (List_el*)Helper->Next;
 		}
+
 		New_el->Next = Helper->Next;
 		Helper->Next = New_el;
 	}
@@ -167,6 +169,7 @@ void printList(List* L)
 {
 	List_el* Helper = L->First;
 	printf("List size: %d\n", L->Size);
+
 	while(Helper != NULL)
 	{
 		printf("%s\n", Helper->Buff);
@@ -195,15 +198,18 @@ void* removeFromList(List* L, int position)
 	else
 	{
 		Helper = L->First;
+
 		for(int i = 0; i < position-1; i++)
 		{
 			Helper = (List_el*)Helper->Next;
 		}
+		
 		ToFree = (List_el*)Helper->Next;
 		buffer = ToFree->Buff;
 		Helper->Next = ToFree->Next;
 		free(ToFree);
 	}
+
 	L->Size -= 1;
 
 	return buffer;
@@ -214,10 +220,12 @@ IPList* newIPList()
 {
 	IPList* IPL = (IPList*)malloc(sizeof(IPList));
 	IPL->L = newList();
+
 	if (pthread_mutex_init(&(IPL->Lock), NULL) != 0)
     {
         fatalErr("mutex init failed for new IP list lock\n");
     }
+
 	return IPL;
 }
 
@@ -241,10 +249,12 @@ getIPFromList(IPList* IPL, int position)
 
 	pthread_mutex_lock(&(IPL->Lock));
 	Helper = IPL->L->First;
+
 	for(int i = 0; i < position; i++)
 	{
 		Helper = (List_el*)Helper->Next;
 	}
+
 	pthread_mutex_unlock(&(IPL->Lock));
 	return (short*)Helper->Buff;
 }
@@ -255,6 +265,7 @@ getIPFromList(IPList* IPL, byte IP[2])
 	List_el* Helper;
 	pthread_mutex_lock(&(IPL->Lock));
 	Helper = IPL->L->First;
+
 	while(Helper != NULL)
 	{
 		if(((byte*)(Helper->Buff))[0] == IP[0] &&
@@ -265,6 +276,7 @@ getIPFromList(IPList* IPL, byte IP[2])
 		}
 		Helper = (List_el*)Helper->Next;
 	}
+
 	pthread_mutex_unlock(&(IPL->Lock));
 	return false;
 }
@@ -275,6 +287,7 @@ insertIPList(IPList* IPL, byte IP[2])
 	List_el* Helper;
 	pthread_mutex_lock(&(IPL->Lock));
 	Helper = IPL->L->First;
+
 	while(Helper != NULL)
 	{
 		if(((byte*)(Helper->Buff))[0] == IP[0] &&
@@ -286,6 +299,7 @@ insertIPList(IPList* IPL, byte IP[2])
 		}
 		Helper = (List_el*)Helper->Next;
 	}
+
 	insertInList(IPL->L, IP, -1);
 	pthread_mutex_unlock(&(IPL->Lock));
 }
@@ -296,6 +310,7 @@ removeIPList(IPList* IPL, byte IP[2])
 	List_el* Helper;
 	pthread_mutex_lock(&(IPL->Lock));
 	Helper = IPL->L->First;
+
 	for(int i = 0; Helper != NULL; i++)
 	{
 		if(((byte*)(Helper->Buff))[0] == IP[0] &&
@@ -308,6 +323,7 @@ removeIPList(IPList* IPL, byte IP[2])
 		}
 		Helper = (List_el*)Helper->Next;
 	}
+
 	pthread_mutex_unlock(&(IPL->Lock));
 }
 

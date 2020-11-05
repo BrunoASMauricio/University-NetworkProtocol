@@ -28,6 +28,7 @@ void startRetransmission(retransmitable message_type)
 	
 	pthread_mutex_unlock(&(Self.Rt.Lock));
 }
+
 void stopRetransmission(retransmitable message_type)
 {
 	pthread_mutex_lock(&(Self.Rt.Lock));
@@ -345,6 +346,7 @@ bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 {
 	int place = -1;
 	byte* local_byte;
+
 	for(int i = 0; i < size; i++)
 	{
 		if(((short*)IPs)[i] == IP[0])
@@ -353,6 +355,7 @@ bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 			break;
 		}
 	}
+
 	if(place == -1)
 	{
 		printfErr("Could not find IP in bitmap");
@@ -367,6 +370,7 @@ bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 timetable* newTimeTable()
 {
 	timetable* tm = (timetable*)malloc(sizeof(timetable));
+
 	if(pthread_mutex_init(&(tm->Lock), NULL) != 0)
     {
         fatalErr("mutex init failed for new IP list lock\n");
@@ -394,6 +398,7 @@ void* generateTB()
 	printf("Building TB\n");
 	ip_amm = Self.SubSlaves->L->Size;
 	size = (ip_amm+1)*(2*8+1);
+
 	if(8*(size/8) != size)
 	{
 		size = size/8 + 1;
@@ -418,6 +423,7 @@ void* generateTB()
 	(((byte*)buff+15))[0] = DEFAULT_TIMESLOT_SIZE;
 	((short*)(((byte*)buff+16)))[0] = ip_amm+1;	// Account for self
 	printf("Sub-Slave IP Ammount %d\n", ip_amm);
+
 	for(int i = 0; i < ip_amm; i++)
 	{
 		pthread_mutex_unlock(&(Self.SubSlaves->Lock));
@@ -438,6 +444,7 @@ void* generateTB()
 		((byte*)buff)[18+ip_amm*2+i] = 0xff;
 	}
 	rest = ip_amm - 8*(ip_amm/8);
+	
 	if(rest)
 	{
 		// No point in "cutting" the last bits, because the bitmap must
