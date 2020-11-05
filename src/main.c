@@ -140,7 +140,7 @@ setup()
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
-	Self.Table= newTable();
+	Self.Table= routNewTable();
 
 
 	Meta.WF_RX = newSocket(Meta.WF_RX_port);

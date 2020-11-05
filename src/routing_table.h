@@ -36,14 +36,13 @@ typedef struct table_entry
  * return : pointer to newly created table
  *          if it fails to be created, returns null
  */
-table* newTable();
-
+table* routNewTable();
 /**
  * creates new entry in the table (not yet in the actual table)
  * return: pointer to newly created entry
  *         if it fails to be created, returns null 
  */
-table_entry* newEntry();
+table_entry* routNewEntry(byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance);
 
 /**
  * inserts new entry on the routing table or updates an entry if the received IP is already there
@@ -51,33 +50,33 @@ table_entry* newEntry();
  * returns NULL if anything goes wrong
  */
 
-table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance);
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance);
 /**
  * prints routing table's content
  * return: number of entries if there's no problems
  *         0 if tbl->size doesn't match the number of loop's iteration
  */
-int printTableContent(table *tbl);
+int routPrintTableContent(table *tbl);
 
 /** 
  * removes an entry of the routing table;
  * receives as parameter the associated table and the IP associated with the entry;
  * if the inserted IP doesn't exists, returns null;
 */
-bool removeEntry(table *tbl, byte neigh_IP[2]);
+bool routRemoveEntry(table *tbl, byte neigh_IP[2]);
 
 /** 
  * searches an entry of the table
  * receives as parameter the IP associated with the entry
  * returns a pointer to the table entry associated with the IP.
  */
-table_entry* searchByIp(table *tbl, byte neigh_IP[2]);
+table_entry* routSearchByIp(table *tbl, byte neigh_IP[2]);
 
 /**
  * returns entry by pos
  * returns null if anything goes wrong
  */
-table_entry* getEntryByPos(table *tbl, int pos);
+table_entry* routGetEntryByPos(table *tbl, int pos);
  
 
 #define TABLE_H

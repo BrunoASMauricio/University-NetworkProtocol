@@ -12,10 +12,11 @@ setMaster()
 		return;
 	}
 	
-	Hostname = "google.com";
-	HostInfo = gethostbyname (Hostname);
-
-	if(HostInfo == NULL)
+	socket_s* sockfd = newSocket(PORTHW);
+	
+  
+	if ((sockfd->s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1 ||
+	inet_aton("127.0.0.1" , &(sockfd->sockaddr.sin_addr)) == 0 )
 	{
 		Self.IsMaster=false;
 	}
@@ -24,6 +25,7 @@ setMaster()
 		Self.IsMaster=true;
 	}
 	
+	closeSocket(sockfd);
 }
 
 int
@@ -45,6 +47,9 @@ getPacketSize(void* buf)
 		case SD:
 			return Packet_Sizes[SD] + ((char*)buf)[6]*SAMPLE_SIZE;
 		case TB:
+            //NOTE(GoncaloXavier): As per clarification on MR !9 - WF: 
+            //((short*)buf)[8]*2*8->Table size (2 bytes) nº of IP's * IP size
+            //((short*)buf)[8] -> bitmap size
 			return Packet_Sizes[TB] + ((short*)buf)[8]*2*8 + ((short*)buf)[8];
 		default:
 			if(type > sizeof(Packet_Sizes) -1)
@@ -126,6 +131,11 @@ unsigned char* ConverMacAddressStringIntoByte(const char *pszMACAddress, unsigne
 byte*
 getIP()
 {
+
+	if(Self.IP[0] != 0 && Self.IP[1] != 0){
+		return Self.IP;
+	}
+
     byte* ip = (byte*)malloc(sizeof(byte)*2);
     FILE* fp;
 

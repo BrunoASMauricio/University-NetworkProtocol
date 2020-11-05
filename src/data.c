@@ -132,6 +132,7 @@ out_message* newOutMessage(int size, void* buffer)
 
 	ret->size = size;
 	ret->buf = (void*)malloc(size);
+	memcpy(ret->buf, buffer, size);
 
 	return ret;
 }

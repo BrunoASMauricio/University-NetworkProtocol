@@ -3,10 +3,11 @@
 
 socket_s* newSocket(int port)
 {
+	struct sockaddr_in servaddr;
 	socket_s* ret = (socket_s*)malloc(sizeof(socket_s));
 	ret->s = -1;
 	ret->port = port;
-	ret->sock_len = sizeof(sockaddr_in);
+	ret->sock_len = sizeof(servaddr);
 
 	memset((char *) &(ret->sockaddr), 0, ret->sock_len);
 	ret->sockaddr.sin_family = AF_INET;
@@ -35,4 +36,8 @@ void sendToSocket(socket_s* sk, void* buff, int size)
 int getFromSocket(socket_s* sk, void* buff)
 {
 	return recvfrom(sk->s, buff, MAX_TRANS_SIZE, 0, (struct sockaddr*) &(sk->sockaddr), &(sk->sock_len));
+}
+
+void closeSocket(socket_s* sk){
+	close(sk->s); //no need for shutdows because it's not TCP
 }

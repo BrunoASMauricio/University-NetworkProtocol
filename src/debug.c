@@ -102,7 +102,7 @@ testRoutingTable()
 {
     table *Tbl;
     
-    Tbl=newTable();
+    Tbl=routNewTable();
 
     printf("Entry with lowest distance must be on the top...\nPlease check if the table size corresponds with the announced one\n");
 
@@ -114,10 +114,10 @@ testRoutingTable()
     short Eff = 777;
 
     table_entry *Entry;
-    Entry=insertOrUpdateEntry(Tbl,IP,Qual,Avg,Eff);
+    Entry=routInsertOrUpdateEntry(Tbl,IP,Qual,Avg,Eff);
     if(Entry==NULL) printf("Failed to insert entry\n");
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
     printf("Adding a 2nd entry...\n");
@@ -128,9 +128,9 @@ testRoutingTable()
     short Eff1 = 777;
      
     table_entry *Entry1;
-    Entry1=insertOrUpdateEntry(Tbl, IP_, Qual1, Avg1, Eff1);
+    Entry1=routInsertOrUpdateEntry(Tbl, IP_, Qual1, Avg1, Eff1);
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
     printf("Adding a 3rd entry...\n");
@@ -141,9 +141,9 @@ testRoutingTable()
     short Eff2 = 777;
 
     table_entry *Entry2;
-    Entry2=insertOrUpdateEntry(Tbl, IP_0, Qual2, Avg2, Eff2);
+    Entry2=routInsertOrUpdateEntry(Tbl, IP_0, Qual2, Avg2, Eff2);
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
     printf("Adding a 4th entry...\n");
@@ -154,9 +154,9 @@ testRoutingTable()
     short Eff3 = 777;
 
     table_entry *Entry3;
-    Entry3=insertOrUpdateEntry(Tbl, IP_1, Qual3, Avg3, Eff3);  
+    Entry3=routInsertOrUpdateEntry(Tbl, IP_1, Qual3, Avg3, Eff3);  
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
     printf("Adding a 5th entry...\n");
@@ -167,42 +167,42 @@ testRoutingTable()
     short Eff4 = 777;
      
     table_entry *Entry4;
-    Entry4=insertOrUpdateEntry(Tbl, IP_2, Qual4, Avg4, Eff4);  
+    Entry4=routInsertOrUpdateEntry(Tbl, IP_2, Qual4, Avg4, Eff4);  
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
     printf("Updating entry with IP: 11 ...\n");
 
     short QualUpd = 1;
-    insertOrUpdateEntry(Tbl, IP_1, QualUpd, Avg4, Eff4);  
+    routInsertOrUpdateEntry(Tbl, IP_1, QualUpd, Avg4, Eff4);  
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
     printf("Updating entry with IP: 44 ...\n");
 
     short QualUpd_1 = 100;
-    insertOrUpdateEntry(Tbl, IP_, QualUpd_1, Avg4, Eff4);  
+    routInsertOrUpdateEntry(Tbl, IP_, QualUpd_1, Avg4, Eff4);  
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
     printf("Updating entry with IP: 11 ...\n");
     short QualUpd_2 = 1500;
-    insertOrUpdateEntry(Tbl, IP_1, QualUpd_2, Avg4, Eff4);  
+    routInsertOrUpdateEntry(Tbl, IP_1, QualUpd_2, Avg4, Eff4);  
 
-    printTableContent(Tbl);
+    routPrintTableContent(Tbl);
     printf("\n\n");
 
 	printf("Getting first position... \n");
 	table_entry* entry5;
-	entry5= getEntryByPos(Tbl, 1);
+	entry5= routGetEntryByPos(Tbl, 1);
 
 	printf("1st entry distance : %hi, 1st entry NextHop_IP: %d%d\n", entry5->Distance, entry5->Neigh_IP[0],entry5->Neigh_IP[1] );
 
 	printf("Getting second position... \n");
-	entry5= getEntryByPos(Tbl, 2);
+	entry5= routGetEntryByPos(Tbl, 2);
 	printf("2nd entry distance : %hi, 2nd entry NextHop_IP: %d%d\n", entry5->Distance, entry5->Neigh_IP[0],entry5->Neigh_IP[1] );
 
 }

@@ -1,6 +1,6 @@
 #include "routing_table.h"
 
-table* newTable()
+table* routNewTable()
 {
     table *tbl = (table*) malloc(sizeof(table));
 
@@ -21,7 +21,7 @@ table* newTable()
     return tbl;
 }
 
-table_entry* newEntry(byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance)
+table_entry* routNewEntry(byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance)
 {
     /* allocate memory for new entry*/
     table_entry *Entry = (table_entry*)malloc(sizeof(table_entry));
@@ -42,7 +42,7 @@ table_entry* newEntry(byte NeighIP[2], double Distance, double AvgSnr, double Ef
     return Entry;
 }
 
-table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance)
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance)
 {
     if(tbl == NULL) return NULL;
 
@@ -55,7 +55,7 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
     /*if the table is empty and we just have to put there the entry*/
     if (tbl->size == 0)
     {
-        tbl->begin=newEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
+        tbl->begin=routNewEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
 
             if(tbl->begin == NULL)
             {
@@ -69,11 +69,11 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
     }
 
     /* starts by checking if there's already an entry with the specified IP*/
-    table_entry *entry = searchByIp(tbl,NeighIP);
+    table_entry *entry = routSearchByIp(tbl,NeighIP);
    
     if(entry == NULL)
     {
-        aux=newEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
+        aux=routNewEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
 
             if(aux == NULL) 
             {
@@ -91,9 +91,9 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
         double StoreAvg= entry->AvgSnr;
         double StoreEff= entry->EffectiveDistance;
         
-        removeEntry(tbl, entry->Neigh_IP);
+        routRemoveEntry(tbl, entry->Neigh_IP);
 
-        aux=newEntry(Store_IP, Distance, StoreAvg, StoreEff);
+        aux=routNewEntry(Store_IP, Distance, StoreAvg, StoreEff);
         tbl->size++;
     }
     /*
@@ -151,7 +151,7 @@ table_entry* insertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, s
     return NULL;
 }
 
-int printTableContent(table *tbl)
+int routPrintTableContent(table *tbl)
 {
     pthread_mutex_lock(&(tbl->lock));
     table_entry *aux = tbl->begin;
@@ -175,7 +175,7 @@ int printTableContent(table *tbl)
     }
 }
 
-table_entry* searchByIp(table *tbl, byte neigh_IP[2])
+table_entry* routSearchByIp(table *tbl, byte neigh_IP[2])
 {
     table_entry *Ptr = tbl->begin;
 
@@ -191,7 +191,7 @@ table_entry* searchByIp(table *tbl, byte neigh_IP[2])
     return NULL;
 }
 
-bool removeEntry(table *tbl, byte neigh_IP[2])
+bool routRemoveEntry(table *tbl, byte neigh_IP[2])
 {
     table_entry *Current = NULL;
     table_entry *Prev = NULL;
@@ -250,7 +250,7 @@ bool removeEntry(table *tbl, byte neigh_IP[2])
     return false;
 }
 
-table_entry* getEntryByPos(table *tbl, int pos)
+table_entry* routGetEntryByPos(table *tbl, int pos)
 {
     if(tbl == NULL)
     { 

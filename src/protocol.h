@@ -4,6 +4,7 @@
 #include <netdb.h>
 #include <ctype.h>
 
+#define PORTHW     8080 
 
 typedef uint8_t byte;
 
