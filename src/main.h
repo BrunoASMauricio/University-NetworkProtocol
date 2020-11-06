@@ -11,6 +11,9 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ifaddrs.h>
+#include <dirent.h>
+
 
 /*
  * Performs node setup

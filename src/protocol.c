@@ -132,26 +132,37 @@ byte*
 getIP()
 {
 
-	if(Self.IP[0] != 0 && Self.IP[1] != 0){
+	if(Self.IP[0] != 0 && Self.IP[1] != 0){ //so if somebody uses getIp instead of Self.Ip
 		return Self.IP;
 	}
 
-    byte* ip = (byte*)malloc(sizeof(byte)*2);
+    byte* Ip = (byte*)malloc(sizeof(byte)*2);
     FILE* fp;
-
-    char mac_add_string [17];
+	DIR *pDir;
+	struct dirent *pDirent;
+	char mac_add_string [17];
     unsigned char mac_add_byte[6];
+	char buf[300];
+     
+    pDir = opendir ("/sys/class/net/");
+    if (pDir == NULL) {
+    	fatalErr("Cannot open directory '/sys/class/net/'\n");
 
-    //NOTE(Rita): Debian dependency due to specific interface name
-    fp = fopen("/sys/class/net/enp0s5/address","r"); 
-
-    if(fp == NULL)
-    {
-       printf("Could not open mac address file. Errno set to: %d\n", errno);
-       return NULL;
     }
+
+    while ((pDirent = readdir(pDir)) != NULL) {
+        
+            if(pDirent->d_name[0] == 'e' && (pDirent->d_name[1] == 'n' || pDirent->d_name[1] == 't')){
+                        
+                    snprintf(buf, sizeof buf, "%s%s%s", "/sys/class/net/", pDirent->d_name, "/address");
+                        fp = fopen(buf,"r"); 
+                        fscanf(fp,"%s",mac_add_string );
+			}
+        }
+
     
-    fscanf(fp,"%s",mac_add_string );
+    closedir(pDir);
+
 
     if( ConverMacAddressStringIntoByte(mac_add_string, mac_add_byte)== NULL)
     {
@@ -159,8 +170,8 @@ getIP()
         return NULL;
     }
 
-    ip[0] = mac_add_byte[4];
-    ip[1] = mac_add_byte[5];
+    Ip[0] = mac_add_byte[4];
+    Ip[1] = mac_add_byte[5];
 
-    return ip;
+    return Ip;
 }
