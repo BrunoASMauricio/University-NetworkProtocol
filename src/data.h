@@ -12,6 +12,8 @@
 #define SAMPLE_SIZE 16
 #define PROTOCOL_VERSION 2
 #define MAXIMUM_PACKET_SIZE 4496	// 256 node network TB
+#define DEFAULT_VALIDITY_DELAY 1000	//in ns
+#define DEFAULT_TIMESLOT_SIZE 1		//in ms
 
 typedef uint8_t byte;
 
@@ -26,6 +28,7 @@ typedef struct{
 	pthread_t WF_dispatcher_t;
 	pthread_t WS_listener_t;
 	pthread_t HW_dispatcher_t;
+	pthread_t Retransmission_t;
 
 	socket_s* Input_socket;
 	socket_s* Output_socket;
@@ -35,8 +38,8 @@ typedef struct{
 } meta_data;
 
 // TOUCH THESE :)
-
-const int Packet_Sizes[11] = {-1, 56, 56, 80, 64, 144, 56, 40, 40, 40, 40};
+// Packet sizes in bytes
+const int Packet_Sizes[11] = {-1, 56/8, 56/8, 80/8, 64/8, 144/8, 56/8, 40/8, 40/8, 40/8, 40/8};
 
 enum packet_type{
 	SD = 1,
@@ -72,24 +75,15 @@ typedef struct{
 	long int Data;
 }sample;
 
-
-typedef struct{
-	pthread_mutex_t lock;
-	byte PBID[2];
-	byte** IPs;
-	int IP_amm;
-	void* bitmap;
-	byte bitmap_size;
-	long int sync_timestamp;
-	short validity_delay;
-} timetable_msg;
-
-typedef struct{
-	byte timeslot_size;
-	short table_size;
-	byte local_slots;
-} timetable;
-
+/*
+ * The retransmitable messages
+ */
+enum retransmitable{
+	rTB = 1,
+	rPR,
+	rNE,
+	rNER
+};
 
 /*
  * Queue related data types
@@ -109,6 +103,58 @@ typedef struct{
 	int Size;
 } queue;
 
+/*
+ * List related data types
+ */
+
+typedef struct{
+	void* Next;
+	void* Buff;
+}List_el;
+
+typedef struct{
+	List_el* First;
+	List_el* Last;
+	int Size;
+}List;
+
+typedef struct{
+	pthread_mutex_t Lock;
+	List* L;
+}IPList;
+
+/*
+typedef struct{
+	pthread_mutex_t Lock;
+	byte PBID[2];
+	IPList* IPs;
+	void* Bitmap;
+	byte Bitmap_size;
+	long int Sync_timestamp;
+	short Validity_delay;
+} timetable_msg;
+*/
+
+typedef struct{
+	pthread_mutex_t Lock;
+	byte Timeslot_size;
+	short Table_size;
+	byte Local_slot;
+} timetable;
+
+/*
+ * Struct that helps control message
+ * retransmission
+ */
+typedef struct{
+	pthread_mutex_t Lock;
+	//timetable_msg* Tm;
+	byte Retransmitables;		// The retransmission bitmap
+	unsigned long int Time_TB;
+	unsigned long int Time_PR;
+	unsigned long int Time_NE;
+	unsigned long int Time_NER;
+}retransmission;
 
 /*
  * Internal queue is only handled by the WS and HW interfaces
@@ -120,6 +166,11 @@ typedef struct{
 	queue* InternalQueue;
 	byte IP[2];
 	table* Table;
+	timetable* TimeTable;
+	retransmission Rt;
+	IPList* SubSlaves;
+	IPList* OutsideSlaves;
+	byte TB_PBID[2];
 	// ...
 } node;
 
@@ -176,6 +227,74 @@ newOutMessage(int size, void* buffer);
  */
 void
 delOutMessage(out_message* Message);
+
+List* newList();
+
+void delList(List* L);
+
+
+void
+/*
+ * Inserts a new element with the stored buffer, at position position
+ * in the list
+ * If the position is negative, inserts in the beggining of the list
+ * If the position is equal or higher than the list size, in the end
+ */
+insertInList(List* L, void* buffer, int position);
+
+void
+/*
+ * Prints the contents in the buffers of a list
+ * Assumes they are '\0' terminated
+ */
+printList(List* L);
+
+void*
+/*
+ * Removes element at the given position
+ * Returns removed element buffer or NULL if position
+ * is negative or higher than list size
+ */
+removeFromList(List* L, int position);
+
+IPList*
+/*
+ * Returns an IP List
+ * IP List operations are THREAD SAFE
+ */
+newIPList();
+
+void
+/*
+ * Destroys an IP List
+ * THREAD SAFE
+ */
+delIPList(IPList* IPL);
+
+bool
+/*
+ * Returns true if the IP is in the given IP list,
+ * false otherwise
+ * THREAD SAFE
+ */
+getIPFromList(IPList* IPL, byte IP[2]);
+
+void
+/*
+ * Insert an IP into an IP List
+ * Only does so if it doesn't already exist
+ * THREAD SAFE
+ */
+insertIPList(IPList* IPL, byte IP[2]);
+
+void
+/*
+ * Remove an IP from an IP List
+ * THREAD SAFE
+ */
+removeIPList(IPList* IPL, byte IP[2]);
+
+
 
 meta_data Meta;
 node Self;
