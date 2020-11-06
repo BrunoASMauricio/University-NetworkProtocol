@@ -100,9 +100,9 @@ void PB_RX(in_message* msg)
 	}
 	/*else
 	{
-		/*if(pibdSearchPair(senderIp,PBID,Self.PBID_PB, Self.RoutingPBIDTable)==0)
+		/*if(pibdSearchPair(senderIp,PBID,Self.PB_PBIDTable;)==0)
 		{
-			pbidInsertPair(senderIP,PBID,Self.PBID_PB); //stores pair in PBID table
+			pbidInsertPair(senderIP,PBID,Self.PB_PBIDTable;); //stores pair in PBID table
 			PR_TX(senderIp, PBID, msg->SNR);
 			//sets timeout FOR RETRANSMISSION
 		}

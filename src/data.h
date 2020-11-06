@@ -129,6 +129,7 @@ typedef struct{
 	table* Table;
 	short RoutingPBID;
 	node_status Status;
+	//pbid_ip_pairs* PB_PBIDTable;
 	// ...
 } node;
 

@@ -63,8 +63,6 @@ void PB_TX()
 	out_message* message = newOutMessage(size, PBPacket);
     addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 
-    free(PBPacket); //COULD SOMEONE CHECK IF THIS FREE MAKES SENSE?
-
 	return;
 }
 
@@ -92,7 +90,6 @@ void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
 	out_message* message = newOutMessage(size, PRPacket);
 	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 
-    free(PRPacket); 
 	return;
 }
 
@@ -117,7 +114,6 @@ void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
 	out_message* message = newOutMessage(size, PCPacket);
 	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
 
-    free(PCPacket);
 	return;
 }
 
