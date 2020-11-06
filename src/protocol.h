@@ -6,8 +6,45 @@
 
 #define PORTHW     8080 
 
-typedef uint8_t byte;
+// Check for retransmission delay in us
+#define DEFAULT_RETRANSMIT_CHECK 10
 
+// Retransmission delays in ns
+#define RETRANSMISSION_DELAY_TB 100
+#define RETRANSMISSION_DELAY_PR 100
+#define RETRANSMISSION_DELAY_NE 100
+#define RETRANSMISSION_DELAY_NER 100
+
+void
+/*
+ * Starts the retransmission of a certain message
+ * The retransmitable field is the message type.
+ * The enum specifies: rTB, rPR, rNE and rNER
+ */
+startRetransmission(retransmitable message_type);
+
+void
+/*
+ * Halts the retransmission of a certain message
+ */
+stopRetransmission(retransmitable message_type);
+
+
+void*
+/*
+* Infers from retransmitables the required retransmissions.
+* Uses time_* to check if the retransmission should occur now
+* sleeps for the difference in the closest timestamp and the current time
+* (overshoots should be avoided, but aren't harmful)
+*/
+retransmit(void* dummy);
+
+//void
+/*
+* Re/Generates the retransmission TimeTable
+* If the "deadline" is reached, generates it and sets up retransmission
+*/
+//generateTB();
 
 /*
  * Performs a network test
@@ -18,8 +55,27 @@ typedef uint8_t byte;
 void
 setMaster();
 
+// The following 6 functions are wrappers for the IP list functions
+void
+insertSubSlave(byte IP[2]);
+
+bool
+getSubSlave(byte IP[2]);
+
+void
+removeSubSlave(byte IP[2]);
+
+void
+insertSubSlave(byte IP[2]);
+
+bool
+getSubSlave(byte IP[2]);
+
+void
+removeSubSlave(byte IP[2]);
+
 /*
- * Returns the size of the packet in buf
+ * Returns the size of the packet in buf, in bytes
  * Returns -1 on undefine message type/wrong version
  */
 int
