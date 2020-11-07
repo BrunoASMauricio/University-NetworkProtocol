@@ -27,11 +27,11 @@ WS_listener(void* dummy)
 
 void SD_RX(in_message* msg)
 {
-	int operator = 15; //0000 1111
+	int math = 15; //0000 1111
 	
-	if(((byte*)msg->buf)[0]&operator != 1)
+	if(((byte*)msg->buf)[0]&math != 1)
 	{
-	fatalErr("Error: how did you even get here, a not SD packet is inside SD, message[0]) %d", message[0]&operator;
+	fatalErr("Error: how did you even get here, a not SD packet is inside SD, message[0]) %d", ((byte*)msg->buf)[0]&math;
 	}
 
 	if(((byte*)msg->buf)[2] == 0)
@@ -45,7 +45,7 @@ void SD_RX(in_message* msg)
 		//ainda nao me disseram onde vinha o a timestamp por isso vai ficar aqui parado á espera.
 		byte DataToHW[((byte*)msg->buf)[7] + 2];
 		DataToHW[0] = ((byte*)msg->buf)[1];
-		DataToHW[1]=message[4];//dao source IP á HW
+		DataToHW[1]=((byte*)msg->buf)[4];//dao source IP á HW
 
 		for  (int i = 0; i < ((byte*)msg->buf)[7]; i++)
 		{
