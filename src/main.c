@@ -154,7 +154,7 @@ setup()
 	Self.Table = routNewTable();
 	Self.SubSlaves = newIPList();
 	Self.OutsideSlaves= newIPList();
-	Self.TimeTable = newTimeTable();
+	Self.TimeTable = NULL;
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {
@@ -195,6 +195,34 @@ setup()
 }
 
 
+void testSim()
+{
+	int size = sizeof(byte)*7;
+	byte* PBPacket = (byte*)malloc(size);
+    short MasterDistance = 403;
+
+    if(PBPacket == NULL){
+        fatalErr("Couldn't assign memory to PB Packet \n");
+    }
+
+    PBPacket[0]=(PROTOCOL_VERSION<<4)+2;
+    PBPacket[1]=Self.IP[0];
+    PBPacket[2]=Self.IP[1];
+    PBPacket[3]= (238>> 8) &0xff;
+    PBPacket[4]= 238 &0xff ;
+
+	PBPacket[5]= (MasterDistance >> 8) &0xff;
+	PBPacket[6]= MasterDistance &0xff;
+
+
+	out_message* message = newOutMessage(size, PBPacket);
+	//dumpBin((char*)(PBPacket), size, "Sent PB message (size %d) to port %u: ", sendToSocket(Meta.WF_TX, PBPacket, size), Meta.WF_TX->port);
+    addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
+
+    free(PBPacket); //COULD SOMEONE CHECK IF THIS FREE MAKES SENSE?
+
+	return;
+}
 void
 handler()
 {
@@ -202,6 +230,10 @@ handler()
 
 	while (1)
     {
+		testSim();
+		usleep(300000); // Ever 300ms (0.3s)
+		//usleep(100000);
+		continue;
 		Message = getMessage();
 		if(Message == NULL) continue;
 		switch (((byte*)Message)[0])
