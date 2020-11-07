@@ -401,6 +401,15 @@ void NEP_RX(in_message* msg)
 
 void NER_RX(in_message* msg)
 {
+    //If slave -> check if msg.NextHopIp == Self.IP
+    //            register Sender IP as Sub-Slave
+    //              If already register, update LastHeard
+    //            Change msg.NextHopIP to Self.NextHopIP
+    //            Retransmit Message
+    //If master -> add Outsider IP to list of know Register Slaves
+    //           AND send a NEA Message back
+    //           GENERATE DEADLINE?, when deadline reached, generate TimeTable
+    //
 	return;
 }
 

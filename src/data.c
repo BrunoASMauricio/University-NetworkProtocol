@@ -373,7 +373,6 @@ void delOutMessage(out_message* Message)
 	free(Message);
 }
 
-
 /*
  * PBID-IP pairs table functions
  */
@@ -573,4 +572,21 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head)
 	free(temp);
 	pthread_mutex_unlock(&(table_head->Lock));
 	return;
+}
+
+out_message* 
+buildNERMessage(byte* NextHopIP, byte* OutsiderIP)
+{
+    
+    byte packet[5];
+    //NOTE(GoncaloXavier): Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NER;
+    packet[1] = NextHopIP[0];
+    packet[2] = NextHopIP[1];
+    packet[3] = OutsiderIP[0];
+    packet[4] = OutsiderIP[1];
+    
+    out_message* NERMessage = newOutMessage(Packet_Sizes[NER]/8, packet);
+    
+    return NERMessage;
 }
