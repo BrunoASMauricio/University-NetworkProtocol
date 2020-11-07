@@ -201,7 +201,8 @@ void testSim()
 	byte* PBPacket = (byte*)malloc(size);
     short MasterDistance = 403;
 
-    if(PBPacket == NULL){
+    if(PBPacket == NULL)
+	{
         fatalErr("Couldn't assign memory to PB Packet \n");
     }
 
