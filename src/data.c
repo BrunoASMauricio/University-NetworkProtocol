@@ -586,7 +586,7 @@ buildNERMessage(byte* NextHopIP, byte* OutsiderIP)
     packet[3] = OutsiderIP[0];
     packet[4] = OutsiderIP[1];
     
-    out_message* NERMessage = newOutMessage(Packet_Sizes[NER]/8, packet);
+    out_message* NERMessage = newOutMessage(Packet_Sizes[NER], packet);
     
     return NERMessage;
 }

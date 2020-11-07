@@ -180,6 +180,12 @@ setup()
 	Self.TimeTable = NULL;
 	//Self.RoutingPBIDTable= pbidInitializeTable();
 
+    if(Self.IsMaster)
+    {
+	    Self.RegisteredSlaves= newIPList();
+    }
+
+
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {
         fatalErr("mutex init failed for outbound lock\n");

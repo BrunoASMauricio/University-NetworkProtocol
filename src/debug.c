@@ -656,6 +656,19 @@ testTB()
 }
 
 void
+testBuildNER()
+{
+    byte NextHopIP[2] = {0x01, 0x02};
+    byte OutsiderIP[2] = {0x03, 0x04};
+    out_message* NERpacket = buildNERMessage(NextHopIP ,OutsiderIP);
+    printf("Testing buildNERMessage. Expected output:\n");
+    printf(">>NERpacket: 5 0x%X 0x01 0x02 0x03 0x04\n", 
+                                (PROTOCOL_VERSION<<4)+NER, NextHopIP, OutsiderIP );
+    dumpBin((char*)(NERpacket->buf), NERpacket->size, ">>NERpacket: %X ");
+}
+
+
+void
 testAll(){
 	char a[6];
 	a[0] = 0xaf;

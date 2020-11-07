@@ -55,7 +55,10 @@ generateTB();
 void
 setMaster();
 
-// The following 6 functions are wrappers for the IP list functions
+// The following 7 functions are wrappers for the IP list functions
+void
+insertRegisteredSlave(byte IP[2]);
+
 void
 insertSubSlave(byte IP[2]);
 

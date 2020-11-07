@@ -1,4 +1,6 @@
 #include "RX.h"
+#include "data.h"
+#include "protocol.h"
 
 
 void*
@@ -401,15 +403,44 @@ void NEP_RX(in_message* msg)
 
 void NER_RX(in_message* msg)
 {
-    //If slave -> check if msg.NextHopIp == Self.IP
-    //            register Sender IP as Sub-Slave
-    //              If already register, update LastHeard
-    //            Change msg.NextHopIP to Self.NextHopIP
-    //            Retransmit Message
-    //If master -> add Outsider IP to list of know Register Slaves
-    //           AND send a NEA Message back
-    //           GENERATE DEADLINE?, when deadline reached, generate TimeTable
-    //
+    byte* Packet = (byte*)msg->buf;
+    if(Self.IsMaster)
+    {
+        //NOTE(GoncaloXavier): This assumes msg.buff 
+        //has a normal NER packet format!
+        
+        //Adds the Outsiders' IP to knowed Registered Slaves
+        insertRegisteredSlave(&Packet[3]);
+        
+        //Sends NEA Message back
+        out_message* NEAMessage;
+        NEAMessage = buildNEAMessage(&Packet[3]);
+        addToQueue(NEAMessage->buf, NEAMessage->size, Self.OutboundQueue, 1);
+        //NOTE(GoncaloXavier): This assumes generateTB() generates deadline
+        //TODO(GoncaloXavier): Check if it does...
+        generateTB();
+    }
+    else
+    {
+        if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
+        {
+            //Register Sender IP as Sub-Slave
+            insertSubSlave(&Packet[3]);
+            if(getSubSlave(&Packet[3]))
+            {
+                //NOTE(GoncaloXavier): As peer wiki, "If it is already 
+				// registered, only the "LastHeard" time is updated;
+				// No LastHeard anywhere!
+
+            }
+        }
+        //Change msg.NextHopIP to Self.NextHopIP
+        Packet[1] = Self.NextHopIP[0];
+        Packet[2] = Self.NextHopIP[1];
+        //Retransmit Message
+        addToQueue(msg->buf, msg->size, Self.OutboundQueue, 1);
+        startRetransmission(NER);
+    }
 	return;
 }
 

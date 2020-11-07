@@ -180,6 +180,12 @@ void* retransmit(void* dummy)
 }
 
 void
+insertRegisteredSlave(byte IP[2])
+{
+	insertIPList(Self.RegisteredSlaves, IP);
+}
+
+void
 insertSubSlave(byte IP[2])
 {
 	insertIPList(Self.SubSlaves, IP);
