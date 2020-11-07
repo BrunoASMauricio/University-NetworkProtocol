@@ -80,7 +80,6 @@ main(int argc, char **argv)
 				Meta.HW_port = atoi(optarg);
 				break;
 			case 'W':
-				printf(">>%s\n", optarg);
 				Meta.WS_port = atoi(optarg);
 				break;
 			case 'T':
@@ -113,6 +112,10 @@ main(int argc, char **argv)
 	if(Self.IP[0] != 0xff)
 	{
 		printf("Configured with IP %d %d\n", Self.IP[0], Self.IP[1]);
+	}
+	if(Self.SyncTimestamp)
+	{
+		printf("We are in the matrix\n");
 	}
 
 	

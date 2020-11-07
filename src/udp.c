@@ -17,6 +17,7 @@ socket_s* newSocket(int port)
 
 void startSocket(socket_s* sk)
 {
+	int opt;
 	if ((sk->s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 	{
 		fatalErr("Could not generate socket errno: %d\n", errno);
@@ -26,11 +27,21 @@ void startSocket(socket_s* sk)
 	{
 		fatalErr("Could not connect to WF on port %d",sk->port);
 	}
+    opt = fcntl(sk->s, F_GETFL);
+    if (opt < 0) {
+        printf("fcntl(F_SETFL) fail.");
+		exit(-1);
+    }
+    opt |= O_NONBLOCK;
+    if (fcntl(sk->s, F_SETFL, opt) < 0) {
+        printf("fcntl(F_SETFL) fail.");
+		exit(-1);
+	}
 }
 
-void sendToSocket(socket_s* sk, void* buff, int size)
+int sendToSocket(socket_s* sk, void* buff, int size)
 {
-	sendto(sk->s, buff, size, 0, (struct sockaddr*) &(sk->sockaddr), sk->sock_len);
+	return sendto(sk->s, buff, size, 0, (struct sockaddr*) &(sk->sockaddr), sk->sock_len);
 }
 
 int getFromSocket(socket_s* sk, void* buff)
