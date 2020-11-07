@@ -83,7 +83,7 @@ WF_dispatcher(void* dummy)
 				//usleep((next-act)/1000UL);
 			}
 		}
-        sleep(1);
+        //sleep(1);
     }
 }
 

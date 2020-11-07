@@ -13,6 +13,7 @@ main(int argc, char **argv)
 	int c;
 
 	Meta.Debug = false;
+	Meta.Quiet = false;
 	Meta.Post= false;
 	Meta.Log = NULL;
 	Self.IsMaster = UNSET;
@@ -31,6 +32,7 @@ main(int argc, char **argv)
 			{"log",		no_argument,		0, 'l'},
 			{"post",	no_argument,		0, 'p'},
 			{"debug",	no_argument,		0, 'd'},
+			{"quiet",	no_argument,		0, 'q'},
 			{"HW",		required_argument,		0, 'H'},
 			{"WS",		required_argument,		0, 'W'},
 			{"WF_TX",	required_argument,		0, 'T'},
@@ -39,7 +41,7 @@ main(int argc, char **argv)
 			{0,			0,					0,  0 }
 		};
 
-		c = getopt_long(argc, argv, "lpdr:H:W:T:R:I:s", long_options, &option_index);
+		c = getopt_long(argc, argv, "qlpdr:H:W:T:R:I:s", long_options, &option_index);
 
 		if (c == -1)	break;
 
@@ -70,6 +72,10 @@ main(int argc, char **argv)
 
 			case 'd':
 				Meta.Debug = true;
+				break;
+
+			case 'q':
+				Meta.Quiet = true;
 				break;
 
 			case 'p':
@@ -104,6 +110,7 @@ main(int argc, char **argv)
 	}
 
 	printf("Starting protocol\n");	
+	printf("Quiet: %d\n", Meta.Quiet);
 	printf("Configured ports:\n");
 	printf("HW: %d\n", Meta.HW_port);
 	printf("WS: %d\n", Meta.WS_port);
@@ -172,6 +179,7 @@ setup()
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 }
+
 
 void
 handler()

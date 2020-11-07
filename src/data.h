@@ -37,6 +37,7 @@ typedef struct{
 	socket_s* WF_TX;
 	bool Post;
 	bool Debug;
+	bool Quiet;
 	FILE* Log;
 	
 	int WF_TX_port;

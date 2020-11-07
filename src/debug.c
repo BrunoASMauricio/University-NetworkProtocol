@@ -3,11 +3,16 @@
 void dumpBin(char* buf, int size, const char *fmt,...)
 {
 	va_list args;
-    va_start(args, fmt);
-    vfprintf(stdout, fmt, args);
+	if(Meta.Quiet)
+	{
+		return;
+	}
+
+	va_start(args, fmt);
+	vfprintf(stdout, fmt, args);
 
 	for(int i = 0; i < size; i++)
-    {
+	{
 		fprintf(stdout, "0x%02hhx ", buf[i]);
 	}
 
@@ -32,9 +37,14 @@ void
 printfLog(const char *fmt, ...)
 {
 	va_list args;
-    va_start(args, fmt);
-    vfprintf(stdout, fmt, args);
+	if(Meta.Quiet)
+	{
+		return;
+	}
+	va_start(args, fmt);
+	vfprintf(stdout, fmt, args);
 	va_end(args);
+
 
 	if (Meta.Log) 
 	{
