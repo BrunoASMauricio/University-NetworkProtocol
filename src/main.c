@@ -19,6 +19,7 @@ main(int argc, char **argv)
 	Self.IsMaster = UNSET;
 	Self.IP[0] = 0xff;
 	Self.SyncTimestamp = true;
+	Self.Rt.Retransmitables = 0;
 
 	Meta.HW_port = DEFAULT_HW_PORT;
 	Meta.WS_port = DEFAULT_WS_PORT;
@@ -150,7 +151,15 @@ setup()
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
-	Self.Table= routNewTable();
+	Self.Table = routNewTable();
+	Self.SubSlaves = newIPList();
+	Self.OutsideSlaves= newIPList();
+	Self.TimeTable = newTimeTable();
+
+	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
+    {
+        fatalErr("mutex init failed for outbound lock\n");
+    }
 
 
 	Meta.WF_RX = newSocket(Meta.WF_RX_port);
@@ -176,6 +185,11 @@ setup()
 
 	if (rc = pthread_create(&(Meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL))
     {
+		fatalErr("Error: Unable to create thread, %d\n", rc);
+	}
+
+	if (rc = pthread_create(&(Meta.Retransmission_t), NULL, retransmit, NULL))
+	{
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 }

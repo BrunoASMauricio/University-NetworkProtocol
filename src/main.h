@@ -11,6 +11,9 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ifaddrs.h>
+#include <dirent.h>
+
 
 /*
  * Performs node setup
@@ -36,9 +39,11 @@ clean();
 #include "data.c"
 #include "udp.c"
 #include "routing_table.c"
-#include "debug.c"
 #include "protocol.c"
 #include "RX.c"
 #include "TX.c"
+
+
+#include "debug.c"
 
 #endif
