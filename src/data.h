@@ -101,11 +101,13 @@ typedef struct{
 // All 64 bits to avoid operation mistakes
 // Most of the operations would be 64 bits either way
 typedef struct{
+	pthread_mutex_t Lock;
 	unsigned long int timeslot_size;	//timeslot size (1 byte padded)
 	unsigned long int table_size;		//timetable size (2 bytes padded)
-	unsigned long int  local;			//local slot (0 to N(umber of nodes)) (1 byte padded)
+	unsigned long int  local_slot;			//local slot (0 to N(umber of nodes)) (1 byte padded)
 	unsigned long int sync;
 } timetable;
+
 
 /*
  * The retransmitable messages
@@ -155,24 +157,7 @@ typedef struct{
 	List* L;
 }IPList;
 
-/*
-typedef struct{
-	pthread_mutex_t Lock;
-	byte PBID[2];
-	IPList* IPs;
-	void* Bitmap;
-	byte Bitmap_size;
-	long int Sync_timestamp;
-	short Validity_delay;
-} timetable_msg;
-*/
 
-typedef struct{
-	pthread_mutex_t Lock;
-	byte Timeslot_size;
-	short Table_size;
-	byte Local_slot;
-} timetable;
 
 /*
  * Struct that helps control message
@@ -180,7 +165,6 @@ typedef struct{
  */
 typedef struct{
 	pthread_mutex_t Lock;
-	//timetable_msg* Tm;
 	byte Retransmitables;		// The retransmission bitmap
 	unsigned long int Time_TB;
 	unsigned long int Time_PR;

@@ -450,26 +450,26 @@ mockTB_RX(void* buff)
 	pthread_mutex_lock(&(Self.TimeTable->Lock));
 	if(true)
 	{
-		Self.TimeTable->Local_slot = -1;
+		Self.TimeTable->local_slot = -1;
 		ip_amm = ((short*)(((byte*)buff+16)))[0];
-		Self.TimeTable->Table_size = ip_amm;
+		Self.TimeTable->table_size= ip_amm;
 		for(int i = 0; i < ip_amm; i++)
 		{
 			if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
 			{
-				Self.TimeTable->Local_slot = i;
+				Self.TimeTable->local_slot = i;
 				slot = i;
 				printf("Our slot: %d\n",i);
 				break;
 			}
 		}
-		if(Self.TimeTable->Local_slot == -1)
+		if(Self.TimeTable->local_slot == -1)
 		{
 			dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
 			// SET STATE TO OUTSIDE NETWORK
 			return;
 		}
-		Self.TimeTable->Timeslot_size = (((byte*)buff+15))[0];
+		Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
 	}
 
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);

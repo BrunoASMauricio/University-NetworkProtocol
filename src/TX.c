@@ -47,7 +47,7 @@ WF_dispatcher(void* dummy)
 		{
 			clock_gettime(CLOCK_REALTIME, &Res);
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
-			Slot = Self.TimeTable->sync + Self.TimeTable->local * Self.TimeTable->timeslot_size;
+			Slot = Self.TimeTable->sync + Self.TimeTable->local_slot * Self.TimeTable->timeslot_size;
 			Vact = Act - Slot;
 			Next = Self.TimeTable->table_size * ((Vact/Self.TimeTable->table_size) + 1) + Slot;
 			

@@ -143,24 +143,24 @@ void TB_RX(in_message* msg)
 	pthread_mutex_lock(&(Self.TimeTable->Lock));
 	if(((byte*)buff)[0] != Self.TB_PBID[0] && ((byte*)buff)[1] == Self.TB_PBID[1])
 	{
-		Self.TimeTable->Local_slot = -1;
-		Self.TimeTable->Table_size = ((short*)(((byte*)buff+16)))[0];
-		ip_amm = Self.TimeTable->Table_size;
+		Self.TimeTable->local_slot = -1;
+		Self.TimeTable->table_size = ((short*)(((byte*)buff+16)))[0];
+		ip_amm = Self.TimeTable->table_size;
 		for(int i = 0; i < ip_amm; i++)
 		{
 			if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
 			{
-				Self.TimeTable->Local_slot = i;
+				Self.TimeTable->local_slot = i;
 				break;
 			}
 		}
-		if(Self.TimeTable->Local_slot == -1)
+		if(Self.TimeTable->local_slot == -1)
 		{
 			dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
 			// SET STATE TO OUTSIDE NETWORK
 			return;
 		}
-		Self.TimeTable->Timeslot_size = (((byte*)buff+15))[0];
+		Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
 	}
 
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
