@@ -29,12 +29,14 @@ void startSocket(socket_s* sk)
 	}
 	*/
     opt = fcntl(sk->s, F_GETFL);
-    if (opt < 0) {
+    if (opt < 0) 
+	{
         printf("fcntl(F_SETFL) fail.");
 		exit(-1);
     }
     opt |= O_NONBLOCK;
-    if (fcntl(sk->s, F_SETFL, opt) < 0) {
+    if (fcntl(sk->s, F_SETFL, opt) < 0) 
+	{
         printf("fcntl(F_SETFL) fail.");
 		exit(-1);
 	}
