@@ -35,8 +35,7 @@ void SD_TX(int Sample_Ammount, void* Samples)
 
 void PB_TX()
 {
-	int size = sizeof(byte)*7;
-	byte* PBPacket = (byte*)malloc(size);
+	byte* PBPacket = (byte*)malloc(sizeof(byte)*7);
     short MasterDistance =0;
 	
     if(PBPacket == NULL){
@@ -44,7 +43,7 @@ void PB_TX()
     }
 
     table_entry* FirstEntry =routGetEntryByPos(Self.Table, 1);
-    PBPacket[0]=(PROTOCOL_VERSION<<4)+2;
+    PBPacket[0]=(PROTOCOL_VERSION<<4)+PB;
     PBPacket[1]=Self.IP[0];
     PBPacket[2]=Self.IP[1];
     PBPacket[3]= (Self.RoutingPBID >> 8) &0xff;
@@ -60,23 +59,22 @@ void PB_TX()
     }
  
 
-	out_message* message = newOutMessage(size, PBPacket);
-    addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
+	out_message* message = newOutMessage(getPacketSize(PBPacket), PBPacket);
+    addToQueue(message, message->size, Self.OutboundQueue, 1);
 
 	return;
 }
 
 void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
 {
-	int size= sizeof(byte)*10;
-	byte* PRPacket = (byte*)malloc(size);
+	byte* PRPacket = (byte*)malloc(sizeof(byte)*10);
 
     if(PRPacket == NULL){
         fatalErr("Couldn't assign memory to PB Packet \n");
     }
 
     table_entry* FirstEntry = routGetEntryByPos(Self.Table, 1);
-    PRPacket[0]=(PROTOCOL_VERSION<<4)+3;
+    PRPacket[0]=(PROTOCOL_VERSION<<4)+PR;
     PRPacket[1]=Self.IP[0];
     PRPacket[2]=Self.IP[1];
     PRPacket[3]=Originator_IP[0];
@@ -87,22 +85,21 @@ void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
     PRPacket[8]=FirstEntry->Distance &0xff;
     PRPacket[9]=SNR;
 
-	out_message* message = newOutMessage(size, PRPacket);
-	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
+	out_message* message = newOutMessage(getPacketSize(PRPacket), PRPacket);
+	addToQueue(message, message->size, Self.OutboundQueue, 1);
 
 	return;
 }
 
 void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
 {
-	int size= sizeof(byte)*8;
-	byte* PCPacket = (byte*)malloc(size);
+	byte* PCPacket = (byte*)malloc(sizeof(byte)*8);
 
     if(PCPacket == NULL){
         fatalErr("Couldn't assign memory to PB Packet \n");
     }
 
-    PCPacket[0]=(PROTOCOL_VERSION<<4)+4;
+    PCPacket[0]=(PROTOCOL_VERSION<<4)+PC;
     PCPacket[1]=Self.IP[0];
     PCPacket[2]=Self.IP[1];
     PCPacket[3]=Reached_IP[0];
@@ -111,8 +108,8 @@ void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
     PCPacket[6]=PBID[1];
     PCPacket[7]=SNR;
 
-	out_message* message = newOutMessage(size, PCPacket);
-	addToQueue(message, sizeof(message), Self.OutboundQueue, 1);
+	out_message* message = newOutMessage(getPacketSize(PCPacket), PCPacket);
+	addToQueue(message, message->size, Self.OutboundQueue, 1);
 
 	return;
 }
