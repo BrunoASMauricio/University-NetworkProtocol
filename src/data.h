@@ -407,7 +407,11 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head);
  * removes pair with "IP_toRemove" from the table pointed by "table_head"
  */
 
-
+/*
+ * Builds NEP Type Message using newOutMessage()
+ */ 
+out_message*
+buildNEPMessage(byte* SenderIP, byte* OutsiderIP);
 
 meta_data Meta;
 node Self;

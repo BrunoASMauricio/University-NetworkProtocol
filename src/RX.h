@@ -76,7 +76,9 @@ void TB_RX(in_message* msg);
 void NE_RX(in_message* msg);
 
 /*
- * Handles an NEP message
+ * Handles an NEP message, takes a NEP in_message from NEP_TX
+ * IMPORTANT: Assumes msg->buf to have NEP format;
+ * Cancels NE Retransmission and updates Node.Status to OutsideSlave
  */
 void NEP_RX(in_message* msg);
 

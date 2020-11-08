@@ -76,7 +76,8 @@ void TB_TX(byte PBID[2], timetable* tm, in_message* message);
 void NE_TX(byte Proxy_IP[2]);
 
 /*
- * Handles an NEP message
+ * Builds and queues a NEP message, using received OutsidersIP and 
+ * Self.IP for senders IP
  */
 void NEP_TX(byte Outsiders_IP[2]);
 

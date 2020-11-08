@@ -1,7 +1,5 @@
 #include "TX.h"
 #include "data.h"
-#include "protocol.h"
-
 
 void*
 WF_dispatcher(void* dummy)
@@ -291,6 +289,9 @@ void NE_TX(byte Proxy_IP[2])
 
 void NEP_TX(byte Outsiders_IP[2])
 {
+    out_message* NEPMessage = buildNEPMessage(Self.IP, Outsiders_IP);
+    
+    addToQueue(NEPMessage->buf, NEPMessage->size, Self.OutboundQueue, 1);
 	return;
 }
 
