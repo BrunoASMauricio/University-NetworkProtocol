@@ -1,4 +1,6 @@
 #include "TX.h"
+#include "data.h"
+#include "protocol.h"
 
 
 void*
@@ -196,8 +198,8 @@ void PB_TX()
     PBPacket[0]=(PROTOCOL_VERSION<<4)+PB;
     PBPacket[1]=Self.IP[0];
     PBPacket[2]=Self.IP[1];
-    PBPacket[3]= (Self.RoutingPBID >> 8) &0xff;
-    PBPacket[4]= Self.RoutingPBID &0xff ;
+    PBPacket[3]= (getNewPBID()>> 8) &0xff;
+    PBPacket[4]= Self.PBID &0xff ;
 
     if(Self.IsMaster == false)
     {
@@ -292,12 +294,18 @@ void NEP_TX(byte Outsiders_IP[2])
 	return;
 }
 
-void NER_TX(byte Outsiders_IP[2])
+out_message* NER_TX(byte Outsiders_IP[2])
 {
-	return;
+    byte* NextHopIP = Self.Table->begin->Neigh_IP;
+    out_message* NERMessage;
+    
+    NERMessage = buildNERMessage(NextHopIP, Outsiders_IP);
+    addToQueue(NERMessage->buf, NERMessage->size, Self.OutboundQueue, 1);
+
+	return NERMessage;
 }
 
-void NEA_TX(byte Outsiders_IP[2], byte PBID[2])
+void NEA_TX(byte Outsiders_IP[2], pbid PBID)
 {
 	return;
 }

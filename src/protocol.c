@@ -543,4 +543,9 @@ void* generateTB()
 	return buff;
 }
 
+pbid 
+getNewPBID()
+{
+    return ++(Self.PBID);
+}
 

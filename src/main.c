@@ -158,7 +158,7 @@ setup()
 	int rc;
 	//memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 	setMaster();
-	Self.RoutingPBID=1;
+	Self.PBID=1;
 
 	if(Self.IsMaster==false) //setting node as an outside one
 	{
@@ -170,6 +170,7 @@ setup()
 	}
 	
 
+    Self.PBID = 0;
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();

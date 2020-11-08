@@ -83,11 +83,11 @@ void NEP_TX(byte Outsiders_IP[2]);
 /*
  * Handles an NER message
  */
-void NER_TX(byte Outsiders_IP[2]);
+out_message* NER_TX(byte Outsiders_IP[2]);
 
 /*
  * Handles an NEA message
  */
-void NEA_TX(byte Outsiders_IP[2], byte PBID[2]);
+void NEA_TX(byte Outsiders_IP[2], pbid PBID);
 
 #endif

@@ -93,7 +93,11 @@ handlePB(void* message);
 void
 handlePR(void* message);
 
-
+/*
+ * Increments and returns global PBID 
+ */
+pbid
+getNewPBID();
 
 /*snippet code provided by anand choubey, consulted on: 
     https://www.codeproject.com/Articles/35103/Convert-MAC-Address-String-into-Bytes

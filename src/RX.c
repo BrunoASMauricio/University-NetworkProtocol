@@ -263,7 +263,7 @@ void PR_RX(in_message* msg)
 			//distance=updateDistance(distance, SNRofSentPB, msg->snr) or something like that 
 			//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, SNRofSentPB,Act);
 			PC_TX(SenderIp,PBID,msg->SNR);
-			Self.RoutingPBID++;//this only makes sense to update if it hasn't received that pair
+			Self.PBID++;//this only makes sense to update if it hasn't received that pair
 
 		//}
 
@@ -403,45 +403,47 @@ void NEP_RX(in_message* msg)
 
 void NER_RX(in_message* msg)
 {
-    byte* Packet = (byte*)msg->buf;
-    if(Self.IsMaster)
+	byte* Packet = (byte*)msg->buf;
+    //NOTE(GoncaloXavier): This assumes msg.buff 
+    //has a normal NER packet format!
+    if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
     {
-        //NOTE(GoncaloXavier): This assumes msg.buff 
-        //has a normal NER packet format!
-        
-        //Adds the Outsiders' IP to knowed Registered Slaves
-        insertRegisteredSlave(&Packet[3]);
-        
-        //Sends NEA Message back
-        out_message* NEAMessage;
-        NEAMessage = buildNEAMessage(&Packet[3]);
-        addToQueue(NEAMessage->buf, NEAMessage->size, Self.OutboundQueue, 1);
-        //NOTE(GoncaloXavier): This assumes generateTB() generates deadline
-        //TODO(GoncaloXavier): Check if it does...
-        generateTB();
-    }
-    else
-    {
-        if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
-        {
-            //Register Sender IP as Sub-Slave
-            insertSubSlave(&Packet[3]);
-            if(getSubSlave(&Packet[3]))
-            {
-                //NOTE(GoncaloXavier): As peer wiki, "If it is already 
-				// registered, only the "LastHeard" time is updated;
-				// No LastHeard anywhere!
+        //Add the Outsider IP to the Sub-Slaves, updating LastHeard
+        insertSubSlave(&Packet[3]);
 
-            }
+        unsigned long int Act;
+        timespec Res;
+        clock_gettime(CLOCK_REALTIME, &Res);
+        Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+
+        table_entry* Outsider = routSearchByIp(Self.Table, &Packet[3]);
+        //TODO: This might make sense to be done using update function
+        Outsider->LastHeard = Act;
+
+        if(Self.IsMaster)
+        {
+            //NOTE(GoncaloXavier): This assumes generateTB() generates deadline
+            //TODO(GoncaloXavier): Check if it does...
+            generateTB();
+            
+            //Sends NEA Message back
+            //Send Outsiders IP and PBID to NEA
+            pbid PBID = getNewPBID();
+            NEA_TX(&Packet[3], PBID);
         }
-        //Change msg.NextHopIP to Self.NextHopIP
-        Packet[1] = Self.NextHopIP[0];
-        Packet[2] = Self.NextHopIP[1];
-        //Retransmit Message
-        addToQueue(msg->buf, msg->size, Self.OutboundQueue, 1);
-        startRetransmission(NER);
-    }
+        else
+        {
+            //Transmit the packet up the network
+            //Send Outsiders' IP NER_TX
+            out_message* NERMessage = NER_TX(&Packet[3]);
+            startRetransmission(rNER, NERMessage->buf);
+        }
+    } 
+    
+    //Discard packet
+    delInMessage(msg);
 	return;
+
 }
 
 void NEA_RX(in_message* msg)

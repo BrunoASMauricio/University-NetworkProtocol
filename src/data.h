@@ -25,6 +25,7 @@
 
 
 typedef uint8_t byte;
+typedef uint16_t pbid;
 
 /*
  * Data structures
@@ -230,9 +231,9 @@ typedef struct{
 	IPList* OutsideSlaves;
 	IPList* RegisteredSlaves;
 	byte TB_PBID[2];
-	uint16_t RoutingPBID; //gonçalo xavier, if you see this please change accordinly with your define
 	node_status Status;
 	//pbid_ip_pairs* RoutingPBIDTable;
+    pbid PBID;
 	// ...
 } node;
 
