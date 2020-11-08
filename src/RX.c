@@ -8,16 +8,27 @@ WF_listener(void* dummy)
 	int PacketSize;
 	int ReadBytes = 0;
 	int PrevBytes = 0;
+	unsigned int received_messages = 0;
 	in_message* message;
 	timespec res;
 
-	printf("WF Listener on\n");
+	fprintf(stdout, "WF Listener on port %u\n", Meta.WF_RX->port);
+
+	// This is needed to kickstart the connection
+	// Everywhere I looked, client always spoke first
+	// Always found "in UDP it doesn't matter who talks first"
+	// But if client doesn't send this ping, it doesn't work
+	sleep(1);
+	sendToSocket(Meta.WF_RX, &PrevBytes, 2);
+
+	PrevBytes = 0;
 	while(1)
 	{
 		while((ReadBytes = getFromSocket(Meta.WF_RX, buff+PrevBytes)) == -1)
 		{
 			continue;
 		}
+		fprintf(stdout, "\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, received_messages++);
 		PrevBytes = 0;
 
 		if(clock_gettime(CLOCK_REALTIME, &res) == -1)
@@ -56,8 +67,6 @@ WF_listener(void* dummy)
 				buff[i] = buff[PacketSize+i];
 			}
 		}
-
-		sleep(1);	// For testing purposes
 	}
 }
 
