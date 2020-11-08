@@ -87,29 +87,30 @@ void PB_RX(in_message* msg)
 	senderIp[1]=((byte*)msg->buf)[2];
 	PBID[0]=((byte *)msg->buf)[3];
 	PBID[1]=((byte *)msg->buf)[4];
-	unsigned short distance	=(((byte *)msg->buf)[5]<<8) + ((byte *)msg->buf)[6];
+	unsigned short distance	=(((byte *)msg->buf)[5]<< 8) + ((byte *)msg->buf)[6];
 
 	if(Self.Status == Outside){ //if the node is an outside slave 
 
 		if(distance!= (unsigned short)65535)
 		{
 			NE_TX(senderIp);//sends a NE
-			//DO I NEED TO DEAL WITH TIMEOUT RETRANSMISSION HERE?
+			//startRetransmission(rNE);
 			return; 
 		}	
 	}
-	/*else
+	else
 	{
-		/*if(pibdSearchPair(senderIp,PBID,Self.PB_PBIDTable;)==0)
+		/*if(pibdSearchPair(senderIp,PBID,Self.RoutingPBIDTable)==0)
 		{
-			pbidInsertPair(senderIP,PBID,Self.PB_PBIDTable;); //stores pair in PBID table
+			pbidInsertPair(senderIP,PBID,Self.RoutingPBIDTable); //stores pair in PBID table
+			routInsertOrUpdateEntry(Self.Table, senderIp, distance, 0,0); //stores distance when receiveing PB so later when it receives PC can update
 			PR_TX(senderIp, PBID, msg->SNR);
-			//sets timeout FOR RETRANSMISSION
-		}
+			startRetransmission(rPR);
+		}*/
 	}
 
 	delInMessage(msg);
-	return;*/
+	return;
 }
 
 void PR_RX(in_message* msg)
@@ -117,18 +118,23 @@ void PR_RX(in_message* msg)
 	byte SenderIp[2];
 	byte originatorIp[2];
 	byte PBID[2];
+	byte SNRofSentPB;
 	SenderIp[0]=((byte*)msg->buf)[1];
 	SenderIp[1]=((byte*)msg->buf)[2];
 	originatorIp[0]=((byte*)msg->buf)[3];
 	originatorIp[1]=((byte*)msg->buf)[4];
 	PBID[0]=((byte *)msg->buf)[5];
 	PBID[1]=((byte *)msg->buf)[6];
-
 	unsigned short distance =(((byte *)msg->buf)[7]<<8) + ((byte *)msg->buf)[8];
+	SNRofSentPB=((byte *)msg->buf)[9];
+	
 
 	if(originatorIp[0]== Self.IP[0] && originatorIp[1]== Self.IP[1]) //the node is receiving a PR from a PB it generated
 	{
-		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, 0);
+
+		//somehow update in routTable using existance distance, SNRofSentPB (remote snr) and msg->snr (local snr)
+		//distance=updateDistance(distance, SNRofSentPB, msg->snr) or something like that 
+		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, 0, 0);
 		PC_TX(SenderIp,PBID,msg->SNR);
 		Self.RoutingPBID++;
 	}
@@ -142,15 +148,20 @@ void PC_RX(in_message* msg)
 
 	byte SenderIP[2];
 	byte ReachedIP[2];
+	byte SNRofSentPR;
 	SenderIP[0]=((byte*)msg->buf)[1];
 	SenderIP[1]=((byte*)msg->buf)[2];
 	ReachedIP[0]=((byte*)msg->buf)[3];
 	ReachedIP[1]=((byte*)msg->buf)[4];
+	SNRofSentPR =((byte*)msg->buf)[7];
+
 
 	if(ReachedIP[0]== Self.IP[0] && ReachedIP[1]== Self.IP[1])
 	{
+		//somehow update in routTable using existance distance, SNRofSentPR (remote snr) and msg->snr (local snr)
+		//distance=updateDistance(distance, SNRofSentPR, msg->snr) or something like that 
 		//routInsertOrUpdateEntry(Self.Table, SenderIP, distance, msg->SNR, 0); gotta check the distance with Bruno M
-		//stop retransmissions 
+		//stopRetransmission(nPR);
 	}	
 	
 	delInMessage(msg);

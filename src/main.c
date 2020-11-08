@@ -111,7 +111,7 @@ setup()
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
 	Self.Table= routNewTable();
-	//Self.PB_PBIDTable= pbidInitializeTable();
+	//Self.RoutingPBIDTable= pbidInitializeTable();
 
 	Meta.Input_socket = newSocket(INBOUND_PORT);
 	startSocket(Meta.Input_socket);

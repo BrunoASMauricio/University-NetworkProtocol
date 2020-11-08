@@ -127,9 +127,9 @@ typedef struct{
 	queue* InternalQueue;
 	byte IP[2];
 	table* Table;
-	short RoutingPBID;
+	uint16_t RoutingPBID; //gonçalo xavier, if you see this please change accordinly with your define
 	node_status Status;
-	//pbid_ip_pairs* PB_PBIDTable;
+	//pbid_ip_pairs* RoutingPBIDTable;
 	// ...
 } node;
 
