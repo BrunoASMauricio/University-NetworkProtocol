@@ -28,7 +28,7 @@ WF_listener(void* dummy)
 		{
 			continue;
 		}
-		fprintf(stdout, "\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, received_messages++);
+		fprintf(stdout, "\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, ++received_messages);
 		PrevBytes = 0;
 
 		if(clock_gettime(CLOCK_REALTIME, &res) == -1)
@@ -110,34 +110,6 @@ void TA_RX(in_message* msg)
 {
 	return;
 }
-/*
-	((byte*)buff)[0] = (0xff00 & (PROTOCOL_VERSION<<4)) | TB;
-	((byte*)buff)[1] = Self.IP[0];
-	((byte*)buff)[2] = Self.IP[1];
-	((byte*)buff)[3] = Self.TB_PBID[0];
-	((byte*)buff)[4] = Self.TB_PBID[1];
-	((unsigned long int*)((byte*)buff+5))[0] = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
-	((short*)(((byte*)buff+13)))[0] = DEFAULT_VALIDITY_DELAY;
-	(((byte*)buff+15))[0] = DEFAULT_TIMESLOT_SIZE;
-	((short*)(((byte*)buff+16)))[0] = ip_amm;
-	for(int i = 0; i < ip_amm; i++)
-	{
-		((short*)(((byte*)buff+18)))[i] = ((short*)getIPFromList(Self.SubSlaves, i))[0];
-	}
-
-	for(int i = 0; i < ip_amm/8; i++)
-	{
-		((byte*)buff)[16+ip_amm*2+i] = 0xff;
-	}
-	rest = ip_amm - 8*(ip_amm/8);
-	if(rest)
-	{
-		// No point in "cutting" the last bits, because the bitmap must
-		// already cut them
-		((byte*)buff)[16+ip_amm*2+(ip_amm/8)] = (0xff<<(8-rest);
-	}
-
- */
 
 void TB_RX(in_message* msg)
 {

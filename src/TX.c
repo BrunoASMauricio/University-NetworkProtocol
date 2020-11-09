@@ -40,7 +40,7 @@ WF_dispatcher(void* dummy)
 					continue;
 				}
 			}
-			printf("Message sent! total of %d\n", sent_messages++);
+			printf("Message sent! total of %d\n", ++sent_messages);
 			dumpBin((char*)(To_send->buf), To_send->size, "SENT PACKET!: ");
 			delOutMessage(To_send);
 			To_send = NULL;
