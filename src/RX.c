@@ -405,6 +405,9 @@ void NEP_RX(in_message* msg)
     byte* Packet = (byte*)msg->buf;
     if(Packet[3] == Self.IP[0] && Packet[4] == Self.IP[1])
     {
+        //NOTE(GoncaloX): Only here for testing, MANTAINERS PLS DELETE BEFORE MERGE!
+        dumpBin((char*)(Packet), msg->size, "\nNEP_RX got this msg: ");
+        
         // Cancel retransmission of NE 
         stopRetransmission(rNE);
         // Communication was established with possible proxy
@@ -426,14 +429,21 @@ void NER_RX(in_message* msg)
     if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
     {
         //Add the Outsider IP to the Sub-Slaves, updating LastHeard
-        insertSubSlave(&Packet[3]);
+        //NOTE(GoncaloXavier): Sadly since we delete msg at the end of this
+        //function, what's bellow doesn't work, BIG SAD :( -> memcpy or manual
+        //assigned instead
+        
+        byte SubSlaveIP[2];
+        SubSlaveIP[0]= Packet[3];
+        SubSlaveIP[1]= Packet[4];
+        insertSubSlave(SubSlaveIP);
 
         unsigned long int Act;
         timespec Res;
         clock_gettime(CLOCK_REALTIME, &Res);
         Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
-        table_entry* Outsider = routSearchByIp(Self.Table, &Packet[3]);
+        table_entry* Outsider = routSearchByIp(Self.Table, SubSlaveIP);
         if(Outsider == NULL)
         {
             printfErr("IP received in NER not present in rouTable!\n");

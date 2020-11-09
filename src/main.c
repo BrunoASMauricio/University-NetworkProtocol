@@ -138,14 +138,15 @@ main(int argc, char **argv)
 	}
 
 	
-	if (Meta.Post)
+	setup();
+	
+    if (Meta.Post)
     {
         testAll();
     }
 	
-	setup();
 
-	handler();
+	//handler();
 
 	clean();
 
@@ -169,7 +170,6 @@ setup()
 		Self.Status=NA;
 	}
 	
-
     Self.PBID = 0;
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();

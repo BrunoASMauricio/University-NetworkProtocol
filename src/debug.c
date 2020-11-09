@@ -667,7 +667,43 @@ testBuildNER()
     printf("Testing buildNERMessage. Expected output:\n");
     printf(">>NERpacket: 5 0x%X 0x01 0x02 0x03 0x04\n", 
                                 (PROTOCOL_VERSION<<4)+NER, NextHopIP, OutsiderIP );
+    printf("Actual output:\n");
     dumpBin((char*)(NERpacket->buf), NERpacket->size, ">>NERpacket: %X ");
+}
+
+void
+testNER_RX()
+{
+    // Setting some dummy Self values to test 
+    Self.IP[0] = 0x03;
+    Self.IP[1] = 0x04;
+    byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NER, 
+                           0x03, 0x04, 0x01, 0x02};
+    routInsertOrUpdateEntry(Self.Table, &dummyPacket[3], 1, 1, 1, 1);
+    
+    timespec Res;
+    clock_gettime(CLOCK_REALTIME, &Res);
+    
+    in_message* NERreceived = newInMessage(5, dummyPacket, Res);
+    dumpBin((char*)(NERreceived->buf), NERreceived->size, ">>Sent this to NEP_RX: %X");
+    NER_RX(NERreceived);
+
+    printf("\nExpected to have added IP 0x01 0x02 as SubSlave:\n");
+    byte SubSlaveIP[2] = {0x01, 0x02};
+    printf("Is SubSlave present? %s",
+            getIPFromList(Self.SubSlaves, SubSlaveIP)? "YES\n": "NO\n");
+    
+    printf("Expected to have updated LastHeard on routTable \n");
+    table_entry* Outsider = routSearchByIp(Self.Table, &dummyPacket[3]);
+    printf("Current LastHeard: %lu\n", Outsider->LastHeard);
+    
+    if(! Self.IsMaster)
+    {
+        printf("Expected to have started startRetransmission on NER\n");
+        printf("Checking if Self.Rt.Retransmitables is set on NER:\n");
+        printf("Self.Rt.Retransmitables:%s\n", 
+                CHECKBIT(rNER, Self.Rt.Retransmitables) ? "YES\n": "NO\n");
+    }
 }
 
 
@@ -679,12 +715,30 @@ testBuildNEP()
     out_message* NEPpacket = buildNEPMessage(SourceIP ,DestIP);
     printf("Testing buildNEPMessage. Expected output:\n");
     printf(">>NEPpacket: 5 0x%X 0x01 0x02 0x03 0x04\n", 
-                                (PROTOCOL_VERSION<<4)+NEP, SourceIP, DestIP );
+                                (PROTOCOL_VERSION<<4)+NEP);
+    printf("Actual output:\n");
     dumpBin((char*)(NEPpacket->buf), NEPpacket->size, ">>NEPpacket: %X ");
+}
+    
+void
+testNEP_RX()
+{
+    // Setting some dummy Self values to test 
+    Self.IP[0] = 0x03;
+    Self.IP[1] = 0x04;
+    byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NEP, 0x01, 0x02, 0x03, 0x04};
+    
+    timespec Res;
+    clock_gettime(CLOCK_REALTIME, &Res);
+    
+    in_message* NEPreceived = newInMessage(5, dummyPacket, Res);
+    dumpBin((char*)(NEPreceived->buf), NEPreceived->size, ">>Sent this to NEP_RX: %X");
+    NEP_RX(NEPreceived);
 }
 
 void
 testAll(){
+
 	char a[6];
 	a[0] = 0xaf;
 	a[1] = 0x99;
@@ -712,8 +766,9 @@ testAll(){
 
     testBuildNEP();
 
-    testBuildNEP();
-
+    testBuildNER();
+    testNER_RX();
+    
 	testTimeTable();
 
 	testLists();
@@ -722,8 +777,8 @@ testAll(){
 
 	testTB();
 
-//	printf("Iterative testing of PBID-IP pair table\n");
-//	test_PBID_IP_table();
+	printf("Iterative testing of PBID-IP pair table\n");
+	test_PBID_IP_table();
 
 
 	printf("Ending protocol test\n---------\n");
