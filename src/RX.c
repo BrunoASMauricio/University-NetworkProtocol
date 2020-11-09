@@ -1,6 +1,5 @@
 #include "RX.h"
 #include "data.h"
-#include "routing_table.h"
 
 void*
 WF_listener(void* dummy)
@@ -397,8 +396,13 @@ void NE_RX(in_message* msg)
 
 void NEP_RX(in_message* msg)
 {
-    byte* Packet = (byte*)msg->buf;
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NEP_RX does not have NEP packet format!\n");
+        return;
+    }
     
+    byte* Packet = (byte*)msg->buf;
     if(Packet[3] == Self.IP[0] && Packet[4] == Self.IP[1])
     {
         // Cancel retransmission of NE 
@@ -413,8 +417,12 @@ void NEP_RX(in_message* msg)
 void NER_RX(in_message* msg)
 {
 	byte* Packet = (byte*)msg->buf;
-    //NOTE(GoncaloXavier): This assumes msg.buff 
-    //has a normal NER packet format!
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NER_RX does not have NER packet format!\n");
+        return;
+    }
+    
     if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
     {
         //Add the Outsider IP to the Sub-Slaves, updating LastHeard
@@ -426,6 +434,11 @@ void NER_RX(in_message* msg)
         Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
         table_entry* Outsider = routSearchByIp(Self.Table, &Packet[3]);
+        if(Outsider == NULL)
+        {
+            printfErr("IP received in NER not present in rouTable!\n");
+            return;
+        }
         //TODO: This might make sense to be done using update function
         Outsider->LastHeard = Act;
 

@@ -575,7 +575,6 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head)
 out_message* 
 buildNERMessage(byte* NextHopIP, byte* OutsiderIP)
 {
-    
     byte packet[5];
     //NOTE(GoncaloXavier): Version | Packet Type
     packet[0] = (PROTOCOL_VERSION<<4) + NER;
