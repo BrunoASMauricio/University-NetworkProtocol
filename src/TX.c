@@ -38,7 +38,8 @@ void PB_TX()
 	byte* PBPacket = (byte*)malloc(sizeof(byte)*7);
     short MasterDistance =0;
 	
-    if(PBPacket == NULL){
+    if(PBPacket == NULL)
+    {
         fatalErr("Couldn't assign memory to PB Packet \n");
     }
 
@@ -49,11 +50,13 @@ void PB_TX()
     PBPacket[3]= (Self.RoutingPBID >> 8) &0xff;
     PBPacket[4]= Self.RoutingPBID &0xff ;
 
-    if(Self.IsMaster == false){
+    if(Self.IsMaster == false)
+    {
         PBPacket[5]= (FirstEntry->Distance >> 8) &0xff;
         PBPacket[6]= FirstEntry->Distance &0xff;
     }
-    else{
+    else
+    {
         PBPacket[5]= (MasterDistance >> 8) &0xff;
         PBPacket[6]= MasterDistance &0xff;
     }
@@ -69,7 +72,8 @@ void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
 {
 	byte* PRPacket = (byte*)malloc(sizeof(byte)*10);
 
-    if(PRPacket == NULL){
+    if(PRPacket == NULL)
+    {
         fatalErr("Couldn't assign memory to PB Packet \n");
     }
 
@@ -95,7 +99,8 @@ void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
 {
 	byte* PCPacket = (byte*)malloc(sizeof(byte)*8);
 
-    if(PCPacket == NULL){
+    if(PCPacket == NULL)
+    {
         fatalErr("Couldn't assign memory to PB Packet \n");
     }
 

@@ -89,7 +89,8 @@ void PB_RX(in_message* msg)
 	PBID[1]=((byte *)msg->buf)[4];
 	unsigned short distance	=(((byte *)msg->buf)[5]<< 8) + ((byte *)msg->buf)[6];
 
-	if(Self.Status == Outside){ //if the node is an outside slave 
+	if(Self.Status == Outside)
+	{ //if the node is an outside slave 
 
 		if(distance!= (unsigned short)65535)
 		{
