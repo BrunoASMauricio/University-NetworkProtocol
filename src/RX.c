@@ -405,13 +405,10 @@ void NEP_RX(in_message* msg)
     byte* Packet = (byte*)msg->buf;
     if(Packet[3] == Self.IP[0] && Packet[4] == Self.IP[1])
     {
-        //NOTE(GoncaloX): Only here for testing, MANTAINERS PLS DELETE BEFORE MERGE!
-        dumpBin((char*)(Packet), msg->size, "\nNEP_RX got this msg: ");
-        
         // Cancel retransmission of NE 
         stopRetransmission(rNE);
         // Communication was established with possible proxy
-        Self.Status = Outside;
+        Self.Status = Waiting;
     }
     delInMessage(msg);
 	return;
