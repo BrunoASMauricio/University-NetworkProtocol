@@ -12,7 +12,7 @@ WF_listener(void* dummy)
 	in_message* message;
 	timespec res;
 
-	fprintf(stdout, "WF Listener on port %u\n", Meta.WF_RX->port);
+	printf("WF Listener on port %u\n", Meta.WF_RX->port);
 
 	// This is needed to kickstart the connection
 	// Everywhere I looked, client always spoke first
@@ -28,7 +28,7 @@ WF_listener(void* dummy)
 		{
 			continue;
 		}
-		fprintf(stdout, "\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, ++received_messages);
+		printf("\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, ++received_messages);
 		PrevBytes = 0;
 
 		if(clock_gettime(CLOCK_REALTIME, &res) == -1)

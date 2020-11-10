@@ -32,27 +32,55 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 		va_end(args);
 	}
 }
-
+char getThreadChar()
+{
+	pthread_t se = pthread_self();
+	if(se == Meta.WF_listener_t)
+	{
+		return 'R';
+	}
+	else if(se == Meta.WF_dispatcher_t)
+	{
+		return 'T';
+	}
+	else if(se == Meta.WS_listener_t)
+	{
+		return 'S';
+	}
+	else if(se == Meta.HW_dispatcher_t)
+	{
+		return 'H';
+	}
+	else if(se == Meta.Retransmission_t)
+	{
+		return 'E';
+	}
+	else if(se == Meta.Main_t)
+	{
+		return 'M';
+	}
+	else
+	{
+		return 'X';
+	}
+}
 void
 printfLog(const char *fmt, ...)
 {
 	va_list args;
-	if(Meta.Quiet)
+	if(!Meta.Quiet)
 	{
-		return;
+		va_start(args, fmt);
+		vfprintf(stdout, fmt, args);
+		va_end(args);
 	}
-	va_start(args, fmt);
-	vfprintf(stdout, fmt, args);
-	va_end(args);
 
-
-	if (Meta.Log) 
+	if(Meta.Log)
 	{
-		fprintf(Meta.Log, "[!] ");
+		fprintf(Meta.Log, "[%c] [!]", getThreadChar());
 		va_start(args, fmt);
 		vfprintf(Meta.Log, fmt, args);
 		va_end(args);
-		//fflush(Meta.Log);
 	}
 
 	fflush(stdout);
@@ -64,13 +92,16 @@ printfErr(const char *fmt, ...)
 {
 	if (!Meta.Debug) return;
 	va_list args;
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-
-	if (Meta.Log) 
+	if(!Meta.Quiet)
 	{
-		fprintf(Meta.Log, "[X] ");
+		va_start(args, fmt);
+		vfprintf(stderr, fmt, args);
+		va_end(args);
+	}
+
+	if (Meta.Log)
+	{
+		fprintf(Meta.Log, "[%c] [X]", getThreadChar());
 		va_start(args, fmt);
 		vfprintf(Meta.Log, fmt, args);
 		va_end(args);

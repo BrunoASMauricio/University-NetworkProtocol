@@ -11,6 +11,7 @@ int
 main(int argc, char **argv)
 {
 	int c;
+	char buf[30];
 
 	Meta.Debug = false;
 	Meta.Quiet = false;
@@ -25,6 +26,11 @@ main(int argc, char **argv)
 	Meta.WS_port = DEFAULT_WS_PORT;
 	Meta.WF_TX_port = DEFAULT_WF_TX_PORT;
 	Meta.WF_RX_port = DEFAULT_WF_RX_PORT;
+
+	signal(SIGINT, clean);
+
+	// Need this here to open the correct log file
+	memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 
 	while (1)
     {
@@ -65,9 +71,10 @@ main(int argc, char **argv)
 				break;
 
 			case 'l':
-				if((Meta.Log = fopen("./log", "a")) == NULL)
-                {
-					fatalErr("Could not open log. Errno set to: %d\n", errno);
+				sprintf(buf, "./%u.%u_log.sim", Self.IP[0], Self.IP[1]);
+				if((Meta.Log = fopen(buf, "w")) == NULL)
+				{
+					fatalErr("Could not open log file for node %u %u. Errno set to: %d\n", Self.IP[0], Self.IP[1], errno);
 				}
 				break;
 
@@ -109,6 +116,10 @@ main(int argc, char **argv)
 				printf("?? getopt returned character code 0%o ??\n", c);
 		}
 	}
+	
+	// Identifies the main thread
+	// This needs to be here, so that testing output is identified
+	Meta.Main_t = pthread_self();
 
 	printf("Starting protocol\n");	
 	printf("Quiet: %d\n", Meta.Quiet);
@@ -244,8 +255,17 @@ handler()
 }
 
 void
+clean(int signo)
+{
+	clean();
+	exit(0);
+}
+
+void
 clean()
 {
+	printf("\nShutting down node\n");
+	fflush(Meta.Log);
 	if(Meta.WF_TX->s != -1)
 	{
 		close(Meta.WF_TX->s);
