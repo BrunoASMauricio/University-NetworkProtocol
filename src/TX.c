@@ -167,12 +167,10 @@ void SD_TX(int Sample_Ammount)
 	}
 
 	int TotalSize=0, NumSamples=0, Popped;
-	queue_el* AuxEl = Self.InternalQueue->First;
 
-
-	if(AuxEl->PacketSize < Sample_Ammount)
+	if(Self.InternalQueue->First->PacketSize < Sample_Ammount)
 	{
-		NumSamples = AuxEl->PacketSize;
+		NumSamples = Self.InternalQueue->First->PacketSize;
 	}
 	else
 	{
