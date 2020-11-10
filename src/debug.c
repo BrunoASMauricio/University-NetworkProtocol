@@ -659,6 +659,53 @@ testTB()
 }
 
 void
+testNE_RX()
+{
+    printf("\nTesting NE_RX;\n");
+    // Setting some dummy Self values to test 
+    Self.IP[0] = 0x03;
+    Self.IP[1] = 0x04;
+    Self.Status = Inside;
+    byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NE, 0x01, 0x02, 0x03, 0x04};
+    
+    timespec Res;
+    clock_gettime(CLOCK_REALTIME, &Res);
+    
+    in_message* NEreceived = newInMessage(5, dummyPacket, Res);
+    dumpBin((char*)(NEreceived->buf), NEreceived->size, ">>Sent this to NE_RX: %X");
+    NE_RX(NEreceived);
+    
+    printf("\nExpected to have added IP 0x01 0x02 as SubSlave:\n");
+    byte SubSlaveIP[2] = {0x01, 0x02};
+    printf("Is SubSlave present? %s",
+            getIPFromList(Self.SubSlaves, SubSlaveIP) ? "YES\n": "NO\n");
+    
+    printf("Expected to have updated LastHeard on routTable\n");
+    table_entry* Outsider = routSearchByIp(Self.Table, &dummyPacket[1]);
+    printf("Current LastHeard: %lu\n", Outsider->LastHeard);
+    
+    if(Self.IsMaster)
+    {
+        printf("MASTER CASE:\n");
+        printf("Expected to have generated TB\n");
+        printf("Expected to have sent NEP\n");
+    }
+    else
+    {
+        printf("SLAVE CASE:\n");
+        printf("Expected to have sent NEP and NER\n");
+       
+        printf("Expected to have started Retransmission of NER\n");
+        printf("Checking if Self.Rt.Retransmitables is set on NER:\n");
+        printf("Self.Rt.Retransmitables on NER:%s\n", 
+                CHECKBIT(rNER, Self.Rt.Retransmitables) ? "YES\n": "NO\n");
+    }
+
+    
+    printf("\nFinished NE_RX;\n");
+}
+
+void
 testBuildNER()
 {
     byte NextHopIP[2] = {0x01, 0x02};
@@ -670,6 +717,29 @@ testBuildNER()
     printf("Actual output:\n");
     dumpBin((char*)(NERpacket->buf), NERpacket->size, ">>NERpacket: %X ");
     printf("\nFinished testing BuildNER;\n");
+}
+
+void
+testBuildNEA()
+{
+    byte OutsiderIP[2] = {0x01, 0x02};
+    pbid PBID = 0;
+    out_message* NEApacket = buildNEAMessage(OutsiderIP, PBID);
+    printf("\nTesting buildNEAMessage.\n Expected output:\n");
+    printf(">>NEApacket: 5 0x%X 0x01 0x02 %X %X\n", 
+                                (PROTOCOL_VERSION<<4)+NEA, 
+                                (PBID >> 8) & 0xff),
+                                (PBID & 0xff);
+    printf("Actual output:\n");
+    dumpBin((char*)(NEApacket->buf), NEApacket->size, ">>NEApacket: %X ");
+    printf("\nFinished testing BuildNEA;\n");
+}
+
+void
+testNEA_RX()
+{
+    //TODO
+    return;
 }
 
 void
@@ -695,6 +765,10 @@ testNER_RX()
     printf("Is SubSlave present? %s",
             getIPFromList(Self.SubSlaves, SubSlaveIP) ? "YES\n": "NO\n");
     
+    printf("Expected to have updated LastHeard on routTable\n");
+    table_entry* Outsider = routSearchByIp(Self.Table, &dummyPacket[3]);
+    printf("Current LastHeard: %lu\n", Outsider->LastHeard);
+    
     if(Self.IsMaster)
     {
         printf("MASTER CASE:\n");
@@ -704,21 +778,28 @@ testNER_RX()
     else
     {
         printf("SLAVE CASE:\n");
-        printf("Expected to have updated LastHeard on routTable\n");
-        table_entry* Outsider = routSearchByIp(Self.Table, &dummyPacket[3]);
-        printf("Current LastHeard: %lu\n", Outsider->LastHeard);
-    }
-    
-    if(! Self.IsMaster)
-    {
         printf("Expected to have started startRetransmission on NER\n");
         printf("Checking if Self.Rt.Retransmitables is set on NER:\n");
         printf("Self.Rt.Retransmitables on NER:%s\n", 
                 CHECKBIT(rNER, Self.Rt.Retransmitables) ? "YES\n": "NO\n");
     }
+    
     printf("\nFinished NER_RX;\n");
 }
 
+void
+testBuildNE()
+{
+    byte SourceIP[2] = {0x01, 0x02};
+    byte DestIP[2] = {0x03, 0x04};
+    out_message* NEpacket = buildNEMessage(SourceIP ,DestIP);
+    printf("\nTesting buildNEMessage;\n Expected output:\n");
+    printf(">>NEpacket: 5 0x%X 0x01 0x02 0x03 0x04\n", 
+                                (PROTOCOL_VERSION<<4)+NE);
+    printf("Actual output:\n");
+    dumpBin((char*)(NEpacket->buf), NEpacket->size, ">>NEpacket: %X ");
+    printf("\nFinished testing BuildNE;\n");
+}
 
 void
 testBuildNEP()
@@ -791,6 +872,9 @@ testAll(){
 
 	testRoutingTable();
 
+    testBuildNE();
+    testNE_RX();
+	
     testBuildNEP();
     testNEP_RX();
 
@@ -803,6 +887,11 @@ testAll(){
 
 	testIPLists();
 
+    testBuildNEA();
+    testNEA_RX();
+    
+    testLists();
+
 	testTB();
 
 	printf("Iterative testing of PBID-IP pair table\n");
@@ -810,7 +899,9 @@ testAll(){
 
 
 	printf("Ending protocol test\n---------\n");
+    /*
 	printf("Starting protocol measurements\n---------\n");
 	performMeasurements();
 	printf("Ending protocol measurements\n---------\n");
+    */
 }

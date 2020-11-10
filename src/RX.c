@@ -391,7 +391,56 @@ void TB_RX(in_message* msg)
 
 void NE_RX(in_message* msg)
 {
-	return;
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NEP_RX does not have NEP packet format!\n");
+        return;
+    }
+    
+    byte* Packet = (byte*)msg->buf;
+    
+    if(Self.IP[0] == Packet[3] && Self.IP[1] == Packet[4])
+    {
+        //NOTE(GoncaloX): Only here for testing, MANTAINERS PLS DELETE BEFORE MERGE!
+        dumpBin((char*)(Packet), msg->size, "\nNE_RX got this msg: ");
+        
+        //Add the Outsider IP to the Outside-Slaves, updating LastHeard
+        byte SenderIP[2];
+        SenderIP[0] = Packet[1];
+        SenderIP[1] = Packet[2];
+        insertOutsideSlave(SenderIP);  
+
+        unsigned long int Act;
+        timespec Res;
+        clock_gettime(CLOCK_REALTIME, &Res);
+        Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+        
+        //NOTE(GoncaloX): This is the 1st contact of an new node, as such
+        //it shoul be added to the routTable.
+        //ALSO, for LastHeard msg->received_time should be used in the future?
+        table_entry* Outsider = routInsertOrUpdateEntry(Self.Table, SenderIP, 1, 1, 1, 1);
+        Outsider->LastHeard = Act;
+
+        // se é o master que recebe NE, gera TimeBroadcast e gera NEP 
+        // (NEP é sempre resposta de NE)
+        if(Self.IsMaster)     
+        {   
+            generateTB();
+            NEP_TX(SenderIP);
+        }
+        else
+        {
+            //NOTE(GoncaloX): Maybe this should also happen if node is Master?
+            insertOutsideSlave(SenderIP);
+            NEP_TX(SenderIP);
+            // se é um node que não o master, transmite NER
+            out_message* NERMessage = NER_TX(SenderIP);
+            startRetransmission(rNER, NERMessage->buf);
+        }
+    }
+
+    delInMessage(msg);
+    return;
 }
 
 void NEP_RX(in_message* msg)
@@ -477,5 +526,39 @@ void NER_RX(in_message* msg)
 
 void NEA_RX(in_message* msg)
 {
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NEA_RX does not have NEA packet format!\n");
+        return;
+    }
+    
+    byte* Packet = (byte*)msg->buf;
+    
+    byte OutsiderIP[2];
+    OutsiderIP[0] = Packet[1];
+    OutsiderIP[1] = Packet[2];
+    byte PBID[2];
+    PBID[0] = Packet[3];
+    PBID[1] = Packet[4];
+    
+    // se existir outside slave e for o outsider IP, quer dizer que chegamos ao proxy
+    if(getOutsideSlave(OutsiderIP)) 
+    {
+        stopRetransmission(rNER);
+    }
+    // TODO(GoncaloXavier): Questionar a intenção aqui
+    /*
+    else if(getIPFromList(Self.Network_Entries, OutsiderIP) == NULL) 
+    {
+        return;
+    }
+    else    // se existir na lista de IPs, retiramos para cada node o outsider IP e retransmitimos até chegar ao Proxy
+    {
+        //removeIPList(Self.Network_Entries, OutsiderIP);
+        NEA_TX(OutsiderIP, PBID);
+    }
+    */
+
+	delInMessage(msg);
 	return;
 }

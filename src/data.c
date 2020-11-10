@@ -574,6 +574,24 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head)
 }
 
 out_message* 
+buildNEMessage(byte* SenderIP, byte* ProxyIP)
+{
+    void* buff;
+    
+    byte packet[5];
+    //NOTE(GoncaloXavier): Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NE;
+    packet[1] = SenderIP[0];
+    packet[2] = SenderIP[1];
+    packet[3] = ProxyIP[0];
+    packet[4] = ProxyIP[1];
+    
+    out_message* NEMessage = newOutMessage(Packet_Sizes[NE], packet);
+    
+    return NEMessage;
+}
+
+out_message* 
 buildNERMessage(byte* NextHopIP, byte* OutsiderIP)
 {
     byte packet[5];
@@ -605,4 +623,22 @@ buildNEPMessage(byte* SenderIP, byte* OutsiderIP)
     out_message* NEPMessage = newOutMessage(Packet_Sizes[NEP], packet);
     
     return NEPMessage;
+}
+
+out_message* 
+buildNEAMessage(byte* OutsiderIP, pbid PBID)
+{
+    void* buff;
+    
+    byte packet[5];
+    //NOTE(GoncaloXavier): Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NEA;
+    packet[1] = OutsiderIP[0];
+    packet[2] = OutsiderIP[1];
+    packet[3] = (PBID >> 8) & 0xff;
+    packet[4] = PBID & 0xff;
+    
+    out_message* NEAMessage = newOutMessage(Packet_Sizes[NEA], packet);
+    
+    return NEAMessage;
 }
