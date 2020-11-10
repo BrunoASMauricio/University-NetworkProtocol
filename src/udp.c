@@ -15,6 +15,9 @@ socket_s* newSocket(int port)
 	return ret;
 }
 
+
+
+
 void startSocket(socket_s* sk)
 {
 	int opt;
@@ -41,6 +44,17 @@ void startSocket(socket_s* sk)
 		exit(-1);
 	}
 }
+
+void startSocket_ws(socket_s* sk)
+{
+	int opt;
+	if ((sk->s = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+	{
+		fatalErr("Could not generate socket errno: %d\n", errno);
+	}
+	
+}
+
 
 int sendToSocket(socket_s* sk, void* buff, int size)
 {

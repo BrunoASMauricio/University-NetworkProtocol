@@ -315,5 +315,6 @@ removeIPList(IPList* IPL, byte IP[2]);
 
 meta_data Meta;
 node Self;
+byte  *ip;
 
 #endif

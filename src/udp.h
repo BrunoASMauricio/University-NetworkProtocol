@@ -16,6 +16,7 @@ typedef struct{
 
 socket_s* newSocket(int port);
 void startSocket(socket_s* sk);
+void startSocket_ws(socket_s* sk);
 int sendToSocket(socket_s* sk, void* buff, int size);
 int getFromSocket(socket_s* sk, void* buff);
 void closeSocket(socket_s* sk);
