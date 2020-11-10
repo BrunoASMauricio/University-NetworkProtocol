@@ -178,8 +178,13 @@ void SD_TX(int Sample_Ammount)
 	{
 		NumSamples = Sample_Ammount;
 	}
+	if(NumSamples>255)
+	{
+		printf("SD can't read more than 255 samples (tried to read %d)\n", NumSamples);
+		NumSamples == 255;
+	}
 
-	byte* packet = (byte*)malloc(sizeof(byte)*(7+ NumSamples)), *Data;
+	byte* packet = (byte*)malloc(sizeof(byte)*(Packet_Sizes[1] + NumSamples)), *Data;
 	byte* NextHopIP = Self.Table->begin->Neigh_IP; //Assuming first position in table is itself; otherwise, search in table by self IP or something else
 	if (NextHopIP == NULL)
 	{
@@ -190,7 +195,7 @@ void SD_TX(int Sample_Ammount)
 		//NextHopIP[1] = 0;
 	}
 
-	packet[0] = (PROTOCOL_VERSION<<4) + 1;
+	packet[0] = (PROTOCOL_VERSION<<4) + SD;
 	packet[1] = Self.IP[0];
 	packet[2] = Self.IP[1];
 	packet[3] = NextHopIP[0];
@@ -198,13 +203,11 @@ void SD_TX(int Sample_Ammount)
 	packet[5] = (0<<4) + 8;		// To be replaced by Seq and TTL(set to a max of 8)
 	packet[6] = NumSamples;
 
-	Data = (byte*) AuxEl->Packet;
-	for (int i = 0; i < NumSamples; i++)
-	{
-		packet[7+i] = Data[i];
-	}
-	popFromQueue(&Popped, Self.InternalQueue);
-	addToQueue(newOutMessage(sizeof(byte)*(7+ NumSamples), packet), 8, Self.OutboundQueue, 1);
+	Data = (byte*) popFromQueue(&Popped, Self.InternalQueue);
+
+	memcpy(&packet[7], &Data, NumSamples);
+	
+	addToQueue(newOutMessage(sizeof(byte)*(Packet_Sizes[1] + NumSamples), packet), Packet_Sizes[1] + NumSamples, Self.OutboundQueue, 1);
 }
 
 void PB_TX(byte PBID[2])
