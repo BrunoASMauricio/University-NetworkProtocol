@@ -98,49 +98,33 @@ sendMessage(void* msg)
 void*
 HW_dispatcher(void*dummy)
 {
-    printf("HW Dispatcher on\n");
+     printf("HW Dispatcher on\n");
     
     int PacketSize=0;  
-    byte *Popped = (byte*)malloc(sizeof(byte)*(IPLENGTH+TIMESTAMPLENGTH+(SAMPLELENGTH*NUMSAMPLES)));  
-    byte *ip = (byte*)malloc(sizeof(byte)*IPLENGTH);
-    byte *TimeStamp = (byte*)malloc(sizeof(byte)*TIMESTAMPLENGTH);
-    byte *Sample = (byte*)malloc(sizeof(byte)*SAMPLELENGTH);
-    byte *TotalSample = (byte*)malloc(sizeof(byte)*TOTALSAMPLELENGTH);
+    byte *Popped = (byte*)malloc(sizeof(byte)*(IPLENGTH+DATAPAYLOADLENGTH));  
+    byte *ToSend = (byte*)malloc(sizeof(byte)*(TOTALLENGTH)); 
 
     socket_s* sockfd = newSocket(PORTHW);
     startSocket(sockfd);
 
     while (1)
     {
-        //  Sending========>    IP     TimeStamp Sample      // 
-       //                       2bytes 2bytes    2bytes     //  possible changes of these values // 
-      //
-     //     Note: add 50ms to each timestamp then send to HW           
+        //  Sending========>    IP     DataPayload      // 
+       //                       2bytes 3bytes          //  possible changes of these values // 
         
         if( Self.IsMaster == 1)
         {
             Popped = (byte*) popFromQueue(&PacketSize,Self.InternalQueue);
             
             if (Popped == NULL) PacketSize = 0;
-            if (PacketSize > 0 )
+
+            if (PacketSize > 0)
             {
-                
-                memcpy(TotalSample, Popped, IPLENGTH);
-                memcpy(TotalSample+IPLENGTH, Popped+IPLENGTH, TIMESTAMPLENGTH);
+               memcpy(ToSend,Popped, TOTALLENGTH);
 
-                for(int i=0; i<NUMSAMPLES;i++)
-                {
-                    memcpy(TotalSample + IPLENGTH + TIMESTAMPLENGTH, 
-                            Popped + IPLENGTH + TIMESTAMPLENGTH + SAMPLELENGTH*i, 
-                                SAMPLELENGTH);
-                    
-                    sendToSocket(sockfd, TotalSample ,sizeof(byte)*TOTALSAMPLELENGTH); 
-                }
-
-                // LAST THING TO DO: after sending the first set of Samples will be incremented 50ms (1/20) to the next Samples on timestamp //
-               //                                                                    and will always repeat this for the next N samples         //
-
+               sendToSocket(sockfd, ToSend ,sizeof(byte)*TOTALLENGTH); 
             }
+
             PacketSize=0; 
         } 
         else 
@@ -148,12 +132,9 @@ HW_dispatcher(void*dummy)
             printf(" \n I'm a Slave. Nothing to do here.\n");
         }
     }
-    free(Popped);
-    free(ip);   
-    free(TimeStamp);   
-    free(Sample); 
-    free(TotalSample);    
-    close(sockfd->port); 
+    free(Popped); 
+    free(ToSend); 
+    close(sockfd->s); 
 }
 
 
