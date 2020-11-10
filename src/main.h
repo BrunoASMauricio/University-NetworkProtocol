@@ -35,6 +35,11 @@ handler();
 void
 clean();
 
+/*
+ * Signal handler wrapper for clean
+ */
+void
+clean(int signo);
 
 #include "data.c"
 #include "udp.c"

@@ -35,6 +35,7 @@ typedef struct{
 	pthread_t WS_listener_t;
 	pthread_t HW_dispatcher_t;
 	pthread_t Retransmission_t;
+	pthread_t Main_t;
 
 	socket_s* WF_RX;
 	socket_s* WF_TX;
