@@ -15,6 +15,12 @@
 #define DEFAULT_VALIDITY_DELAY 1000	//in ns
 #define DEFAULT_TIMESLOT_SIZE 1		//in ms
 
+#define DEFAULT_HW_PORT 901
+#define DEFAULT_WS_PORT 902
+#define DEFAULT_WF_TX_PORT 903
+#define DEFAULT_WF_RX_PORT 904
+
+
 typedef uint8_t byte;
 
 /*
@@ -30,11 +36,17 @@ typedef struct{
 	pthread_t HW_dispatcher_t;
 	pthread_t Retransmission_t;
 
-	socket_s* Input_socket;
-	socket_s* Output_socket;
+	socket_s* WF_RX;
+	socket_s* WF_TX;
 	bool Post;
 	bool Debug;
+	bool Quiet;
 	FILE* Log;
+	
+	int WF_TX_port;
+	int WF_RX_port;
+	int HW_port;
+	int WS_port;
 } meta_data;
 
 // TOUCH THESE :)
@@ -74,6 +86,28 @@ typedef struct{
 typedef struct{
 	long int Data;
 }sample;
+
+typedef struct{
+	pthread_mutex_t lock;
+	byte PBID[2];
+	byte** IPs;
+	int IP_amm;
+	void* bitmap;
+	byte bitmap_size;
+	unsigned long int sync_timestamp;
+	short validity_delay;
+} timetable_msg;
+
+// All 64 bits to avoid operation mistakes
+// Most of the operations would be 64 bits either way
+typedef struct{
+	pthread_mutex_t Lock;
+	unsigned long int timeslot_size;	//timeslot size (1 byte padded)
+	unsigned long int table_size;		//timetable size (2 bytes padded)
+	unsigned long int  local_slot;			//local slot (0 to N(umber of nodes)) (1 byte padded)
+	unsigned long int sync;
+} timetable;
+
 
 /*
  * The retransmitable messages
@@ -123,24 +157,7 @@ typedef struct{
 	List* L;
 }IPList;
 
-/*
-typedef struct{
-	pthread_mutex_t Lock;
-	byte PBID[2];
-	IPList* IPs;
-	void* Bitmap;
-	byte Bitmap_size;
-	long int Sync_timestamp;
-	short Validity_delay;
-} timetable_msg;
-*/
 
-typedef struct{
-	pthread_mutex_t Lock;
-	byte Timeslot_size;
-	short Table_size;
-	byte Local_slot;
-} timetable;
 
 /*
  * Struct that helps control message
@@ -148,7 +165,6 @@ typedef struct{
  */
 typedef struct{
 	pthread_mutex_t Lock;
-	//timetable_msg* Tm;
 	byte Retransmitables;		// The retransmission bitmap
 	unsigned long int Time_TB;
 	unsigned long int Time_PR;
@@ -167,6 +183,7 @@ typedef struct{
 	byte IP[2];
 	table* Table;
 	timetable* TimeTable;
+	bool SyncTimestamp;
 	retransmission Rt;
 	IPList* SubSlaves;
 	IPList* OutsideSlaves;

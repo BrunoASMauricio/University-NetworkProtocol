@@ -17,6 +17,10 @@
 
 #define TX_H
 
+// The transmission delay since the message is sent to WF,
+// to when WF finishes sending it
+// In nanoseconds
+#define TRANSMISSION_DELAY 1000 // 1 us
 
 /*
  * Interface with the WF team (TX)

@@ -3,11 +3,16 @@
 void dumpBin(char* buf, int size, const char *fmt,...)
 {
 	va_list args;
-    va_start(args, fmt);
-    vfprintf(stdout, fmt, args);
+	if(Meta.Quiet)
+	{
+		return;
+	}
+
+	va_start(args, fmt);
+	vfprintf(stdout, fmt, args);
 
 	for(int i = 0; i < size; i++)
-    {
+	{
 		fprintf(stdout, "0x%02hhx ", buf[i]);
 	}
 
@@ -32,9 +37,14 @@ void
 printfLog(const char *fmt, ...)
 {
 	va_list args;
-    va_start(args, fmt);
-    vfprintf(stdout, fmt, args);
+	if(Meta.Quiet)
+	{
+		return;
+	}
+	va_start(args, fmt);
+	vfprintf(stdout, fmt, args);
 	va_end(args);
+
 
 	if (Meta.Log) 
 	{
@@ -207,6 +217,95 @@ testRoutingTable()
 
 }
 
+void testTimeTable()
+{
+	unsigned long int Timeslot_size;
+	unsigned long int Table_size;
+	unsigned long int Local_slots;
+	unsigned long int Sync;
+
+	unsigned long int Act;
+	unsigned long int Slot;
+	unsigned long int Vact;
+	unsigned long int Next;
+
+	unsigned long int TEST_TRANSMISSION_DELAY = 10000UL;	//10 us
+	timespec Res;
+
+	unsigned long int Startedtimeslot = 0;
+	unsigned long int Endedtimeslot = 0;
+
+	double Usedtimeslot = 0;
+
+	byte Started = 0;
+	byte Where = 0;
+	unsigned int Total = 0;
+
+	printf("Starting timetable measurements.\n");
+	printf("1 s timetable with 0.1s timeslots.\n");
+	printf("Local timeslot is number 3 (so the fourth)\n");
+
+	Timeslot_size = (int64_t)100000UL; // 0.1 s
+	Table_size = (int64_t)2000000UL; // 2 ms
+	Local_slots = (int64_t)4; // 3rd
+	
+	printf("Size %d\n", sizeof(Local_slots));
+	clock_gettime(CLOCK_REALTIME, &Res);
+	Sync = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;// + (int64_t)1000000000UL;
+
+	for(unsigned int i = 0; i < 100000000 /*INT_MAX-1*/; i++)
+	{
+		clock_gettime(CLOCK_REALTIME, &Res);
+		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+
+		Slot = Sync + Local_slots * Timeslot_size;
+		Vact = Act - Slot;
+		Next = Table_size * ((Vact/Table_size) + 1) + Slot;
+		
+		if(Act < Sync || Act < Slot)	// Timetable isn't valid or first timeslot hasn't elapsed
+		{
+			continue;
+		}
+		if(Started == 0)
+		{
+			// Started!
+			Started = 1;
+		}
+
+		if (Vact < Table_size * (Vact/Table_size) + Timeslot_size - TEST_TRANSMISSION_DELAY)
+		{
+			if (Where == 0)
+			{
+			   Where = 1;
+			   Total += 1;
+			}
+		   	if(!Startedtimeslot)
+			{
+				Startedtimeslot = Act;
+		   	}
+		   	Endedtimeslot = Act;
+		}
+		else
+		{
+			if(Startedtimeslot)
+			{
+				Usedtimeslot = (100 * ((double)(Endedtimeslot-Startedtimeslot))/((double)Timeslot_size) + Usedtimeslot * Total)/(Total + 1);
+				Startedtimeslot = 0;
+			}
+			Where = 0;
+			// Tried to make the thread sleep, but failed miserably (for now)
+			//clock_gettime(CLOCK_REALTIME, &res);
+			//act = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
+			//printf("Sleeping for %ld", (next-act)/100UL);
+			//usleep((next-act)/1000UL);
+			//printf("Next %lu\n", next);
+		}
+	}
+	printf("Used timeslot: %lf%\n", Usedtimeslot);
+	printf("Used total: %lf%\n", 100 * (Usedtimeslot / 100 * (double)Timeslot_size) / Table_size);
+	printf("Expected/Ideal:\nUsed timeslot: 90%\nUsed total: 5%\n");
+}
+
 void
 testQueues()
 {
@@ -351,26 +450,26 @@ mockTB_RX(void* buff)
 	pthread_mutex_lock(&(Self.TimeTable->Lock));
 	if(true)
 	{
-		Self.TimeTable->Local_slot = -1;
+		Self.TimeTable->local_slot = -1;
 		ip_amm = ((short*)(((byte*)buff+16)))[0];
-		Self.TimeTable->Table_size = ip_amm;
+		Self.TimeTable->table_size= ip_amm;
 		for(int i = 0; i < ip_amm; i++)
 		{
 			if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
 			{
-				Self.TimeTable->Local_slot = i;
+				Self.TimeTable->local_slot = i;
 				slot = i;
 				printf("Our slot: %d\n",i);
 				break;
 			}
 		}
-		if(Self.TimeTable->Local_slot == -1)
+		if(Self.TimeTable->local_slot == -1)
 		{
 			dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
 			// SET STATE TO OUTSIDE NETWORK
 			return;
 		}
-		Self.TimeTable->Timeslot_size = (((byte*)buff+15))[0];
+		Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
 	}
 
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
@@ -470,6 +569,8 @@ testAll(){
 	testPacketSize();
 
 	testRoutingTable();
+
+	testTimeTable();
 
 	testLists();
 

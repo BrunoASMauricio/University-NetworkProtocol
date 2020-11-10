@@ -59,8 +59,14 @@ testPacketSize();
 
 void
 /*
+ * Test the timetable methodology
+ */
+testTimeTable();
+
+void
+/*
  * Perform network/CPU measurements
- * */
+ */
 performMeasurements();
 
 void
