@@ -10,9 +10,8 @@ CC = g++
 all: NP
 
 NP: ./src/*
-	$(CC) -o NP $(FLAGS) ./src/main.c #$(DEBUG)
+	$(CC) -g -o NP $(FLAGS) ./src/main.c #$(DEBUG)
 
-
-
-
+DEBUG: ./src/*
+		$(CC) -g -o NP $(FLAGS) ./src/main.c $(DEBUG)
 

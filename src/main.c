@@ -137,16 +137,14 @@ main(int argc, char **argv)
 		printf("We are in the matrix\n");
 	}
 
-	
-	setup();
-	
     if (Meta.Post)
     {
         testAll();
     }
 	
-
-	//handler();
+    setup();
+	
+	handler();
 
 	clean();
 
@@ -186,6 +184,8 @@ setup()
 	    Self.RegisteredSlaves= newIPList();
     }
 
+	Self.OutsidePending= newIPList();
+	Self.TimeTable = newTimeTable();
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {

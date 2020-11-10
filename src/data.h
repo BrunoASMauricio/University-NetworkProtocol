@@ -230,6 +230,7 @@ typedef struct{
 	IPList* SubSlaves;
 	IPList* OutsideSlaves;
 	IPList* RegisteredSlaves;
+	IPList* OutsidePending;
 	byte TB_PBID[2];
 	node_status Status;
 	//pbid_ip_pairs* RoutingPBIDTable;

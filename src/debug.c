@@ -663,6 +663,12 @@ testNE_RX()
 {
     printf("\nTesting NE_RX;\n");
     // Setting some dummy Self values to test 
+    Self.SubSlaves = newIPList();
+    Self.OutsideSlaves = newIPList();
+    Self.Table = routNewTable();
+    Self.InboundQueue = newQueue();
+    Self.OutboundQueue = newQueue();
+    
     Self.IP[0] = 0x03;
     Self.IP[1] = 0x04;
     Self.Status = Inside;
@@ -674,11 +680,11 @@ testNE_RX()
     in_message* NEreceived = newInMessage(5, dummyPacket, Res);
     dumpBin((char*)(NEreceived->buf), NEreceived->size, ">>Sent this to NE_RX: %X");
     NE_RX(NEreceived);
-    
-    printf("\nExpected to have added IP 0x01 0x02 as SubSlave:\n");
-    byte SubSlaveIP[2] = {0x01, 0x02};
-    printf("Is SubSlave present? %s",
-            getIPFromList(Self.SubSlaves, SubSlaveIP) ? "YES\n": "NO\n");
+
+    printf("\nExpected to have added IP 0x01 0x02 as OutsideSlave:\n");
+    byte OutsideSlaveIP[2] = {0x01, 0x02};
+    printf("Is OutsideSlave present? %s",
+            getIPFromList(Self.OutsideSlaves, OutsideSlaveIP) ? "YES\n": "NO\n");
     
     printf("Expected to have updated LastHeard on routTable\n");
     table_entry* Outsider = routSearchByIp(Self.Table, &dummyPacket[1]);
@@ -686,13 +692,13 @@ testNE_RX()
     
     if(Self.IsMaster)
     {
-        printf("MASTER CASE:\n");
+        printf("\nMASTER CASE:\n");
         printf("Expected to have generated TB\n");
         printf("Expected to have sent NEP\n");
     }
     else
     {
-        printf("SLAVE CASE:\n");
+        printf("\nSLAVE CASE:\n");
         printf("Expected to have sent NEP and NER\n");
        
         printf("Expected to have started Retransmission of NER\n");
@@ -700,7 +706,6 @@ testNE_RX()
         printf("Self.Rt.Retransmitables on NER:%s\n", 
                 CHECKBIT(rNER, Self.Rt.Retransmitables) ? "YES\n": "NO\n");
     }
-
     
     printf("\nFinished NE_RX;\n");
 }
@@ -738,7 +743,47 @@ testBuildNEA()
 void
 testNEA_RX()
 {
-    //TODO
+	printf("\nTesting NEA_RX;\n");
+    // Setting some dummy Self values to test 
+    Self.OutsideSlaves = newIPList();
+    Self.OutsidePending = newIPList();
+    Self.OutboundQueue = newQueue();
+    SETBIT(rNER, Self.Rt.Retransmitables);
+    
+    byte OutsiderIP[2];
+    OutsiderIP[0] = 0x03;
+    OutsiderIP[1] = 0x04;
+    byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NEA, 
+                           0x03, 0x04, 0x01, 0x02};
+
+    timespec Res;
+    clock_gettime(CLOCK_REALTIME, &Res);
+    
+    printf("\nTesting direct connection to OutsideSlave 1st\n");
+    insertOutsideSlave(OutsiderIP);
+    in_message* NEAreceived = newInMessage(5, dummyPacket, Res);
+    NEA_RX(NEAreceived);
+    
+    printf("Expected to have stoped startRetransmission on NER\n");
+    printf("Self.Rt.Retransmitables on NER:%s\n", 
+            CHECKBIT(rNER, Self.Rt.Retransmitables) ? "YES\n": "NO\n");
+    
+    removeOutsideSlave(OutsiderIP);
+    printf("\nNow testing indirect connection to OutsideSlave\n");
+    
+    insertIPList(Self.OutsidePending, OutsiderIP);
+    printf("getIPFromList got: %d\n", getIPFromList(Self.OutsidePending, OutsiderIP));
+    NEAreceived = newInMessage(5, dummyPacket, Res);
+    NEA_RX(NEAreceived);
+    printf("Expected to have removed OutsiderIP from OutsiderPending\n");
+    printf("getIPFromList got: %d\n", getIPFromList(Self.OutsidePending, OutsiderIP));
+    
+    delIPList(Self.SubSlaves);
+    Self.SubSlaves = NULL;
+    delIPList(Self.OutsideSlaves);
+    Self.OutsideSlaves = NULL;
+
+    delQueue(Self.OutboundQueue);
     return;
 }
 
@@ -747,6 +792,13 @@ testNER_RX()
 {
     printf("\nTesting NER_RX;\n");
     // Setting some dummy Self values to test 
+	Self.SubSlaves = newIPList();
+    Self.OutsideSlaves = newIPList();
+    Self.OutsidePending = newIPList();
+    Self.Table = routNewTable();
+    Self.InboundQueue = newQueue();
+    Self.OutboundQueue = newQueue();
+
     Self.IP[0] = 0x03;
     Self.IP[1] = 0x04;
     byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NER, 
@@ -823,6 +875,7 @@ testNEP_RX()
     Self.IP[0] = 0x03;
     Self.IP[1] = 0x04;
     Self.Status = Outside;
+	SETBIT(rNE,Self.Rt.Retransmitables);
     byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NEP, 0x01, 0x02, 0x03, 0x04};
     
     timespec Res;
@@ -872,8 +925,8 @@ testAll(){
 
 	testRoutingTable();
 
-    testBuildNE();
     testNE_RX();
+    testBuildNE();
 	
     testBuildNEP();
     testNEP_RX();

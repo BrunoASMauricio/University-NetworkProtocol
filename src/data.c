@@ -237,7 +237,6 @@ void delIPList(IPList* IPL)
 	free(IPL);
 }
 
-
 short*
 getIPFromList(IPList* IPL, int position)
 {

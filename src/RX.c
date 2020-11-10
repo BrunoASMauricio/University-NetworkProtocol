@@ -401,9 +401,6 @@ void NE_RX(in_message* msg)
     
     if(Self.IP[0] == Packet[3] && Self.IP[1] == Packet[4])
     {
-        //NOTE(GoncaloX): Only here for testing, MANTAINERS PLS DELETE BEFORE MERGE!
-        dumpBin((char*)(Packet), msg->size, "\nNE_RX got this msg: ");
-        
         //Add the Outsider IP to the Outside-Slaves, updating LastHeard
         byte SenderIP[2];
         SenderIP[0] = Packet[1];
@@ -475,14 +472,16 @@ void NER_RX(in_message* msg)
     if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
     {
         //Add the Outsider IP to the Sub-Slaves, updating LastHeard
+        //Add Outsider IP to Pending list
         //NOTE(GoncaloXavier): Sadly since we delete msg at the end of this
-        //function, what's bellow doesn't work, BIG SAD :( -> memcpy or manual
-        //assigned instead
+        //function, this: insertSubSlave(&Packet[3]);
+        //doesn't work, BIG SAD :( -> memcpy or manual assigned instead
         
         byte SubSlaveIP[2];
         SubSlaveIP[0]= Packet[3];
         SubSlaveIP[1]= Packet[4];
         insertSubSlave(SubSlaveIP);
+        insertIPList(Self.OutsidePending, SubSlaveIP);
 
         unsigned long int Act;
         timespec Res;
@@ -537,27 +536,24 @@ void NEA_RX(in_message* msg)
     byte OutsiderIP[2];
     OutsiderIP[0] = Packet[1];
     OutsiderIP[1] = Packet[2];
-    byte PBID[2];
-    PBID[0] = Packet[3];
-    PBID[1] = Packet[4];
+    pbid PBID;
+    PBID = (0<<4) + Packet[3];
+    PBID = Packet[4];
     
     // se existir outside slave e for o outsider IP, quer dizer que chegamos ao proxy
     if(getOutsideSlave(OutsiderIP)) 
     {
         stopRetransmission(rNER);
     }
-    // TODO(GoncaloXavier): Questionar a intenção aqui
-    /*
-    else if(getIPFromList(Self.Network_Entries, OutsiderIP) == NULL) 
+    else if(getIPFromList(Self.OutsidePending, OutsiderIP) == 0) 
     {
         return;
     }
     else    // se existir na lista de IPs, retiramos para cada node o outsider IP e retransmitimos até chegar ao Proxy
     {
-        //removeIPList(Self.Network_Entries, OutsiderIP);
+        removeIPList(Self.OutsidePending, OutsiderIP);
         NEA_TX(OutsiderIP, PBID);
     }
-    */
 
 	delInMessage(msg);
 	return;
