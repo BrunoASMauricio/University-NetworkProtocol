@@ -46,7 +46,7 @@ sendMessage(void* msg);
 /*
  * Handles a SD message
  */
-void SD_TX(int Sample_Ammount, void* Samples);
+void SD_TX(int Sample_Ammount);
 
 /*
  * Handles a PB message

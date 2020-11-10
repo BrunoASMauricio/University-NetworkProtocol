@@ -159,9 +159,52 @@ HW_dispatcher(void*dummy)
 
 
 
-void SD_TX(int Sample_Ammount, void* Samples)
+void SD_TX(int Sample_Ammount)
 {
-	return;
+	if (Self.InternalQueue->First == NULL) 
+	{
+		return;
+	}
+
+	int TotalSize=0, NumSamples=0, Popped;
+	queue_el* AuxEl = Self.InternalQueue->First;
+
+
+	if(AuxEl->PacketSize < Sample_Ammount)
+	{
+		NumSamples = AuxEl->PacketSize;
+	}
+	else
+	{
+		NumSamples = Sample_Ammount;
+	}
+
+	byte* packet = (byte*)malloc(sizeof(byte)*(7+ NumSamples)), *Data;
+	byte* NextHopIP = Self.Table->begin->Neigh_IP; //Assuming first position in table is itself; otherwise, search in table by self IP or something else
+	if (NextHopIP == NULL)
+	{
+        printf("Next hop still undefined.\n");
+        return;
+		//Comment return and uncomment these lines for testing purposes
+		//NextHopIP[0] = 0;
+		//NextHopIP[1] = 0;
+	}
+
+	packet[0] = (PROTOCOL_VERSION<<4) + 1;
+	packet[1] = Self.IP[0];
+	packet[2] = Self.IP[1];
+	packet[3] = NextHopIP[0];
+	packet[4] = NextHopIP[1];
+	packet[5] = (0<<4) + 8;		// To be replaced by Seq and TTL(set to a max of 8)
+	packet[6] = NumSamples;
+
+	Data = (byte*) AuxEl->Packet;
+	for (int i = 0; i < NumSamples; i++)
+	{
+		packet[7+i] = Data[i];
+	}
+	popFromQueue(&Popped, Self.InternalQueue);
+	addToQueue(newOutMessage(sizeof(byte)*(7+ NumSamples), packet), 8, Self.OutboundQueue, 1);
 }
 
 void PB_TX(byte PBID[2])
