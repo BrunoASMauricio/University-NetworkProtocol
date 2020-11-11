@@ -127,10 +127,6 @@ HW_dispatcher(void*dummy)
 
             PacketSize=0; 
         } 
-        else 
-        {
-            printf(" \n I'm a Slave. Nothing to do here.\n");
-        }
     }
     free(Popped); 
     free(ToSend); 
