@@ -163,6 +163,7 @@ setup()
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
 	Self.Table = routNewTable();
+	Self.PBID_IP_TA = pbidInitializeTable();
 	Self.SubSlaves = newIPList();
 	Self.OutsideSlaves= newIPList();
 	Self.TimeTable = NULL;
