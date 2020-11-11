@@ -179,7 +179,7 @@ void SD_TX(int Sample_Ammount)
 	if(NumSamples>255)
 	{
 		printf("SD can't read more than 255 samples (tried to read %d)\n", NumSamples);
-		NumSamples == 255;
+		NumSamples = 255;
 	}
 
 	byte* packet = (byte*)malloc(sizeof(byte)*(Packet_Sizes[1] + NumSamples)), *Data;
