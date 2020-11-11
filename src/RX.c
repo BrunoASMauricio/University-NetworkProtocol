@@ -491,11 +491,11 @@ void NER_RX(in_message* msg)
         table_entry* Outsider = routSearchByIp(Self.Table, SubSlaveIP);
         if(Outsider == NULL)
         {
-            printfErr("IP received in NER not present in rouTable!\n");
-            return;
+            printf("IP received in NER not present in rouTable!\n");
+            printf("Adding new entry with IP:%s to it\n", SubSlaveIP);
+            //TODO: Update Last Heard while adding entry
+            routInsertOrUpdateEntry(Self.Table, SubSlaveIP, 2, msg->SNR, 2, 2);
         }
-        //TODO: This might make sense to be done using update function
-        Outsider->LastHeard = Act;
 
         if(Self.IsMaster)
         {

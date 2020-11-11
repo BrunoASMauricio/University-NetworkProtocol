@@ -804,7 +804,6 @@ testNER_RX()
     byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NER, 
                            0x03, 0x04, 0x01, 0x02};
     routInsertOrUpdateEntry(Self.Table, &dummyPacket[3], 1, 1, 1, 1);
-    
     timespec Res;
     clock_gettime(CLOCK_REALTIME, &Res);
     
