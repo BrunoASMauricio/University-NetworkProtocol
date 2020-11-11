@@ -101,8 +101,8 @@ HW_dispatcher(void*dummy)
      printf("HW Dispatcher on\n");
     
     int PacketSize=0;  
-    byte *Popped = (byte*)malloc(sizeof(byte)*(IPLENGTH+DATAPAYLOADLENGTH));  
-    byte *ToSend = (byte*)malloc(sizeof(byte)*(TOTALLENGTH)); 
+    byte *Popped = (byte*)malloc(sizeof(byte)*(TOTALLENGTH));  
+
 
     socket_s* sockfd = newSocket(PORTHW);
     startSocket(sockfd);
@@ -120,16 +120,13 @@ HW_dispatcher(void*dummy)
 
             if (PacketSize > 0)
             {
-               memcpy(ToSend,Popped, TOTALLENGTH);
-
-               sendToSocket(sockfd, ToSend ,sizeof(byte)*TOTALLENGTH); 
+               sendToSocket(sockfd, Popped ,sizeof(byte)*TOTALLENGTH); 
             }
 
             PacketSize=0; 
         } 
     }
     free(Popped); 
-    free(ToSend); 
     close(sockfd->s); 
 }
 
