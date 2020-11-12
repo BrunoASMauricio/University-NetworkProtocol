@@ -29,14 +29,15 @@ WF_listener(void* dummy)
 			continue;
 		}
 		printf("\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, ++received_messages);
-		PrevBytes = 0;
 
-		if(clock_gettime(CLOCK_REALTIME, &res) == -1)
+		if(((byte*)buff)[0] & 0x0f == TB && ReadBytes < 18)
 		{
-			printfErr("Could not clock_gettime\n");
-			// Ignore received messages here??? or handle unavailable timestamp elsewhere
+			PrevBytes = ReadBytes;
+			printf("Got truncated TB\n");
 			continue;
 		}
+
+		clock_gettime(CLOCK_REALTIME, &res);
 
 		PacketSize = getPacketSize(buff);
 
@@ -46,26 +47,29 @@ WF_listener(void* dummy)
 			continue;
 		}
 
-		if(PacketSize > ReadBytes)
+		if(PacketSize > ReadBytes + PrevBytes)
 		{
-			// Undefined behaviour, just ignore for now
-			// Eventually we could try to receive more and "complete the packet"?
-			// This could fail so a "timer" would be needed. Too complex?
-			dumpBin(buff, ReadBytes, "Packet size (%d) is more than what was received (%d).\n", PacketSize, ReadBytes);
+			dumpBin(buff, ReadBytes, "Packet size (%d) is more than what was received (%d).\n", PacketSize, ReadBytes + PrevBytes);
+			PrevBytes = ReadBytes;
 			continue;
 		}
 
 		addToQueue(newInMessage(PacketSize, buff, res), 8, Self.InboundQueue, 1);
 
 		// We received more than one packet
-		if(PacketSize < ReadBytes)
+		if(PacketSize < ReadBytes + PrevBytes)
 		{
+			printf("\t\tMore than one packet (%d, %d)\n", PacketSize, ReadBytes+PrevBytes);
 			// Copy the last of the read bytes, to the beggining of the buffer
-			PrevBytes = PacketSize;
-			for(int i = 0; PacketSize+i < ReadBytes; PacketSize++, i++)
+			for(int i = 0; PacketSize + i < ReadBytes + PrevBytes; i++)
 			{
 				buff[i] = buff[PacketSize+i];
 			}
+			PrevBytes = PacketSize - (PrevBytes + ReadBytes);
+		}
+		else
+		{
+			PrevBytes = 0;
 		}
 	}
 }
