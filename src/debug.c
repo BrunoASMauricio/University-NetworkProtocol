@@ -169,7 +169,7 @@ testRoutingTable()
 
     routPrintTableContent(Tbl);
     printf("\n\n");
-
+    
     printf("Adding a 2nd entry...\n");
 	clock_gettime(CLOCK_REALTIME, &Res);
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
@@ -275,7 +275,6 @@ testRoutingTable()
 	printf("Getting second position... \n");
 	entry5= routGetEntryByPos(Tbl, 2);
 	printf("2nd entry distance : %hi, 2nd entry NextHop_IP: %d%d\n", entry5->Distance, entry5->Neigh_IP[0],entry5->Neigh_IP[1] );
-
 }
 
 void testTimeTable()
@@ -924,8 +923,8 @@ testAll(){
 
 	testRoutingTable();
 
-    testNE_RX();
     testBuildNE();
+    testNE_RX();
 	
     testBuildNEP();
     testNEP_RX();
