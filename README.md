@@ -1,4 +1,4 @@
-NP Protocol V1
+NP Protocol V2
 
 The specification for this version is present in wiki/Versions/V1
 
@@ -35,6 +35,10 @@ Code Structure:
 	TX		Handle outwards communications
 
 	RX		Handle inwards communications
+
+	RoutingTable Handle routing table functionalities
+
+	Udp     Handle udp sockets 
 
 	debug	Provides debugging and logging
 			Also contains self testing routines
