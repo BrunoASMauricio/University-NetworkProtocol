@@ -1,5 +1,4 @@
 #include "routing_table.h"
-#include "debug.h"
 
 table* routNewTable()
 {
