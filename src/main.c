@@ -142,8 +142,8 @@ main(int argc, char **argv)
         testAll();
     }
 	
-    setup();
-	
+	setup();
+
 	handler();
 
 	clean();

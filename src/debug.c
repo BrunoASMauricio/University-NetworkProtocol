@@ -705,6 +705,16 @@ testNE_RX()
         printf("Self.Rt.Retransmitables on NER:%s\n", 
                 CHECKBIT(rNER, Self.Rt.Retransmitables) ? "YES\n": "NO\n");
     }
+
+    delIPList(Self.SubSlaves);
+    Self.SubSlaves = NULL;
+    delIPList(Self.OutsideSlaves);
+    Self.OutsideSlaves = NULL;
+
+    routRemoveEntry(Self.Table, OutsideSlaveIP);
+    Self.Table = NULL;
+    delQueue(Self.InboundQueue);
+    delQueue(Self.OutboundQueue);
     
     printf("\nFinished NE_RX;\n");
 }
@@ -791,13 +801,13 @@ testNER_RX()
 {
     printf("\nTesting NER_RX;\n");
     // Setting some dummy Self values to test 
-	Self.SubSlaves = newIPList();
+    Self.SubSlaves = newIPList();
     Self.OutsideSlaves = newIPList();
     Self.OutsidePending = newIPList();
     Self.Table = routNewTable();
     Self.InboundQueue = newQueue();
     Self.OutboundQueue = newQueue();
-
+    
     Self.IP[0] = 0x03;
     Self.IP[1] = 0x04;
     byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NER, 
@@ -833,6 +843,11 @@ testNER_RX()
         printf("Self.Rt.Retransmitables on NER:%s\n", 
                 CHECKBIT(rNER, Self.Rt.Retransmitables) ? "YES\n": "NO\n");
     }
+    
+    routRemoveEntry(Self.Table, SubSlaveIP);
+    Self.Table = NULL;
+    delQueue(Self.InboundQueue);
+    delQueue(Self.OutboundQueue);
     
     printf("\nFinished NER_RX;\n");
 }
@@ -872,6 +887,7 @@ testNEP_RX()
     // Setting some dummy Self values to test 
     Self.IP[0] = 0x03;
     Self.IP[1] = 0x04;
+
     Self.Status = Outside;
 	SETBIT(rNE,Self.Rt.Retransmitables);
     byte dummyPacket[5] = {(PROTOCOL_VERSION<<4) + NEP, 0x01, 0x02, 0x03, 0x04};
@@ -897,7 +913,6 @@ testNEP_RX()
 
 void
 testAll(){
-
 	char a[6];
 	a[0] = 0xaf;
 	a[1] = 0x99;
@@ -948,11 +963,8 @@ testAll(){
 	printf("Iterative testing of PBID-IP pair table\n");
 	test_PBID_IP_table();
 
-
 	printf("Ending protocol test\n---------\n");
-    /*
 	printf("Starting protocol measurements\n---------\n");
 	performMeasurements();
 	printf("Ending protocol measurements\n---------\n");
-    */
 }
