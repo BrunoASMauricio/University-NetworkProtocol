@@ -1,4 +1,5 @@
 #include "routing_table.h"
+#include "debug.h"
 
 table* routNewTable()
 {
@@ -21,28 +22,32 @@ table* routNewTable()
     return tbl;
 }
 
-table_entry* routNewEntry(byte NeighIP[2], double Distance, double AvgSnr, double EffectiveDistance)
+table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, double RemoteSNR, unsigned long int LastHeard)
 {
     /* allocate memory for new entry*/
     table_entry *Entry = (table_entry*)malloc(sizeof(table_entry));
 
-    if (Entry==NULL) return NULL;
+    if(Entry == NULL) 
+    {
+        printfErr("Error in allocating table_entry memory\n");
+        return NULL;
+    }
 
     /* init with values*/
-    memcpy(Entry->Neigh_IP,NeighIP, sizeof(Entry->Neigh_IP));
+    memcpy(Entry->Neigh_IP, NeighIP, sizeof(Entry->Neigh_IP));
     
     Entry->Distance=Distance;
-
     /*check this after everything*/
-    Entry->AvgSnr=AvgSnr;
-    Entry->EffectiveDistance= EffectiveDistance;
+    Entry->LocalSNR = LocalSNR;
+    Entry->RemoteSNR = RemoteSNR;
+    Entry->LastHeard = LastHeard;
 
     Entry->next=NULL;
 
     return Entry;
 }
 
-table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short AvgSnr, short EffectiveDistance)
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short LocalSNR, short RemoteSNR, unsigned long int LastHeard)
 {
     if(tbl == NULL) return NULL;
 
@@ -55,7 +60,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
     /*if the table is empty and we just have to put there the entry*/
     if (tbl->size == 0)
     {
-        tbl->begin=routNewEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
+        tbl->begin=routNewEntry(NeighIP, Distance, LocalSNR, RemoteSNR, LastHeard);
 
             if(tbl->begin == NULL)
             {
@@ -73,7 +78,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
    
     if(entry == NULL)
     {
-        aux=routNewEntry(NeighIP, Distance, AvgSnr, EffectiveDistance);
+        aux=routNewEntry(NeighIP, Distance, LocalSNR, RemoteSNR,LastHeard);
 
             if(aux == NULL) 
             {
@@ -88,12 +93,12 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
         //do the updates 
         byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
         memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
-        double StoreAvg= entry->AvgSnr;
-        double StoreEff= entry->EffectiveDistance;
+        double StoreAvg= entry->LocalSNR;
+        double StoreEff= entry->RemoteSNR;
         
         routRemoveEntry(tbl, entry->Neigh_IP);
 
-        aux=routNewEntry(Store_IP, Distance, StoreAvg, StoreEff);
+        aux=routNewEntry(Store_IP, Distance, StoreAvg, StoreEff, LastHeard);
         tbl->size++;
     }
     /*
@@ -159,7 +164,7 @@ int routPrintTableContent(table *tbl)
 
     while(aux != NULL)
     {
-        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %hi Next: %p\n",tbl->size, aux->Neigh_IP[0], aux->Neigh_IP[1], aux->Distance, aux->next);
+        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %hi Next: %p Last heard: %lu\n",tbl->size, aux->Neigh_IP[0], aux->Neigh_IP[1], aux->Distance, aux->next, aux->LastHeard);
         aux=aux->next;
         n++;
     }

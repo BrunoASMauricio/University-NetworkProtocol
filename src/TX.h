@@ -1,5 +1,26 @@
 #ifndef TX_H
+#include <sys/types.h> 
+#include <netinet/in.h> 
+#include "data.h"
+#include "udp.h"
+#include "protocol.h" 
+#include "main.h"
+
+#define PORTHW     8080 
+
+#define TIMESTAMPLENGTH     2   // 2 bytes - timestamp length
+#define SAMPLELENGTH        2   // 2 bytes - each sample length
+#define IPLENGTH            2   // 2 bytes - ip length
+#define TOTALSAMPLELENGTH IPLENGTH+SAMPLELENGTH+TIMESTAMPLENGTH // total length
+#define NUMSAMPLES          10  // this value can still be changed - number of samples in each 
+                                //                                  package taken from the internal queue
+
 #define TX_H
+
+// The transmission delay since the message is sent to WF,
+// to when WF finishes sending it
+// In nanoseconds
+#define TRANSMISSION_DELAY 1000 // 1 us
 
 /*
  * Interface with the WF team (TX)
@@ -25,7 +46,7 @@ sendMessage(void* msg);
 /*
  * Handles a SD message
  */
-void SD_TX(int Sample_Ammount, void* Samples);
+void SD_TX(int Sample_Ammount);
 
 /*
  * Creates a PB message and adds to outbound queue 
