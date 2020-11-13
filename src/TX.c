@@ -63,7 +63,7 @@ void PB_TX()
  
 
 	out_message* message = newOutMessage(getPacketSize(PBPacket), PBPacket);
-    addToQueue(message->buf, message->size, Self.OutboundQueue, 1);
+    addToQueue(message, message->size, Self.OutboundQueue, 1);
 
 	return;
 }
@@ -90,7 +90,7 @@ void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
     PRPacket[9]=SNR;
 
 	out_message* message = newOutMessage(getPacketSize(PRPacket), PRPacket);
-	addToQueue(message->buf, message->size, Self.OutboundQueue, 1);
+	addToQueue(message, message->size, Self.OutboundQueue, 1);
 
 	return;
 }
@@ -114,7 +114,7 @@ void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
     PCPacket[7]=SNR;
 
 	out_message* message = newOutMessage(getPacketSize(PCPacket), PCPacket);
-	addToQueue(message->buf, message->size, Self.OutboundQueue, 1);
+	addToQueue(message, message->size, Self.OutboundQueue, 1);
 
 	return;
 }
