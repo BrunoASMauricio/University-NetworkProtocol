@@ -66,6 +66,13 @@ enum packet_type{
 	NEA
 };
 
+enum node_status{
+	Outside,
+	Waiting,
+	Inside,
+	NA, //to use in the master one
+};
+
 /*
  * Holds a message to send
  */
@@ -206,6 +213,9 @@ typedef struct{
 	IPList* SubSlaves;
 	IPList* OutsideSlaves;
 	byte TB_PBID[2];
+	uint16_t RoutingPBID; //gonçalo xavier, if you see this please change accordinly with your define
+	node_status Status;
+	//pbid_ip_pairs* RoutingPBIDTable;
 	// ...
 } node;
 

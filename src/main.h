@@ -45,8 +45,9 @@ clean(int signo);
 #include "udp.c"
 #include "routing_table.c"
 #include "protocol.c"
-#include "RX.c"
 #include "TX.c"
+#include "RX.c"
+
 
 
 #include "debug.c"

@@ -158,6 +158,17 @@ setup()
 	int rc;
 	//memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 	setMaster();
+	Self.RoutingPBID=1;
+
+	if(Self.IsMaster==false) //setting node as an outside one
+	{
+		Self.Status=Outside;
+	}
+	else
+	{
+		Self.Status=NA;
+	}
+	
 
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
@@ -167,6 +178,7 @@ setup()
 	Self.SubSlaves = newIPList();
 	Self.OutsideSlaves= newIPList();
 	Self.TimeTable = NULL;
+	//Self.RoutingPBIDTable= pbidInitializeTable();
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {
