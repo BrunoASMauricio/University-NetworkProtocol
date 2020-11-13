@@ -416,7 +416,7 @@ void NE_RX(in_message* msg)
         //NOTE(GoncaloX): This is the 1st contact of an new node, as such
         //it shoul be added to the routTable.
         //ALSO, for LastHeard msg->received_time should be used in the future?
-        table_entry* Outsider = routInsertOrUpdateEntry(Self.Table, SenderIP, UNREACHABLE, 1, 1, 1);
+        table_entry* Outsider = routInsertOrUpdateEntry(Self.Table, SenderIP, UNREACHABLE, msg->SNR, 1, 1);
         Outsider->LastHeard = Act;
 
         // se é o master que recebe NE, gera TimeBroadcast e gera NEP 
@@ -495,7 +495,7 @@ void NER_RX(in_message* msg)
             printf("IP received in NER not present in rouTable!\n");
             dumpBin((char*)(SubSlaveIP), 2, "Adding new entry with IP:");
             //TODO: Update Last Heard while adding entry
-            routInsertOrUpdateEntry(Self.Table, SubSlaveIP, 2, msg->SNR, 2, 2);
+            routInsertOrUpdateEntry(Self.Table, SubSlaveIP,UNREACHABLE, msg->SNR, 2, 2);
         }
 
         if(Self.IsMaster)
