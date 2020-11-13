@@ -167,9 +167,13 @@ typedef struct{
 	pthread_mutex_t Lock;
 	byte Retransmitables;		// The retransmission bitmap
 	unsigned long int Time_TB;
+	void* TB_ret_msg;
 	unsigned long int Time_PR;
+	void* PR_ret_msg;
 	unsigned long int Time_NE;
+	void* NE_ret_msg;
 	unsigned long int Time_NER;
+	void* NER_ret_msg;
 }retransmission;
 
 

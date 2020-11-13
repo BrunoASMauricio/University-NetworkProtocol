@@ -1,7 +1,7 @@
 #include "protocol.h"
 
 
-void startRetransmission(retransmitable message_type)
+void startRetransmission(retransmitable message_type, void* msg)
 {
 	timespec Res;
 	unsigned long int Act;
@@ -14,15 +14,19 @@ void startRetransmission(retransmitable message_type)
 	switch(message_type){
 		case rTB:
 			Self.Rt.Time_TB = Act + RETRANSMISSION_DELAY_TB;
+			Self.Rt.TB_ret_msg = msg;
 			break;
 		case rPR:
 			Self.Rt.Time_PR = Act + RETRANSMISSION_DELAY_PR;
+			Self.Rt.PR_ret_msg = msg;
 			break;
 		case rNE:
 			Self.Rt.Time_NE = Act + RETRANSMISSION_DELAY_NE;
+			Self.Rt.NE_ret_msg = msg;
 			break;
 		case rNER:
 			Self.Rt.Time_NER = Act + RETRANSMISSION_DELAY_NER;
+			Self.Rt.NER_ret_msg = msg;
 			break;
 	}
 	
@@ -44,9 +48,9 @@ void* retransmit(void* dummy)
 	printf("Retransmission thread on\n");
 	while(1)
 	{
-		earliest = 0;
 		clock_gettime(CLOCK_REALTIME, &Res);
 		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+		earliest = Act + DEFAULT_RETRANSMIT_CHECK;
 
 		pthread_mutex_lock(&(Self.Rt.Lock));
 		
@@ -54,10 +58,11 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_TB)
 			{
-				// TB_TX();
+				// Transmit TB
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.TB_ret_msg), Self.Rt.TB_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.Time_TB += RETRANSMISSION_DELAY_TB;
 			}
-			else if(Self.Rt.Time_TB > earliest)
+			else if(Self.Rt.Time_TB < earliest)
 			{
 				earliest = Self.Rt.Time_TB;
 			}
@@ -66,10 +71,11 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_PR)
 			{
-				// PR_TX();
+				// Transmit PR
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.PR_ret_msg), Self.Rt.PR_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.Time_PR += RETRANSMISSION_DELAY_PR;
 			}
-			else if(Self.Rt.Time_PR > earliest)
+			else if(Self.Rt.Time_PR < earliest)
 			{
 				earliest = Self.Rt.Time_PR;
 			}
@@ -78,10 +84,11 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_NE)
 			{
-				// NE_TX();
+				// Transmit NE
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.NE_ret_msg), Self.Rt.NE_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.Time_NE += RETRANSMISSION_DELAY_NE;
 			}
-			else if(Self.Rt.Time_NE > earliest)
+			else if(Self.Rt.Time_NE < earliest)
 			{
 				earliest = Self.Rt.Time_NE;
 			}
@@ -90,10 +97,11 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_NER)
 			{
-				// NER_TX();
+				// Transmit NER
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.NER_ret_msg), Self.Rt.NER_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.Time_NER += RETRANSMISSION_DELAY_NER;
 			}
-			else if(Self.Rt.Time_NER > earliest)
+			else if(Self.Rt.Time_NER < earliest)
 			{
 				earliest = Self.Rt.Time_NER;
 			}
@@ -103,7 +111,7 @@ void* retransmit(void* dummy)
 		
 		if(earliest)
 		{
-			usleep(earliest/1000);
+			usleep((Act-earliest)/1000);
 		}
 		else
 		{

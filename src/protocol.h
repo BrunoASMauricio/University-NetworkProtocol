@@ -20,8 +20,9 @@ void
  * Starts the retransmission of a certain message
  * The retransmitable field is the message type.
  * The enum specifies: rTB, rPR, rNE and rNER
+ * The msg argument is the message to be retransmitted
  */
-startRetransmission(retransmitable message_type);
+startRetransmission(retransmitable message_type, void* msg);
 
 void
 /*
