@@ -6,14 +6,11 @@
 #include "protocol.h" 
 #include "main.h"
 
-#define PORTHW     8080 
+#define DATAPAYLOADLENGTH   3   
+#define IPLENGTH            2  
+#define TOTALLENGTH IPLENGTH+DATAPAYLOADLENGTH 
 
-#define TIMESTAMPLENGTH     2   // 2 bytes - timestamp length
-#define SAMPLELENGTH        2   // 2 bytes - each sample length
-#define IPLENGTH            2   // 2 bytes - ip length
-#define TOTALSAMPLELENGTH IPLENGTH+SAMPLELENGTH+TIMESTAMPLENGTH // total length
-#define NUMSAMPLES          10  // this value can still be changed - number of samples in each 
-                                //                                  package taken from the internal queue
+#define PORTHW     8080 
 
 #define TX_H
 
