@@ -120,7 +120,7 @@ HW_dispatcher(void*dummy)
 
             if (PacketSize > 0)
             {
-               sendToSocket(sockfd, Popped ,sizeof(byte)*TOTALLENGTH); 
+               sendToSocket(sockfd, Popped ,sizeof(byte)*PacketSize); 
             }
 
             PacketSize=0; 
