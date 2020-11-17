@@ -1,4 +1,18 @@
 #ifndef RX_H
+#include <sys/types.h> 
+#include <netinet/in.h> 
+#include "data.h"
+#include "udp.h"
+#include "protocol.h" 
+#include "main.h"
+#include <time.h>
+
+#define PORTWS    8080
+#define TAMIP   2   //  2 bytes the ip
+#define DATAPAYLOAD 3 // bytes
+#define TAMTOTALSAMPLE  TAMIP + DATAPAYLOAD   // bytes   
+
+
 #define RX_H
 
 /*

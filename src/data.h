@@ -393,5 +393,6 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head);
 
 meta_data Meta;
 node Self;
+byte  *ip;
 
 #endif
