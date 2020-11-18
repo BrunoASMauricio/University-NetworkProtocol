@@ -14,6 +14,10 @@
 #define DEFAULT_VALIDITY_DELAY 1000	//in ns
 #define DEFAULT_TIMESLOT_SIZE 1		//in ms
 
+// The delay since the TB transmission is
+// requested, and it first begins (in ns)
+#define TB_GENERATION_DELAY	1000000	//(1ms)
+
 #define DEFAULT_HW_PORT 901
 #define DEFAULT_WS_PORT 902
 #define DEFAULT_WF_TX_PORT 903
@@ -173,10 +177,22 @@ typedef struct{
 typedef struct{
 	pthread_mutex_t Lock;
 	byte Retransmitables;		// The retransmission bitmap
+
 	unsigned long int Time_TB;
+	void* TB_ret_msg;
+	byte TB_ret_amm;
+
 	unsigned long int Time_PR;
+	void* PR_ret_msg;
+	byte PR_ret_amm;
+
 	unsigned long int Time_NE;
+	void* NE_ret_msg;
+	byte NE_ret_amm;
+	
 	unsigned long int Time_NER;
+	void* NER_ret_msg;
+	byte NER_ret_amm;
 }retransmission;
 
 

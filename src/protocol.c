@@ -1,7 +1,7 @@
 #include "protocol.h"
 
 
-void startRetransmission(retransmitable message_type)
+void startRetransmission(retransmitable message_type, void* msg)
 {
 	timespec Res;
 	unsigned long int Act;
@@ -14,25 +14,83 @@ void startRetransmission(retransmitable message_type)
 	switch(message_type){
 		case rTB:
 			Self.Rt.Time_TB = Act + RETRANSMISSION_DELAY_TB;
+			Self.Rt.TB_ret_msg = msg;
+			Self.Rt.TB_ret_amm = 0;
 			break;
 		case rPR:
 			Self.Rt.Time_PR = Act + RETRANSMISSION_DELAY_PR;
+			Self.Rt.PR_ret_msg = msg;
+			Self.Rt.PR_ret_amm = 0;
 			break;
 		case rNE:
 			Self.Rt.Time_NE = Act + RETRANSMISSION_DELAY_NE;
+			Self.Rt.NE_ret_msg = msg;
+			Self.Rt.NE_ret_amm = 0;
 			break;
 		case rNER:
 			Self.Rt.Time_NER = Act + RETRANSMISSION_DELAY_NER;
+			Self.Rt.NER_ret_msg = msg;
+			Self.Rt.NER_ret_amm = 0;
 			break;
 	}
 	
 	pthread_mutex_unlock(&(Self.Rt.Lock));
 }
 
+bool beginTBTransmission()
+{
+	unsigned long int Act;
+	timespec Res;
+
+	pthread_mutex_lock(&(Self.Rt.Lock));
+	clock_gettime(CLOCK_REALTIME, &Res);
+	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+	// A TB is already being retransmitted
+	if(Self.Rt.Retransmitables & rTB)
+	{
+		// The TB was already transmitted at least once
+		if(Self.Rt.TB_ret_amm)
+		{
+			// Ignore for now
+			pthread_mutex_unlock(&(Self.Rt.Lock));
+			return false;
+		}// The TB hasn't yet been transmitted
+		else
+		{
+			// Just create the TB with the new slave
+			// Do not update the transmission time
+			free(Self.Rt.TB_ret_msg);
+			Self.Rt.TB_ret_msg = generateTB();
+		}
+	}
+	else
+	{
+		Self.Rt.Time_TB = Act + TB_GENERATION_DELAY;
+		Self.Rt.TB_ret_msg = generateTB();
+		SETBIT(rTB, Self.Rt.Retransmitables);
+	}
+	pthread_mutex_unlock(&(Self.Rt.Lock));
+	return true;
+}
+
 void stopRetransmission(retransmitable message_type)
 {
 	pthread_mutex_lock(&(Self.Rt.Lock));
 	CLEARBIT(message_type, Self.Rt.Retransmitables);
+	switch(message_type){
+		case rTB:
+			Self.Rt.TB_ret_msg = NULL;
+			break;
+		case rPR:
+			Self.Rt.PR_ret_msg = NULL;
+			break;
+		case rNE:
+			Self.Rt.NE_ret_msg = NULL;
+			break;
+		case rNER:
+			Self.Rt.NER_ret_msg = NULL;
+			break;
+	}
 	pthread_mutex_unlock(&(Self.Rt.Lock));
 }
 
@@ -44,9 +102,9 @@ void* retransmit(void* dummy)
 	printf("Retransmission thread on\n");
 	while(1)
 	{
-		earliest = 0;
 		clock_gettime(CLOCK_REALTIME, &Res);
 		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+		earliest = Act + DEFAULT_RETRANSMIT_CHECK;
 
 		pthread_mutex_lock(&(Self.Rt.Lock));
 		
@@ -54,10 +112,12 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_TB)
 			{
-				// TB_TX();
+				// Transmit TB
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.TB_ret_msg), Self.Rt.TB_ret_msg), 8, Self.OutboundQueue, 1);
+				Self.Rt.TB_ret_amm += 1;
 				Self.Rt.Time_TB += RETRANSMISSION_DELAY_TB;
 			}
-			else if(Self.Rt.Time_TB > earliest)
+			else if(Self.Rt.Time_TB < earliest)
 			{
 				earliest = Self.Rt.Time_TB;
 			}
@@ -66,10 +126,12 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_PR)
 			{
-				// PR_TX();
+				// Transmit PR
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.PR_ret_msg), Self.Rt.PR_ret_msg), 8, Self.OutboundQueue, 1);
+				Self.Rt.PR_ret_amm += 1;
 				Self.Rt.Time_PR += RETRANSMISSION_DELAY_PR;
 			}
-			else if(Self.Rt.Time_PR > earliest)
+			else if(Self.Rt.Time_PR < earliest)
 			{
 				earliest = Self.Rt.Time_PR;
 			}
@@ -78,10 +140,12 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_NE)
 			{
-				// NE_TX();
+				// Transmit NE
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.NE_ret_msg), Self.Rt.NE_ret_msg), 8, Self.OutboundQueue, 1);
+				Self.Rt.NE_ret_amm += 1;
 				Self.Rt.Time_NE += RETRANSMISSION_DELAY_NE;
 			}
-			else if(Self.Rt.Time_NE > earliest)
+			else if(Self.Rt.Time_NE < earliest)
 			{
 				earliest = Self.Rt.Time_NE;
 			}
@@ -90,10 +154,12 @@ void* retransmit(void* dummy)
 		{
 			if(Act > Self.Rt.Time_NER)
 			{
-				// NER_TX();
+				// Transmit NER
+				addToQueue(newOutMessage(getPacketSize(Self.Rt.NER_ret_msg), Self.Rt.NER_ret_msg), 8, Self.OutboundQueue, 1);
+				Self.Rt.NER_ret_amm += 1;
 				Self.Rt.Time_NER += RETRANSMISSION_DELAY_NER;
 			}
-			else if(Self.Rt.Time_NER > earliest)
+			else if(Self.Rt.Time_NER < earliest)
 			{
 				earliest = Self.Rt.Time_NER;
 			}
@@ -103,7 +169,7 @@ void* retransmit(void* dummy)
 		
 		if(earliest)
 		{
-			usleep(earliest/1000);
+			usleep((Act-earliest)/1000);
 		}
 		else
 		{

@@ -20,8 +20,9 @@ void
  * Starts the retransmission of a certain message
  * The retransmitable field is the message type.
  * The enum specifies: rTB, rPR, rNE and rNER
+ * The msg argument is the message to be retransmitted
  */
-startRetransmission(retransmitable message_type);
+startRetransmission(retransmitable message_type, void* msg);
 
 void
 /*
@@ -39,12 +40,11 @@ void*
 */
 retransmit(void* dummy);
 
-//void
+void*
 /*
-* Re/Generates the retransmission TimeTable
-* If the "deadline" is reached, generates it and sets up retransmission
+* Generates and returns a TB Message
 */
-//generateTB();
+generateTB();
 
 /*
  * Performs a network test
