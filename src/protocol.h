@@ -6,7 +6,7 @@
 
 #define PORTHW     8080
 
-// Check for retransmission delay in us
+// Check for retransmission delay in ns
 #define DEFAULT_RETRANSMIT_CHECK 1E9	// 1s
 
 // Retransmission delays in ns
@@ -18,7 +18,7 @@
 
 // Time the TX waits for a message when none is
 // available (in us)
-#define TX_MESSAGE_WAIT 1E3		//100ms
+#define TX_MESSAGE_WAIT 1E3		//1ms
 
 void
 /*
