@@ -2,6 +2,7 @@
 
 #define SETBIT(bit,byte) byte |= (1 << bit)
 #define CLEARBIT(bit,byte) byte &= ~(1 << bit)
+#define CHECKBIT(bit,byte) (byte) & (1 << bit)
 
 queue*
 newQueue()

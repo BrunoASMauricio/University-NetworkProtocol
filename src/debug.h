@@ -14,6 +14,13 @@ dumpBin(char* buf, int size, const char *fmt,...);
 
 void
 /*
+ * Print the message type
+ * in the buffer and dump buffer
+ */
+printMessage(void* buff, int size);
+
+void
+/*
  * Normal output
  */
 printfLog(const char *fmt, ...);
