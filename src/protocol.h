@@ -4,16 +4,21 @@
 #include <netdb.h>
 #include <ctype.h>
 
-#define PORTHW     8080 
+#define PORTHW     8080
 
-// Check for retransmission delay in us
-#define DEFAULT_RETRANSMIT_CHECK 10
+// Check for retransmission delay in ns
+#define DEFAULT_RETRANSMIT_CHECK 1E9	// 1s
 
 // Retransmission delays in ns
-#define RETRANSMISSION_DELAY_TB 100
-#define RETRANSMISSION_DELAY_PR 100
-#define RETRANSMISSION_DELAY_NE 100
-#define RETRANSMISSION_DELAY_NER 100
+#define RETRANSMISSION_DELAY_PB 5*1E9		// 5 s
+#define RETRANSMISSION_DELAY_TB 2*1E9		// 2 s
+#define RETRANSMISSION_DELAY_PR 2*1E9		// 2 s
+#define RETRANSMISSION_DELAY_NE 2*1E9		// 2 s
+#define RETRANSMISSION_DELAY_NER 2*1E9	// 2 s
+
+// Time the TX waits for a message when none is
+// available (in us)
+#define TX_MESSAGE_WAIT 1E3		//1ms
 
 void
 /*

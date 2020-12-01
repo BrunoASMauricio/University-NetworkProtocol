@@ -159,16 +159,19 @@ setup()
 	setMaster();
 	Self.PBID=1;
 
-	if(Self.IsMaster==false) //setting node as an outside one
-	{
-		Self.Status=Outside;
-	}
-	else
+	if(Self.IsMaster)
 	{
 		Self.Status=NA;
+		printf("I am the Master!\n");
+	}
+	else //setting node as an outside one
+	{
+		Self.Status=Outside;
+		printf("I am a Slave!\n");
 	}
 	
     Self.PBID = 0;
+
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
@@ -230,11 +233,20 @@ void
 handler()
 {
 	in_message* Message;
+	int dummy;
 
+	if(Self.IsMaster) //setting node as an outside one
+	{
+		startRetransmission(rPB, createPB());
+	}
 	while (1)
     {
 		Message = getMessage();
-		if(Message == NULL) continue;
+		if(!(Message = (in_message*)popFromQueue(&dummy, Self.InboundQueue))){
+			usleep(100000);
+			continue;
+		}
+		printMessage(Message->buf, Message->size);
 		switch (((byte*)Message)[0])
         {
 			case SD:

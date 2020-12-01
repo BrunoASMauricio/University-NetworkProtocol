@@ -20,8 +20,7 @@ WF_dispatcher(void* dummy)
 		{
 			while(!(To_send = (out_message*)popFromQueue(&Size, Self.OutboundQueue)))
 			{
-				// usleep(10);
-				continue;
+				usleep(TX_MESSAGE_WAIT);
 			}
 		}
 		// Not on the network, just send it
@@ -107,12 +106,17 @@ HW_dispatcher(void*dummy)
     socket_s* sockfd = newSocket(PORTHW);
     startSocket(sockfd);
 
+	if(!Self.IsMaster)
+	{
+		// Slaves don't require HW dispatcher
+		return NULL;
+	}
     while (1)
     {
         //  Sending========>    IP     DataPayload      // 
        //                       2bytes 3bytes          //  possible changes of these values // 
         
-        if( Self.IsMaster == 1)
+        if(Self.IsMaster)
         {
             Popped = (byte*) popFromQueue(&PacketSize,Self.InternalQueue);
             
@@ -123,8 +127,9 @@ HW_dispatcher(void*dummy)
                sendToSocket(sockfd, Popped ,sizeof(byte)*PacketSize); 
             }
 
-            PacketSize=0; 
-        } 
+            PacketSize=0;
+        }
+		usleep(HW_DISPATCHER_SLEEP);
     }
     free(Popped); 
     close(sockfd->s); 
@@ -182,7 +187,7 @@ void SD_TX(int Sample_Ammount)
 	addToQueue(newOutMessage(sizeof(byte)*(Packet_Sizes[1] + NumSamples), packet), Packet_Sizes[1] + NumSamples, Self.OutboundQueue, 1);
 }
 
-void PB_TX()
+void* createPB()
 {
 	byte* PBPacket = (byte*)malloc(sizeof(byte)*7);
     short MasterDistance =0;
@@ -209,12 +214,12 @@ void PB_TX()
         PBPacket[5]= (MasterDistance >> 8) &0xff;
         PBPacket[6]= MasterDistance &0xff;
     }
- 
-
-	out_message* message = newOutMessage(getPacketSize(PBPacket), PBPacket);
+	return PBPacket;
+}
+void PB_TX(void* packet)
+{
+	out_message* message = newOutMessage(getPacketSize(packet), packet);
     addToQueue(message, message->size, Self.OutboundQueue, 1);
-
-	return;
 }
 
 void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)

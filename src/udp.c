@@ -31,6 +31,7 @@ void startSocket(socket_s* sk)
 		fatalErr("Could not connect to WF on port %d",sk->port);
 	}
 	*/
+	/*
     opt = fcntl(sk->s, F_GETFL);
     if (opt < 0) 
 	{
@@ -43,6 +44,7 @@ void startSocket(socket_s* sk)
         printf("fcntl(F_SETFL) fail.");
 		exit(-1);
 	}
+	*/
 }
 
 void startSocket_ws(socket_s* sk)
