@@ -10,7 +10,10 @@
 #define IPLENGTH            2  
 #define TOTALLENGTH IPLENGTH+DATAPAYLOADLENGTH 
 
-#define PORTHW     8080 
+#define PORTHW     8080
+
+// Queue read delay in HW dispatcher in us
+#define HW_DISPATCHER_SLEEP 0.5E6	// 0.5s
 
 #define TX_H
 

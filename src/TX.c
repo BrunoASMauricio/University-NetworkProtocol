@@ -106,12 +106,17 @@ HW_dispatcher(void*dummy)
     socket_s* sockfd = newSocket(PORTHW);
     startSocket(sockfd);
 
+	if(!Self.IsMaster)
+	{
+		// Slaves don't require HW dispatcher
+		return NULL;
+	}
     while (1)
     {
         //  Sending========>    IP     DataPayload      // 
        //                       2bytes 3bytes          //  possible changes of these values // 
         
-        if( Self.IsMaster == 1)
+        if(Self.IsMaster)
         {
             Popped = (byte*) popFromQueue(&PacketSize,Self.InternalQueue);
             
@@ -122,8 +127,9 @@ HW_dispatcher(void*dummy)
                sendToSocket(sockfd, Popped ,sizeof(byte)*PacketSize); 
             }
 
-            PacketSize=0; 
-        } 
+            PacketSize=0;
+        }
+		usleep(HW_DISPATCHER_SLEEP);
     }
     free(Popped); 
     close(sockfd->s); 
