@@ -237,7 +237,6 @@ void delIPList(IPList* IPL)
 	free(IPL);
 }
 
-
 short*
 getIPFromList(IPList* IPL, int position)
 {
@@ -358,7 +357,7 @@ out_message* newOutMessage(int size, void* buffer)
 
 	ret->size = size;
 	ret->buf = (void*)malloc(size);
-	memcpy(ret->buf, buffer, size);
+    memcpy(ret->buf, buffer, size);
 
 	return ret;
 }
@@ -373,7 +372,6 @@ void delOutMessage(out_message* Message)
 	free(Message->buf);
 	free(Message);
 }
-
 
 /*
  * PBID-IP pairs table functions
@@ -413,8 +411,6 @@ pbid_ip_table* pbidInitializeTable()
 
   return table_head;
 }
-
-
 
 void pbidInsertPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head)
 {
@@ -574,4 +570,70 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head)
 	free(temp);
 	pthread_mutex_unlock(&(table_head->Lock));
 	return;
+}
+
+void*
+buildNEMessage(byte* SenderIP, byte* ProxyIP)
+{
+    void* buff;
+    
+    byte* packet = (byte*)malloc(5);
+    //Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NE;
+    packet[1] = SenderIP[0];
+    packet[2] = SenderIP[1];
+    packet[3] = ProxyIP[0];
+    packet[4] = ProxyIP[1];
+    
+	return packet;
+}
+
+void*
+buildNERMessage(byte* NextHopIP, byte* OutsiderIP)
+{
+    byte* packet = (byte*)malloc(5);
+    //Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NER;
+    packet[1] = NextHopIP[0];
+    packet[2] = NextHopIP[1];
+    packet[3] = OutsiderIP[0];
+    packet[4] = OutsiderIP[1];
+
+	return packet;
+}
+
+out_message* 
+buildNEPMessage(byte* SenderIP, byte* OutsiderIP)
+{
+    void* buff;
+    
+    byte packet[5];
+    //Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NEP;
+    packet[1] = SenderIP[0];
+    packet[2] = SenderIP[1];
+    packet[3] = OutsiderIP[0];
+    packet[4] = OutsiderIP[1];
+    
+    out_message* NEPMessage = newOutMessage(Packet_Sizes[NEP], packet);
+    
+    return NEPMessage;
+}
+
+out_message* 
+buildNEAMessage(byte* OutsiderIP, pbid PBID)
+{
+    void* buff;
+    
+    byte packet[5];
+    //Version | Packet Type
+    packet[0] = (PROTOCOL_VERSION<<4) + NEA;
+    packet[1] = OutsiderIP[0];
+    packet[2] = OutsiderIP[1];
+    packet[3] = (PBID >> 8) & 0xff;
+    packet[4] = PBID & 0xff;
+    
+    out_message* NEAMessage = newOutMessage(Packet_Sizes[NEA], packet);
+    
+    return NEAMessage;
 }

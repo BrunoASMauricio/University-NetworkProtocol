@@ -1,5 +1,4 @@
 #include "routing_table.h"
-#include "debug.h"
 
 table* routNewTable()
 {
@@ -49,8 +48,12 @@ table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, dou
 
 table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short LocalSNR, short RemoteSNR, unsigned long int LastHeard)
 {
-    if(tbl == NULL) return NULL;
-
+    if(tbl == NULL) 
+    {
+       printfErr("Tried to insert/update a non-existent routTable\n");
+       return NULL;
+    }
+    
     table_entry *aux = NULL;
     table_entry *aux1 = NULL;
     table_entry *aux2 = NULL;
@@ -101,6 +104,18 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
         aux=routNewEntry(Store_IP, Distance, StoreAvg, StoreEff, LastHeard);
         tbl->size++;
     }
+	
+	//TODO: REFACTOR ROUT FUNCTIONS
+	//FIRST test if you didn't just freed the tbl->begin! 
+	//if you did, just place it on the beginning
+	if(tbl->begin == NULL)
+	{
+		tbl->begin = (table_entry*)malloc(sizeof(table_entry));
+		tbl->begin = aux;
+		pthread_mutex_unlock(&(tbl->lock));
+		return aux;
+	}
+
     /*
     * we start by checking if there's only one entry on the table, which makes things easier
     */

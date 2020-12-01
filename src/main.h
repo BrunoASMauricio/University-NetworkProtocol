@@ -48,8 +48,6 @@ clean(int signo);
 #include "TX.c"
 #include "RX.c"
 
-
-
 #include "debug.c"
 
 #endif

@@ -200,6 +200,12 @@ void* retransmit(void* dummy)
 }
 
 void
+insertRegisteredSlave(byte IP[2])
+{
+	insertIPList(Self.RegisteredSlaves, IP);
+}
+
+void
 insertSubSlave(byte IP[2])
 {
 	insertIPList(Self.SubSlaves, IP);
@@ -291,7 +297,6 @@ getPacketSize(void* buf)
 			}
 			return Packet_Sizes[SD] + helper;
 		case TB:
-            //NOTE(GoncaloXavier): As per clarification on MR !9 - WF:
             //((short*)buf)[8]*2*8->Table size (2 bytes) nº of IP's * IP size
             //((short*)buf)[8] -> bitmap size
 			helper = ((short*)buf)[8];
@@ -557,4 +562,9 @@ void* generateTB()
 	return buff;
 }
 
+pbid 
+getNewPBID()
+{
+    return ++(Self.PBID);
+}
 

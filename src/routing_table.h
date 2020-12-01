@@ -1,6 +1,7 @@
 #ifndef TABLE_H
 
 typedef uint8_t byte;
+#define UNREACHABLE 65535
 
 /**
  * entry struct represents table entry, it contains the neighbours nodes' IP as index,

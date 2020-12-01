@@ -25,6 +25,7 @@
 
 
 typedef uint8_t byte;
+typedef uint16_t pbid;
 
 /*
  * Data structures
@@ -233,10 +234,12 @@ typedef struct{
 	retransmission Rt;
 	IPList* SubSlaves;
 	IPList* OutsideSlaves;
+	IPList* RegisteredSlaves;
+	IPList* OutsidePending;
 	byte TB_PBID[2];
-	uint16_t RoutingPBID; //gonçalo xavier, if you see this please change accordinly with your define
 	node_status Status;
 	//pbid_ip_pairs* RoutingPBIDTable;
+    pbid PBID;
 	// ...
 } node;
 
@@ -410,7 +413,11 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head);
  * removes pair with "IP_toRemove" from the table pointed by "table_head"
  */
 
-
+/*
+ * Builds NEP Type Message using newOutMessage()
+ */ 
+out_message*
+buildNEPMessage(byte* SenderIP, byte* OutsiderIP);
 
 meta_data Meta;
 node Self;

@@ -76,21 +76,24 @@ void TB_TX(byte PBID[2], timetable* tm, in_message* message);
 /*
  * Handles an NE message
  */
-void NE_TX(byte Proxy_IP[2]);
+//void NE_TX(byte Proxy_IP[2]);
+void NE_TX(void* message);
 
 /*
- * Handles an NEP message
+ * Builds and queues a NEP message, using received OutsidersIP and 
+ * Self.IP for senders IP
  */
 void NEP_TX(byte Outsiders_IP[2]);
 
 /*
  * Handles an NER message
  */
-void NER_TX(byte Outsiders_IP[2]);
+//out_message* NER_TX(byte Outsiders_IP[2]);
+void NER_TX(void* message);
 
 /*
  * Handles an NEA message
  */
-void NEA_TX(byte Outsiders_IP[2], byte PBID[2]);
+void NEA_TX(byte Outsiders_IP[2], pbid PBID);
 
 #endif

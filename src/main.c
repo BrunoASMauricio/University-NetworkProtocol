@@ -137,8 +137,7 @@ main(int argc, char **argv)
 		printf("We are in the matrix\n");
 	}
 
-	
-	if (Meta.Post)
+    if (Meta.Post)
     {
         testAll();
     }
@@ -158,7 +157,7 @@ setup()
 	int rc;
 	//memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
 	setMaster();
-	Self.RoutingPBID=1;
+	Self.PBID=1;
 
 	if(Self.IsMaster)
 	{
@@ -170,6 +169,8 @@ setup()
 		Self.Status=Outside;
 		printf("I am a Slave!\n");
 	}
+	
+    Self.PBID = 0;
 
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
@@ -180,6 +181,14 @@ setup()
 	Self.OutsideSlaves= newIPList();
 	Self.TimeTable = NULL;
 	//Self.RoutingPBIDTable= pbidInitializeTable();
+
+    if(Self.IsMaster)
+    {
+	    Self.RegisteredSlaves= newIPList();
+    }
+
+	Self.OutsidePending= newIPList();
+	//Self.TimeTable = newTimeTable();
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {

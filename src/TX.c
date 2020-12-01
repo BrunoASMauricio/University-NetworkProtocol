@@ -1,5 +1,5 @@
 #include "TX.h"
-
+#include "data.h"
 
 void*
 WF_dispatcher(void* dummy)
@@ -201,8 +201,8 @@ void* createPB()
     PBPacket[0]=(PROTOCOL_VERSION<<4)+PB;
     PBPacket[1]=Self.IP[0];
     PBPacket[2]=Self.IP[1];
-    PBPacket[3]= (Self.RoutingPBID >> 8) &0xff;
-    PBPacket[4]= Self.RoutingPBID &0xff ;
+    PBPacket[3]= (getNewPBID()>> 8) &0xff;
+    PBPacket[4]= Self.PBID &0xff ;
 
     if(Self.IsMaster == false)
     {
@@ -287,23 +287,39 @@ void TB_TX(byte PBID[2], void* buff)
 	return;
 }
 
-void NE_TX(byte Proxy_IP[2])
+void NE_TX(void* message)
 {
-	return;
+	out_message* out_message = newOutMessage(getPacketSize(message), message);
+    addToQueue(out_message, out_message->size, Self.OutboundQueue, 1);
 }
 
 void NEP_TX(byte Outsiders_IP[2])
 {
-	return;
+    out_message* NEPMessage = buildNEPMessage(Self.IP, Outsiders_IP);
+    addToQueue(NEPMessage, NEPMessage->size, Self.OutboundQueue, 1);
 }
 
-void NER_TX(byte Outsiders_IP[2])
+//void NER_TX(byte Outsiders_IP[2])
+void NER_TX(void* message)
 {
-	return;
+	out_message* out_message = newOutMessage(getPacketSize(message), message);
+    addToQueue(out_message, out_message->size, Self.OutboundQueue, 1);
+
+    /*
+	byte* NextHopIP = Self.Table->begin->Neigh_IP;
+    out_message* NERMessage;
+    
+    NERMessage = buildNERMessage(NextHopIP, Outsiders_IP);
+    addToQueue(NERMessage, NERMessage->size, Self.OutboundQueue, 1);
+
+	return NERMessage;
+	*/
 }
 
-void NEA_TX(byte Outsiders_IP[2], byte PBID[2])
+void NEA_TX(byte Outsiders_IP[2], pbid PBID)
 {
+    out_message* NEAMessage = buildNEAMessage(Outsiders_IP, PBID);
+    addToQueue(NEAMessage, NEAMessage->size, Self.OutboundQueue, 1);
 	return;
 }
 

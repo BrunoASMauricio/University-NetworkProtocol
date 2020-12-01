@@ -60,7 +60,10 @@ generateTB();
 void
 setMaster();
 
-// The following 6 functions are wrappers for the IP list functions
+// The following 7 functions are wrappers for the IP list functions
+void
+insertRegisteredSlave(byte IP[2]);
+
 void
 insertSubSlave(byte IP[2]);
 
@@ -95,7 +98,11 @@ handlePB(void* message);
 void
 handlePR(void* message);
 
-
+/*
+ * Increments and returns global PBID 
+ */
+pbid
+getNewPBID();
 
 /*snippet code provided by anand choubey, consulted on: 
     https://www.codeproject.com/Articles/35103/Convert-MAC-Address-String-into-Bytes
