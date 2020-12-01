@@ -124,7 +124,8 @@ typedef struct{
  * The retransmitable messages
  */
 enum retransmitable{
-	rTB = 1,
+	rPB = 1,
+	rTB,
 	rPR,
 	rNE,
 	rNER
@@ -177,6 +178,10 @@ typedef struct{
 typedef struct{
 	pthread_mutex_t Lock;
 	byte Retransmitables;		// The retransmission bitmap
+
+	unsigned long int Time_PB;
+	void* PB_ret_msg;
+	byte PB_ret_amm;
 
 	unsigned long int Time_TB;
 	void* TB_ret_msg;

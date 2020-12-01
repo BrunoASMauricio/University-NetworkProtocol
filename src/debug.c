@@ -32,6 +32,47 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 		va_end(args);
 	}
 }
+void printMessage(void* buff, int size)
+{
+	printf("Message (%d bytes):\n");
+	switch (((byte*)buff)[0] & 0x0f)
+	{
+		case SD:
+			printf("\tSD");
+			break;
+		case PB:
+			printf("\tPB");
+			break;
+		case PR:
+			printf("\tPR");
+			break;
+		case PC:
+			printf("\tPC");
+			break;
+		case TA:
+			printf("\tTA");
+			break;
+		case TB:
+			printf("\tTB");
+			break;
+		case NE:
+			printf("\tNE");
+			break;
+		case NEP:
+			printf("\tNEP");
+			break;
+		case NER:
+			printf("\tNER");
+			break;
+		case NEA:
+			printf("\tNEA");
+			break;
+	}
+	dumpBin((char*)buff, size, "\n\tDump: ");
+	printf("\n");
+	fflush(stdout);
+}
+
 char getThreadChar()
 {
 	pthread_t se = pthread_self();
