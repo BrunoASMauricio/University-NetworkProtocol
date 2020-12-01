@@ -188,7 +188,7 @@ setup()
     }
 
 	Self.OutsidePending= newIPList();
-	Self.TimeTable = newTimeTable();
+	//Self.TimeTable = newTimeTable();
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {

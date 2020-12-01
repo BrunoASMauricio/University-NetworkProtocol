@@ -207,9 +207,10 @@ void PB_RX(in_message* msg)
 
 		if(distance!= (unsigned short)65535)
 		{
-			NE_TX(SenderIp);//sends a NE
-			//startRetransmission(rNE);
-			return; 
+			void* NEMessage = buildNEMessage(Self.IP, SenderIp);
+			NE_TX(NEMessage);
+			startRetransmission(rNE, NEMessage);
+			return;
 		}	
 	}
 	else
@@ -392,6 +393,7 @@ void TB_RX(in_message* msg)
 
 void NE_RX(in_message* msg)
 {
+	void* message;
     if(msg->buf == NULL)
     {
         printfErr("msg passed to NE_RX does not have NE packet format!\n");
@@ -431,9 +433,11 @@ void NE_RX(in_message* msg)
             //NOTE(GoncaloX): Maybe this should also happen if node is Master?
             insertOutsideSlave(SenderIP);
             NEP_TX(SenderIP);
+
             // se é um node que não o master, transmite NER
-            out_message* NERMessage = NER_TX(SenderIP);
-            startRetransmission(rNER, NERMessage->buf);
+			message = buildNERMessage(Self.Table->begin->Neigh_IP, SenderIP);
+			NER_TX(message);
+            startRetransmission(rNER, message);
         }
     }
 
@@ -463,6 +467,7 @@ void NEP_RX(in_message* msg)
 
 void NER_RX(in_message* msg)
 {
+	void* message;
 	byte* Packet = (byte*)msg->buf;
     if(msg->buf == NULL)
     {
@@ -474,7 +479,7 @@ void NER_RX(in_message* msg)
     {
         //Add the Outsider IP to the Sub-Slaves, updating LastHeard
         //Add Outsider IP to Pending list
-        //NOTE(GoncaloXavier): Sadly since we delete msg at the end of this
+        //Since we delete msg at the end of this
         //function, this: insertSubSlave(&Packet[3]);
         //doesn't work, BIG SAD :( -> memcpy or manual assigned instead
         
@@ -500,8 +505,8 @@ void NER_RX(in_message* msg)
 
         if(Self.IsMaster)
         {
-            //NOTE(GoncaloXavier): This assumes generateTB() generates deadline
-            //TODO(GoncaloXavier): Check if it does...
+            //This assumes generateTB() generates deadline
+            //TODO: Check if it does...
             generateTB();
             
             //Sends NEA Message back
@@ -513,8 +518,9 @@ void NER_RX(in_message* msg)
         {
             //Transmit the packet up the network
             //Send Outsiders' IP NER_TX
-            out_message* NERMessage = NER_TX(&Packet[3]);
-            startRetransmission(rNER, NERMessage->buf);
+            message = buildNERMessage(Self.Table->begin->Neigh_IP, &Packet[3]);
+			NER_TX(message);
+            startRetransmission(rNER, message);
         }
     } 
     

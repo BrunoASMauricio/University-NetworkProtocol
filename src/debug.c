@@ -765,12 +765,12 @@ testBuildNER()
 {
     byte NextHopIP[2] = {0x01, 0x02};
     byte OutsiderIP[2] = {0x03, 0x04};
-    out_message* NERpacket = buildNERMessage(NextHopIP ,OutsiderIP);
+    void* NERpacket = buildNERMessage(NextHopIP ,OutsiderIP);
     printf("\nTesting buildNERMessage.\n Expected output:\n");
     printf(">>NERpacket: 5 0x%X 0x01 0x02 0x03 0x04\n", 
                                 (PROTOCOL_VERSION<<4)+NER, NextHopIP, OutsiderIP );
     printf("Actual output:\n");
-    dumpBin((char*)(NERpacket->buf), NERpacket->size, ">>NERpacket: %X ");
+    dumpBin((char*)NERpacket, getPacketSize(NERpacket), ">>NERpacket: %X ");
     printf("\nFinished testing BuildNER;\n");
 }
 
@@ -898,12 +898,12 @@ testBuildNE()
 {
     byte SourceIP[2] = {0x01, 0x02};
     byte DestIP[2] = {0x03, 0x04};
-    out_message* NEpacket = buildNEMessage(SourceIP ,DestIP);
+    void* NEpacket = buildNEMessage(SourceIP ,DestIP);
     printf("\nTesting buildNEMessage;\n Expected output:\n");
     printf(">>NEpacket: 5 0x%X 0x01 0x02 0x03 0x04\n", 
                                 (PROTOCOL_VERSION<<4)+NE);
     printf("Actual output:\n");
-    dumpBin((char*)(NEpacket->buf), NEpacket->size, ">>NEpacket: %X ");
+    dumpBin((char*)NEpacket, getPacketSize(NEpacket), ">>NEpacket: %X ");
     printf("\nFinished testing BuildNE;\n");
 }
 

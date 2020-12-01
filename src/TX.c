@@ -287,31 +287,33 @@ void TB_TX(byte PBID[2], void* buff)
 	return;
 }
 
-void NE_TX(byte Proxy_IP[2])
+void NE_TX(void* message)
 {
-    out_message* NEMessage = buildNEMessage(Self.IP, Proxy_IP);
-    
-    addToQueue(NEMessage, NEMessage->size, Self.OutboundQueue, 1);
-	return;
+	out_message* out_message = newOutMessage(getPacketSize(message), message);
+    addToQueue(out_message, out_message->size, Self.OutboundQueue, 1);
 }
 
 void NEP_TX(byte Outsiders_IP[2])
 {
     out_message* NEPMessage = buildNEPMessage(Self.IP, Outsiders_IP);
-    
     addToQueue(NEPMessage, NEPMessage->size, Self.OutboundQueue, 1);
-	return;
 }
 
-out_message* NER_TX(byte Outsiders_IP[2])
+//void NER_TX(byte Outsiders_IP[2])
+void NER_TX(void* message)
 {
-    byte* NextHopIP = Self.Table->begin->Neigh_IP;
+	out_message* out_message = newOutMessage(getPacketSize(message), message);
+    addToQueue(out_message, out_message->size, Self.OutboundQueue, 1);
+
+    /*
+	byte* NextHopIP = Self.Table->begin->Neigh_IP;
     out_message* NERMessage;
     
     NERMessage = buildNERMessage(NextHopIP, Outsiders_IP);
     addToQueue(NERMessage, NERMessage->size, Self.OutboundQueue, 1);
 
 	return NERMessage;
+	*/
 }
 
 void NEA_TX(byte Outsiders_IP[2], pbid PBID)
