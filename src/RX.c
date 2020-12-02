@@ -332,8 +332,61 @@ void PC_RX(in_message* msg)
 
 void TA_RX(in_message* msg)
 {
+	byte SenderIp[2];
+	byte PBID[2];
+	byte Originator_IP[2];
+
+	SenderIp[0]=((byte*)msg->buf)[1];
+	SenderIp[1]=((byte*)msg->buf)[2];
+	
+	Originator_IP[0]=((byte*)msg->buf)[3];
+	Originator_IP[1]=((byte*)msg->buf)[4];
+
+	PBID[0]=((byte *)msg->buf)[5];
+	PBID[1]=((byte *)msg->buf)[6];
+	void * TBmessage;
+		// TB = retransmission->TB; // TB field not created yet on the retransmission struct! 
+	TBmessage = generateTB();
+	if(Self.IsMaster) // If Master, sets the corresponding Originator IPs' bit to 0 in the bitmap of the next TB retransmission
+	{  
+
+		pthread_mutex_lock(&(Self.Rt.Lock));
+		
+        if(TBmessage == NULL)
+		{
+			pthread_mutex_unlock(&(Self.Rt.Lock));
+			return;
+		}
+		int ip_amm;
+		ip_amm = Self.SubSlaves->L->Size;
+
+		for(int i = 0; i < ip_amm; i++)
+		{	
+	
+		   if(getIPFromList(Self.SubSlaves, i)[0] == ((short*)Originator_IP)[0])
+		  	{
+				((byte*)TBmessage)[18+ip_amm*2+i] = 0;
+                printf("bitmap of ip %u %u is equal to %d \n", Originator_IP[0], Originator_IP[1], ((byte*)TB)[18+ip_amm*2+i]);
+		  	 }
+        
+		 
+
+		pthread_mutex_unlock(&(Self.Rt.Lock));
+
+		}
+	}
+	else
+	{
+			TA_TX(Originator_IP, PBID); 
+
+		
+	}
+	free(TBmessage);
+	delInMessage(msg);
 	return;
+
 }
+
 
 void TB_RX(in_message* msg)
 {
