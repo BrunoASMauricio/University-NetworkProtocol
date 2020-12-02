@@ -275,8 +275,13 @@ void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
 
 void TA_TX(byte Originator_IP[2], byte PBID[2])
 {
-	return;
+
+    out_message *TAMessage = buildTAMessage(Originator_IP, PBID);
+    addToQueue(TAMessage->buf, TAMessage->size, Self.OutboundQueue, 1);
+    return;
+
 }
+
 
 void TB_TX(byte PBID[2], void* buff)
 {

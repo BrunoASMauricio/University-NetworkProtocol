@@ -953,6 +953,112 @@ testNEP_RX()
 }
 
 void
+testBuildTA()
+{
+    byte Originator_IP[2] = {3, 4};
+    byte PBID[2] = {5, 10};
+    out_message* TAPacket = buildTAMessage(Originator_IP,PBID);
+
+    printf("Actual output:\n");
+    dumpBin((char*)(TAPacket->buf), TAPacket->size, ">>TApacket: %X ");
+
+   
+    printf("\nFinished testing BuildTA;\n");
+}
+
+
+void
+testTA_RX()
+{
+	printf("\nTesting TA_RX;\n");
+
+    // Setting some dummy Self values to test 
+	byte prev_ip[2];
+	byte OurIP[2] = {7,8};
+	byte PBID[2];
+	byte Originator_IP[2];
+	byte SubSlave0[2] = {1,2};
+	byte SubSlave1[2] = {3,4};
+	byte SubSlave2[2] = {5,6};
+	byte SubSlave3[2];
+	Originator_IP[0] = 0x05;
+	Originator_IP[1] = 0x06;
+
+	prev_ip[0] = Self.IP[0];
+	prev_ip[1] = Self.IP[1];
+
+
+	Self.SubSlaves = newIPList();
+
+	insertSubSlave(SubSlave0);
+	insertSubSlave(SubSlave1);
+	insertSubSlave(SubSlave2);
+	
+    OurIP[0] = 0x03;
+    OurIP[1] = 0x04;
+	Self.IP[0] = OurIP[0];
+	Self.IP[1] = OurIP[1];
+	PBID[0] = 0x07;
+	PBID[1] = 0x08;
+	void * TBmessage;
+	TBmessage = generateTB();
+	
+    Self.IsMaster = true;
+    byte dummyPacket[7] = {(PROTOCOL_VERSION<<4) + TA, Self.IP[0], Self.IP[1],  0x05, 0x06, PBID[0], PBID[1]};
+    
+    timespec Res;
+    clock_gettime(CLOCK_REALTIME, &Res);
+    
+    in_message* TAreceived = newInMessage(7, dummyPacket, Res);
+    dumpBin((char*)(TAreceived->buf), TAreceived->size, ">>Sent this to TA_RX: %X");
+   
+	if(Self.IsMaster)
+	{  // If Master, sets the corresponding Originator IPs' bit to 0 in the bitmap of the next TB retransmission
+
+		// pthread_mutex_lock(&(Self.Rt.Lock));
+		
+        if(TBmessage == NULL)
+			return;
+		
+		int ip_amm;
+		ip_amm = Self.SubSlaves->L->Size;
+
+		for(int i = 0; i < ip_amm; i++)
+		{	
+	
+		  if(getIPFromList(Self.SubSlaves, i)[0] == ((short*)Originator_IP)[0])
+		  {
+				((byte*)TBmessage)[18+ip_amm*2+i] = 0;
+                printf("bitmap of ip %u %u is equal to %d \n", Originator_IP[0], Originator_IP[1], ((byte*)TBmessage)[18+ip_amm*2+i]);
+		  }
+        
+		 
+
+		//pthread_mutex_unlock(&(Self.Rt.Lock));
+
+		}
+	}
+	else
+	{
+			printf("Sending TA again...");
+			// 	TA_TX(Originator_IP, PBID); 
+
+		
+	}
+    
+	Self.IP[0] = prev_ip[0];
+	Self.IP[1] = prev_ip[1];
+    delIPList(Self.SubSlaves);
+	Self.SubSlaves = NULL;
+	printf("\nFinished TA_RX;\n");
+	free(TBmessage);
+	delInMessage(TAreceived);
+	return;
+
+}
+
+
+void
 testAll(){
 	char a[6];
 	a[0] = 0xaf;
@@ -1000,6 +1106,10 @@ testAll(){
     testLists();
 
 	testTB();
+
+	testBuildTA();
+	testTA_RX();
+
 
 	printf("Iterative testing of PBID-IP pair table\n");
 	test_PBID_IP_table();

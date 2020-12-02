@@ -419,6 +419,10 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head);
 out_message*
 buildNEPMessage(byte* SenderIP, byte* OutsiderIP);
 
+out_message* 
+buildTAMessage(byte* Originator_IP, byte * PBID);
+
+
 meta_data Meta;
 node Self;
 byte  *ip;
