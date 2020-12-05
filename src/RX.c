@@ -1,12 +1,78 @@
 #include "RX.h"
-
+#include "data.h"
+#include "routing_table.h"
 
 void*
 WF_listener(void* dummy)
 {
-	printf("WF Listener on\n");
-	while(1){sleep(1);}
+	char buff[MAXIMUM_PACKET_SIZE*2];		// *2 to prevent overflow on buff+PrevBytes
+	int PacketSize;
+	int ReadBytes = 0;
+	int PrevBytes = 0;
+	unsigned int received_messages = 0;
+	in_message* message;
+	timespec res;
 
+	printf("WF Listener on port %u\n", Meta.WF_RX->port);
+
+	// This is needed to kickstart the connection
+	// Everywhere I looked, client always spoke first
+	// Always found "in UDP it doesn't matter who talks first"
+	// But if client doesn't send this ping, it doesn't work
+	sleep(1);
+	sendToSocket(Meta.WF_RX, &PrevBytes, 2);
+
+	PrevBytes = 0;
+	while(1)
+	{
+		while((ReadBytes = getFromSocket(Meta.WF_RX, buff+PrevBytes)) == -1)
+		{
+			continue;
+		}
+		printf("\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, ++received_messages);
+
+		if(((byte*)buff)[0] & 0x0f == TB && ReadBytes < 18)
+		{
+			PrevBytes = ReadBytes;
+			printf("Got truncated TB\n");
+			continue;
+		}
+
+		clock_gettime(CLOCK_REALTIME, &res);
+
+		PacketSize = getPacketSize(buff);
+
+		if(PacketSize == -1)
+		{
+			dumpBin(buff, ReadBytes, "Packet size returned -1, dumping buffer\n");
+			continue;
+		}
+
+		if(PacketSize > ReadBytes + PrevBytes)
+		{
+			dumpBin(buff, ReadBytes, "Packet size (%d) is more than what was received (%d).\n", PacketSize, ReadBytes + PrevBytes);
+			PrevBytes = ReadBytes;
+			continue;
+		}
+
+		addToQueue(newInMessage(PacketSize, buff, res), 8, Self.InboundQueue, 1);
+
+		// We received more than one packet
+		if(PacketSize < ReadBytes + PrevBytes)
+		{
+			printf("\t\tMore than one packet (%d, %d)\n", PacketSize, ReadBytes+PrevBytes);
+			// Copy the last of the read bytes, to the beggining of the buffer
+			for(int i = 0; PacketSize + i < ReadBytes + PrevBytes; i++)
+			{
+				buff[i] = buff[PacketSize+i];
+			}
+			PrevBytes = PacketSize - (PrevBytes + ReadBytes);
+		}
+		else
+		{
+			PrevBytes = 0;
+		}
+	}
 }
 
 in_message*
@@ -15,14 +81,105 @@ getMessage()
 	return NULL;
 }
 
+
 void*
 WS_listener(void* dummy)
 {
-	printf("WS Listener on\n");
-	while(1)
-    {
-        sleep(1);
-    }
+        printf("WS Listener ON\n");
+
+        int aux=1, nBytes,nBytesAux=0;
+        byte *buff;
+        byte* TotalSample = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE); 
+        byte* TotalSample_aux = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE);
+
+        socket_s* sockfd = newSocket(PORTWS);
+        startSocket_ws(sockfd);
+
+        if (setsockopt(sockfd->s,SOL_SOCKET,SO_REUSEADDR,&aux,sizeof(int)) == -1)
+        {
+            perror("Setsockopt");
+            exit(1);
+        }
+
+        if (bind(sockfd->s, (const struct sockaddr*) &(sockfd->sockaddr), sizeof(sockfd->sockaddr)) < 0) 
+        { 
+            perror("bind failed"); 
+            exit(EXIT_FAILURE); 
+        }
+
+		buff = (byte *)malloc(sizeof(byte)*MAX_TRANS_SIZE);
+        if (Self.IsMaster == 1)
+        {
+            
+			while(1)
+            {
+                nBytes = getFromSocket(sockfd,buff);
+				
+				if (nBytes < DATAPAYLOAD)
+				{
+					memcpy(TotalSample+TAMIP+nBytesAux, buff, nBytes);
+					nBytesAux += nBytes;
+					if (nBytesAux >= DATAPAYLOAD){
+						memcpy(TotalSample, Self.IP , TAMIP);
+						addToQueue((void*)TotalSample, sizeof(byte)*TAMTOTALSAMPLE, Self.InternalQueue, 1);
+						TotalSample = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE);
+						nBytesAux = 0; 
+					}
+
+				} else
+				{
+					memcpy(TotalSample, Self.IP , TAMIP);
+					memcpy(TotalSample+TAMIP, buff, DATAPAYLOAD);
+					addToQueue((void*)TotalSample, sizeof(byte)*TAMTOTALSAMPLE, Self.InternalQueue, 1);
+					TotalSample = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE); 
+				}
+					
+             }
+			 
+        } 
+        else 
+        {
+            
+			while(1)
+            {
+                nBytes = getFromSocket(sockfd,buff);
+				
+				if (nBytes < DATAPAYLOAD)
+				{
+					memcpy(TotalSample+nBytesAux, buff, nBytes);
+					nBytesAux += nBytes;
+					if (nBytesAux >= DATAPAYLOAD){
+						addToQueue((void*)TotalSample, sizeof(byte)*DATAPAYLOAD, Self.InternalQueue, 0);
+						TotalSample = (byte*)malloc(sizeof(byte)*DATAPAYLOAD);
+						nBytesAux = 0;
+
+						// chamar função do Schumacher   
+						// pega nas data TotalSample (por exemplo 10 samples  == MAXTotalSample) da queue interna  
+						// e nete num pacote SD para a Self.Outboudqueue.
+						// Schumacher(pointer para queue das samples, numero de samples, timestamp); 
+					}
+
+				} else
+				{
+					memcpy(TotalSample, buff, DATAPAYLOAD);
+					addToQueue((void*)TotalSample, sizeof(byte)*DATAPAYLOAD, Self.InternalQueue, 0);
+					TotalSample = (byte*)malloc(sizeof(byte)*DATAPAYLOAD);
+
+					// chamar função do Schumacher   
+					// pega nas data TotalSample (por exemplo 10 samples  == MAXTotalSample) da queue interna  
+					// e nete num pacote SD para a Self.Outboudqueue.
+					// Schumacher(pointer para queue das samples, numero de samples, timestamp);
+					
+				}                
+				
+				
+                
+            }
+			
+        }
+		free(buff);    
+        close(sockfd->s);
+		return NULL;
 }
 
 void SD_RX(in_message* msg)
@@ -80,47 +237,432 @@ void SD_RX(in_message* msg)
 
 void PB_RX(in_message* msg)
 {
+	byte SenderIp[2];
+	byte PBID[2];
+	SenderIp[0]=((byte*)msg->buf)[1];
+	SenderIp[1]=((byte*)msg->buf)[2];
+	PBID[0]=((byte *)msg->buf)[3];
+	PBID[1]=((byte *)msg->buf)[4];
+	unsigned short distance	=(((byte *)msg->buf)[5]<< 8) + ((byte *)msg->buf)[6];
+
+
+	timespec Res;
+	unsigned long int Act;
+
+
+	if(Self.Status == Outside)
+	{ //if the node is an outside slave 
+
+		if(distance!= (unsigned short)65535)
+		{
+			void* NEMessage = buildNEMessage(Self.IP, SenderIp);
+			NE_TX(NEMessage);
+			startRetransmission(rNE, NEMessage);
+			return;
+		}	
+	}
+	else
+	{
+		/*if(pibdSearchPair(SenderIp,PBID,Self.RoutingPBIDTable)==0)
+		{
+			pbidInsertPair(SenderIP,PBID,Self.RoutingPBIDTable); //stores pair in PBID table
+
+			clock_gettime(CLOCK_REALTIME, &Res);
+			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+
+			routInsertOrUpdateEntry(Self.Table, SenderIp, distance, 0,0,Act); //stores distance when receiveing PB so later when it receives PC can update
+			PR_TX(SenderIp, PBID, msg->SNR);
+			startRetransmission(rPR);
+		}*/
+	}
+
+	delInMessage(msg);
 	return;
 }
 
 void PR_RX(in_message* msg)
 {
+	byte SenderIp[2];
+	byte OriginatorIp[2];
+	byte PBID[2];
+	byte SNRofSentPB;
+	SenderIp[0]=((byte*)msg->buf)[1];
+	SenderIp[1]=((byte*)msg->buf)[2];
+	OriginatorIp[0]=((byte*)msg->buf)[3];
+	OriginatorIp[1]=((byte*)msg->buf)[4];
+	PBID[0]=((byte *)msg->buf)[5];
+	PBID[1]=((byte *)msg->buf)[6];
+	unsigned short distance =(((byte *)msg->buf)[7]<<8) + ((byte *)msg->buf)[8];
+	SNRofSentPB=((byte *)msg->buf)[9];
+	
+	timespec Res;
+	unsigned long int Act;
+	table_entry* SenderEntry;
+
+	//if new pair, check everything, if  not check if the extrapolated distance it's better
+
+	if(OriginatorIp[0]== Self.IP[0] && OriginatorIp[1]== Self.IP[1]) //the node is receiving a PR from a PB it generated
+	{
+		//if(pibdSearchPair(SenderIp,PBID,Self.RoutingPBIDTable)==0)
+		//{
+			clock_gettime(CLOCK_REALTIME, &Res);
+			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+			//somehow update in routTable using existance distance, SNRofSentPB (remote snr) and msg->snr (local snr)
+			//distance=updateDistance(distance, SNRofSentPB, msg->snr) or something like that 
+			//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, SNRofSentPB,Act);
+			PC_TX(SenderIp,PBID,msg->SNR);
+			Self.PBID++;//this only makes sense to update if it hasn't received that pair
+
+		//}
+
+		//else
+		//{
+			clock_gettime(CLOCK_REALTIME, &Res);
+			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+			//somehow checks if the extrapolated distance it's better than one we have 
+			SenderEntry = routSearchByIp(Self.Table, SenderIp);
+			/*if(SenderEntry->Distance > extrapolated distance)
+			{
+				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, SNRofSentPB,Act);
+				PC_TX(SenderIp,PBID,msg->SNR); //warning that there's 
+			}*/
+		//}
+		
+	}
+	delInMessage(msg);
 	return;
 }
 
 void PC_RX(in_message* msg)
 {
+
+	byte SenderIP[2];
+	byte ReachedIP[2];
+	byte SNRofSentPR;
+	SenderIP[0]=((byte*)msg->buf)[1];
+	SenderIP[1]=((byte*)msg->buf)[2];
+	ReachedIP[0]=((byte*)msg->buf)[3];
+	ReachedIP[1]=((byte*)msg->buf)[4];
+	SNRofSentPR =((byte*)msg->buf)[7];
+
+	timespec Res;
+	unsigned long int Act;
+
+	if(ReachedIP[0]== Self.IP[0] && ReachedIP[1]== Self.IP[1])
+	{
+
+		/*if(pibdSearchPair(SenderIp,PBID,Self.RoutingPBIDTable)==0)
+		{
+			clock_gettime(CLOCK_REALTIME, &Res);
+			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+			somehow update in routTable using existance distance, SNRofSentPR (remote snr) and msg->snr (local snr)
+			//distance=updateDistance(distance, SNRofSentPR, msg->snr) or something like that 
+			routInsertOrUpdateEntry(Self.Table, SenderIP, distance, msg->SNR, 0); gotta check the distance with Bruno M
+			stopRetransmission(nPR);
+		}
+
+		else
+		{
+			clock_gettime(CLOCK_REALTIME, &Res);
+			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+			//somehow checks if the extrapolated distance it's better than one we have 
+			SenderEntry = routSearchByIp(Self.Table, SenderIp);
+			if(SenderEntry->Distance > ExtrapolatedDistance)
+			{
+				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, SNRofSentPB,Act);
+			}
+		}*/
+	}	
+	
+	delInMessage(msg);
 	return;
 }
 
 void TA_RX(in_message* msg)
 {
+	byte SenderIp[2];
+	byte PBID[2];
+	byte Originator_IP[2];
+
+	SenderIp[0]=((byte*)msg->buf)[1];
+	SenderIp[1]=((byte*)msg->buf)[2];
+	
+	Originator_IP[0]=((byte*)msg->buf)[3];
+	Originator_IP[1]=((byte*)msg->buf)[4];
+
+	PBID[0]=((byte *)msg->buf)[5];
+	PBID[1]=((byte *)msg->buf)[6];
+	void * TBmessage;
+		// TB = retransmission->TB; // TB field not created yet on the retransmission struct! 
+	TBmessage = generateTB();
+	if(Self.IsMaster) // If Master, sets the corresponding Originator IPs' bit to 0 in the bitmap of the next TB retransmission
+	{  
+
+		pthread_mutex_lock(&(Self.Rt.Lock));
+		
+        if(TBmessage == NULL)
+		{
+			pthread_mutex_unlock(&(Self.Rt.Lock));
+			return;
+		}
+		int ip_amm;
+		ip_amm = Self.SubSlaves->L->Size;
+
+		for(int i = 0; i < ip_amm; i++)
+		{	
+	
+		   if(getIPFromList(Self.SubSlaves, i)[0] == ((short*)Originator_IP)[0])
+		  	{
+				((byte*)TBmessage)[18+ip_amm*2+i] = 0;
+                printf("bitmap of ip %u %u is equal to %d \n", Originator_IP[0], Originator_IP[1], ((byte*)TB)[18+ip_amm*2+i]);
+		  	 }
+        
+		 
+
+		pthread_mutex_unlock(&(Self.Rt.Lock));
+
+		}
+	}
+	else
+	{
+			TA_TX(Originator_IP, PBID); 
+
+		
+	}
+	free(TBmessage);
+	delInMessage(msg);
 	return;
+
 }
+
 
 void TB_RX(in_message* msg)
 {
+	void* buff = msg->buf;
+	bool send_TA = false;
+	bool retransmit_TB = false;
+	byte* local_byte;
+	int ip_amm;
+	byte slot;
+	// New PBID? Accept new timeslot
+	
+	pthread_mutex_lock(&(Self.TimeTable->Lock));
+	if(((byte*)buff)[0] != Self.TB_PBID[0] && ((byte*)buff)[1] == Self.TB_PBID[1])
+	{
+		Self.TimeTable->local_slot = -1;
+		Self.TimeTable->table_size = ((short*)(((byte*)buff+16)))[0];
+		ip_amm = Self.TimeTable->table_size;
+		for(int i = 0; i < ip_amm; i++)
+		{
+			if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
+			{
+				Self.TimeTable->local_slot = i;
+				break;
+			}
+		}
+		if(Self.TimeTable->local_slot == -1)
+		{
+			dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
+			// SET STATE TO OUTSIDE NETWORK
+			return;
+		}
+		Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
+	}
+
+	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
+	slot = slot - 8 * (slot/8);
+	send_TA = (0x80 >> slot) & local_byte[0];
+
+	for(int i = 0; i < Self.SubSlaves->L->Size; i++)
+	{
+		retransmit_TB |= getBitmapValue(getIPFromList(Self.SubSlaves, i), (byte*)buff+18+ip_amm*2, ip_amm, (byte*)buff+18);
+	}
+
+	if(send_TA)
+	{
+		// TA_TX()
+	}
+
+	if(retransmit_TB)
+	{
+		// TB_TX()
+	}
+	
+	pthread_mutex_unlock(&(Self.TimeTable->Lock));
 	return;
 }
 
 void NE_RX(in_message* msg)
 {
-	return;
+	void* message;
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NE_RX does not have NE packet format!\n");
+        return;
+    }
+    
+    byte* Packet = (byte*)msg->buf;
+    
+    if(Self.IP[0] == Packet[3] && Self.IP[1] == Packet[4])
+    {
+        //Add the Outsider IP to the Outside-Slaves, updating LastHeard
+        byte SenderIP[2];
+        SenderIP[0] = Packet[1];
+        SenderIP[1] = Packet[2];
+        insertSubSlave(SenderIP);  
+        insertOutsideSlave(SenderIP);  
+
+        unsigned long int Act;
+        timespec Res;
+        clock_gettime(CLOCK_REALTIME, &Res);
+        Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+        
+        //NOTE(GoncaloX): This is the 1st contact of an new node, as such
+        //it shoul be added to the routTable.
+        table_entry* Outsider = routInsertOrUpdateEntry(Self.Table, SenderIP, UNREACHABLE, msg->SNR, 1, msg->received_time);
+        Outsider->LastHeard = Act;
+
+        // se é o master que recebe NE, gera TimeBroadcast e gera NEP 
+        // (NEP é sempre resposta de NE)
+        if(Self.IsMaster)     
+        {   
+            generateTB();
+            NEP_TX(SenderIP);
+        }
+        else
+        {
+            //NOTE(GoncaloX): Maybe this should also happen if node is Master?
+            insertOutsideSlave(SenderIP);
+            NEP_TX(SenderIP);
+
+            // se é um node que não o master, transmite NER
+			message = buildNERMessage(Self.Table->begin->Neigh_IP, SenderIP);
+			NER_TX(message);
+            startRetransmission(rNER, message);
+        }
+    }
+
+    delInMessage(msg);
+    return;
 }
 
 void NEP_RX(in_message* msg)
 {
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NEP_RX does not have NEP packet format!\n");
+        return;
+    }
+    
+    byte* Packet = (byte*)msg->buf;
+    if(Packet[3] == Self.IP[0] && Packet[4] == Self.IP[1])
+    {
+        // Cancel retransmission of NE 
+        stopRetransmission(rNE);
+        // Communication was established with possible proxy
+        Self.Status = Waiting;
+    }
+    delInMessage(msg);
 	return;
 }
 
 void NER_RX(in_message* msg)
 {
+	void* message;
+	byte* Packet = (byte*)msg->buf;
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NER_RX does not have NER packet format!\n");
+        return;
+    }
+    
+    if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
+    {
+        //Add the Outsider IP to the Sub-Slaves, updating LastHeard
+        //Add Outsider IP to Pending list
+        //Since we delete msg at the end of this
+        //function, this: insertSubSlave(&Packet[3]);
+        //doesn't work, BIG SAD :( -> memcpy or manual assigned instead
+        
+        byte SubSlaveIP[2];
+        SubSlaveIP[0]= Packet[3];
+        SubSlaveIP[1]= Packet[4];
+        insertSubSlave(SubSlaveIP);
+        insertIPList(Self.OutsidePending, SubSlaveIP);
+
+        unsigned long int Act;
+        timespec Res;
+        clock_gettime(CLOCK_REALTIME, &Res);
+        Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+
+        table_entry* Outsider = routSearchByIp(Self.Table, SubSlaveIP);
+        if(Outsider == NULL)
+        {
+            printf("IP received in NER not present in rouTable!\n");
+            dumpBin((char*)(SubSlaveIP), 2, "Adding new entry with IP:");
+            //TODO: Update Last Heard while adding entry
+            routInsertOrUpdateEntry(Self.Table, SubSlaveIP,UNREACHABLE, msg->SNR, 1, msg->received_time);
+        }
+
+        if(Self.IsMaster)
+        {
+            //This assumes generateTB() generates deadline
+            //TODO: Check if it does...
+            generateTB();
+            
+            //Sends NEA Message back
+            //Send Outsiders IP and PBID to NEA
+            pbid PBID = getNewPBID();
+            NEA_TX(&Packet[3], PBID);
+        }
+        else
+        {
+            //Transmit the packet up the network
+            //Send Outsiders' IP NER_TX
+            message = buildNERMessage(Self.Table->begin->Neigh_IP, &Packet[3]);
+			NER_TX(message);
+            startRetransmission(rNER, message);
+        }
+    } 
+    
+    //Discard packet
+    delInMessage(msg);
 	return;
+
 }
 
 void NEA_RX(in_message* msg)
 {
+    if(msg->buf == NULL)
+    {
+        printfErr("msg passed to NEA_RX does not have NEA packet format!\n");
+        return;
+    }
+    
+    byte* Packet = (byte*)msg->buf;
+    
+    byte OutsiderIP[2];
+    OutsiderIP[0] = Packet[1];
+    OutsiderIP[1] = Packet[2];
+    pbid PBID;
+    PBID = (0<<4) + Packet[3];
+    PBID = Packet[4];
+    
+    // se existir outside slave e for o outsider IP, quer dizer que chegamos ao proxy
+    if(getOutsideSlave(OutsiderIP)) 
+    {
+        stopRetransmission(rNER);
+    }
+    else if(getIPFromList(Self.OutsidePending, OutsiderIP) == 0) 
+    {
+        return;
+    }
+    else    // se existir na lista de IPs, retiramos para cada node o outsider IP e retransmitimos até chegar ao Proxy
+    {
+        removeIPList(Self.OutsidePending, OutsiderIP);
+        NEA_TX(OutsiderIP, PBID);
+    }
+
+	delInMessage(msg);
 	return;
 }
-
-

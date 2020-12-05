@@ -1,17 +1,26 @@
 #ifndef RX_H
+#include <sys/types.h> 
+#include <netinet/in.h> 
+#include "data.h"
+#include "udp.h"
+#include "protocol.h" 
+#include "main.h"
+#include <time.h>
+
+#define PORTWS    8080
+#define TAMIP   2   //  2 bytes the ip
+#define DATAPAYLOAD 3 // bytes
+#define TAMTOTALSAMPLE  TAMIP + DATAPAYLOAD   // bytes   
+
+
 #define RX_H
 
 /*
- * Interface with the WF team (RX)
- * Continuously listens for new packets
- * Discards packets unless:
- * * The message type is a PB;
- * * The next hop IP is the broadcast IP (all 1s);
- * * Its' IP is the Next Hop IP in the message.
- * * Its' IP is the Source IP and the Next Hop IP isn't the one sent
- * dummy:
- * * A dummy variable, contains NULL
- *
+ * Continuously listens for new packets and injects them
+ * into the InboundQueue as in_message
+ * TODO
+ * * Get SNR from WF
+ * * Test thoroughly
  */
 void*
 WF_listener(void* dummy);
@@ -67,7 +76,9 @@ void TB_RX(in_message* msg);
 void NE_RX(in_message* msg);
 
 /*
- * Handles an NEP message
+ * Handles an NEP message, takes a NEP in_message from NEP_TX
+ * IMPORTANT: Assumes msg->buf to have NEP format;
+ * Cancels NE Retransmission and updates Node.Status to OutsideSlave
  */
 void NEP_RX(in_message* msg);
 

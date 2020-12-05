@@ -1,4 +1,4 @@
-NP Protocol V1
+NP Protocol V2
 
 The specification for this version is present in wiki/Versions/V1
 
@@ -32,12 +32,16 @@ Code Structure:
 
 	protocol Handles most protocol specific logic
 
-	TX		Handle outwards communications
+	TX		 Handle outwards communications
 
-	RX		Handle inwards communications
+	RX		 Handle inwards communications
 
-	debug	Provides debugging and logging
-			Also contains self testing routines
+	RoutingTable     Handle routing table functionalities
+
+	Udp              Handle udp sockets 
+
+	debug	         Provides debugging and logging
+			 Also contains self testing routines
 
 Data structures:
 	The two main data structures are "meta_data" and "node";

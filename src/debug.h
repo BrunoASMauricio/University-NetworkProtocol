@@ -14,6 +14,13 @@ dumpBin(char* buf, int size, const char *fmt,...);
 
 void
 /*
+ * Print the message type
+ * in the buffer and dump buffer
+ */
+printMessage(void* buff, int size);
+
+void
+/*
  * Normal output
  */
 printfLog(const char *fmt, ...);
@@ -33,6 +40,12 @@ void
 fatalErr(const char *fmt, ...);
 
 void
+/**
+ * Test the routing table manipulation functions
+ */
+ testRoutingTable();
+ 
+void
 /*
  * Test the queue manipulation functions
  */
@@ -40,8 +53,27 @@ testQueues();
 
 void
 /*
+ * Tests the basic list implementation
+ */
+testLists();
+
+/*
+ * Test PacketSize function
+ */
+void
+testPacketSize();
+
+
+void
+/*
+ * Test the timetable methodology
+ */
+testTimeTable();
+
+void
+/*
  * Perform network/CPU measurements
- * */
+ */
 performMeasurements();
 
 void
