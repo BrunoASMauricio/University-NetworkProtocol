@@ -116,19 +116,17 @@ HW_dispatcher(void*dummy)
         //  Sending========>    IP     DataPayload      // 
        //                       2bytes 3bytes          //  possible changes of these values // 
         
-        if(Self.IsMaster)
-        {
-            Popped = (byte*) popFromQueue(&PacketSize,Self.InternalQueue);
-            
-            if (Popped == NULL) PacketSize = 0;
+		Popped = (byte*) popFromQueue(&PacketSize,Self.InternalQueue);
+		
+		if (Popped == NULL) PacketSize = 0;
 
-            if (PacketSize > 0)
-            {
-               sendToSocket(sockfd, Popped ,sizeof(byte)*PacketSize); 
-            }
+		if (PacketSize > 0)
+		{
+			//dumpBin((char*)Popped, PacketSize, "Sending to HW (%d bytes): ", PacketSize);
+			sendToSocket(sockfd, Popped ,sizeof(byte)*PacketSize);
+		}
 
-            PacketSize=0;
-        }
+		PacketSize=0;
 		usleep(HW_DISPATCHER_SLEEP);
     }
     free(Popped); 
@@ -138,38 +136,19 @@ HW_dispatcher(void*dummy)
 
 
 
-void SD_TX(int Sample_Ammount)
+void SD_TX(void* buff, int size)
 {
-	if (Self.InternalQueue->First == NULL) 
-	{
-		return;
-	}
-
 	int TotalSize=0, NumSamples=0, Popped;
 
-	if(Self.InternalQueue->First->PacketSize < Sample_Ammount)
-	{
-		NumSamples = Self.InternalQueue->First->PacketSize;
-	}
-	else
-	{
-		NumSamples = Sample_Ammount;
-	}
-	if(NumSamples>255)
-	{
-		printf("SD can't read more than 255 samples (tried to read %d)\n", NumSamples);
-		NumSamples = 255;
-	}
+	byte packet[Packet_Sizes[SD]+MAX_PAYLOAD_SIZE];
+   	//	= (byte*)malloc(sizeof(byte)*(Packet_Sizes[SD] + size));
+	byte* NextHopIP = Self.Table->begin->Neigh_IP;
+	//Assuming first position in table is itself; otherwise, search in table by self IP or something else
 
-	byte* packet = (byte*)malloc(sizeof(byte)*(Packet_Sizes[1] + NumSamples)), *Data;
-	byte* NextHopIP = Self.Table->begin->Neigh_IP; //Assuming first position in table is itself; otherwise, search in table by self IP or something else
 	if (NextHopIP == NULL)
 	{
-        printf("Next hop still undefined.\n");
+		printf("Next hop still undefined, dropping data message\n");
         return;
-		//Comment return and uncomment these lines for testing purposes
-		//NextHopIP[0] = 0;
-		//NextHopIP[1] = 0;
 	}
 
 	packet[0] = (PROTOCOL_VERSION<<4) + SD;
@@ -177,14 +156,12 @@ void SD_TX(int Sample_Ammount)
 	packet[2] = Self.IP[1];
 	packet[3] = NextHopIP[0];
 	packet[4] = NextHopIP[1];
-	packet[5] = (0<<4) + 8;		// To be replaced by Seq and TTL(set to a max of 8)
-	packet[6] = NumSamples;
+	// To be replaced by Seq and TTL(set to a max of 8)
+	packet[5] = (0<<4) + 8;
+	packet[6] = size;
 
-	Data = (byte*) popFromQueue(&Popped, Self.InternalQueue);
-
-	memcpy(&packet[7], &Data, NumSamples);
-	
-	addToQueue(newOutMessage(sizeof(byte)*(Packet_Sizes[1] + NumSamples), packet), Packet_Sizes[1] + NumSamples, Self.OutboundQueue, 1);
+	memcpy(&packet[7], buff, size);
+	addToQueue(newOutMessage(getPacketSize(packet), packet), getPacketSize(packet), Self.OutboundQueue, 1);
 }
 
 void* createPB()
