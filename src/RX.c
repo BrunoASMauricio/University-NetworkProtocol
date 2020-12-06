@@ -188,50 +188,71 @@ void SD_RX(in_message* msg)
 
 	int SampleNum=0;
 		SampleNum = ((byte*)msg->buf)[6];
+
+	byte NextHopIp[2];
+	NextHopIp[0] = ((byte*)msg->buf)[3];
+	NextHopIp[1] = ((byte*)msg->buf)[4];
 	
-	if(((byte*)msg->buf)[0]&math != 1)
+	//checks para verificação de erros
+	if((((byte*)msg->buf)[0]&math) != 1)
 	{
 	fatalErr("Error: how did you even get here, a not SD packet is inside SD, message[0]) %d", ((byte*)msg->buf)[0]&math);
 	}
-
+	//checks para verificação de erros
 	if(((byte*)msg->buf)[2] == 0)
 	{
 		fatalErr("Error: TTL was 0 when should not");
 	}
 
-	//caso seja master vai para a Q do HW
-	if(Self.IsMaster == true)
-	{
-		//add para a queue da interface de HW do rodrigo [IP | SAMPLE]  e depois mudar para isto[IP | SAMPE | TIMESTAMP]
-		//ainda nao me disseram onde vinha o a timestamp por isso vai ficar aqui parado á espera.
-
-		byte DataToHW[((byte*)msg->buf)[6] + 2];
-		DataToHW[0] = ((byte*)msg->buf)[1];
-		DataToHW[1]=((byte*)msg->buf)[4];//dao source IP á HW
-
-		int SizeOfPacket;
-		SizeOfPacket = getPacketSize(DataToHW);
-
-		addToQueue( newInMessage(SizeOfPacket + SampleNum , DataToHW ,res), SizeOfPacket , Self.OutboundQueue, 1);
-
-		for  (int i = 0; i < ((byte*)msg->buf)[7]; i++)
-		{
-			DataToHW[i+2] = ((byte*)msg->buf)[7+i];
-		}
+	//add [IP | SAMPEN | SAMPLE1 | SAMPLE2 ...]
 	
+	byte DataToHW[((byte*)msg->buf)[6] + 2];
+	DataToHW[0] = ((byte*)msg->buf)[1];
+	DataToHW[1]=((byte*)msg->buf)[4];					//dao source IP á HW
 
+	int SizeOfPacket;
+	SizeOfPacket = getPacketSize(DataToHW);
+		
+	//Aqui fica formado o pacote para HW 
+	for  (int i = 0; i < ((byte*)msg->buf)[7]; i++)
+	{
+		DataToHW[i+2] = ((byte*)msg->buf)[7+i];
 	}
 
-	//Caso seja slave faz foward para o proximo node passando as ser proxy
+	if(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1])
+	{
+
+		byte sub_slave_IP[2];
+        sub_slave_IP[0]= ((byte*)msg->buf)[1];
+        sub_slave_IP[1]= ((byte*)msg->buf)[2];
+        insertSubSlave(sub_slave_IP);
+        insertIPList(Self.OutsidePending, sub_slave_IP);
+
+		unsigned long int Act;
+        timespec Res;
+        clock_gettime(CLOCK_REALTIME, &Res);
+        Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+
+        table_entry* am_i_sub_slave = routSearchByIp(Self.Table, sub_slave_IP);
+
+        if(am_i_sub_slave == NULL)
+        {
+            printf("THe received IP of the sender is not a SubSlave So Im adding");	  
+            routInsertOrUpdateEntry(Self.Table, sub_slave_IP,UNREACHABLE, msg->SNR, 1, msg->received_time);
+        }
+
+	}
+	//caso seja master vai para a Q
+	if(Self.IsMaster == true)
+	{
+	addToQueue( newInMessage(SizeOfPacket + SampleNum , DataToHW ,res), SizeOfPacket , Self.InternalQueue, 1);
+	}
+
+	//no é master
 	if(Self.IsMaster == false)
 	{
-		/*Add the Source IP to the Sub-Slaves, updating LastHeard
-		(Note @AntonioMendes think this is already done in SD_TX if it enters there not sure)*/
-
-		//sends the sample nº to SD_TX 
-		SD_TX(SampleNum);
-
-
+	//sends the sample nº to SD_TX 
+	SD_TX(SampleNum);
 	}
 }
 
