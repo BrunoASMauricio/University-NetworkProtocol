@@ -120,7 +120,7 @@ WS_listener(void* dummy)
 			{
 				memcpy(TotalSample, Self.IP , TAMIP);
 				memcpy(TotalSample+TAMIP, buff, nBytes);
-				printf("RECEIVED MESSAGE FROM WS %d %d\n", nBytes, DATAPAYLOAD);
+				printf("RECEIVED MESSAGE FROM WS %d\n", nBytes);
 				//dumpBin((char*)TotalSample, nBytes+TAMIP, "Received from WS (%d+2 bytes): ", nBytes);
 				addToQueue((void*)TotalSample, nBytes+TAMIP, Self.InternalQueue, 1);
 				//TotalSample = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE);

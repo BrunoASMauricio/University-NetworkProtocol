@@ -123,6 +123,7 @@ HW_dispatcher(void*dummy)
 		if (PacketSize > 0)
 		{
 			//dumpBin((char*)Popped, PacketSize, "Sending to HW (%d bytes): ", PacketSize);
+			printf("SENT MESSAGE TO HW %d\n", PacketSize);
 			sendToSocket(sockfd, Popped ,sizeof(byte)*PacketSize);
 		}
 
