@@ -1,5 +1,4 @@
 #include "protocol.h"
-#include "debug.c"
 
 void startRetransmission(retransmitable message_type, void* msg)
 {

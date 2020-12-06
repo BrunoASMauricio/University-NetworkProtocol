@@ -211,6 +211,8 @@ void SD_RX(in_message* msg)
 	DataToHW[1]=((byte*)msg->buf)[4];					//dao source IP á HW
 
 	int SizeOfPacket;
+	unsigned long int Act;
+	timespec Res;
 	SizeOfPacket = getPacketSize(DataToHW);
 		
 	//Aqui fica formado o pacote para HW 
@@ -228,8 +230,6 @@ void SD_RX(in_message* msg)
         insertSubSlave(sub_slave_IP);
         insertIPList(Self.OutsidePending, sub_slave_IP);
 
-		unsigned long int Act;
-        timespec Res;
         clock_gettime(CLOCK_REALTIME, &Res);
         Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
@@ -245,7 +245,7 @@ void SD_RX(in_message* msg)
 	//caso seja master vai para a Q
 	if(Self.IsMaster == true)
 	{
-	addToQueue( newInMessage(SizeOfPacket + SampleNum , DataToHW ,res), SizeOfPacket , Self.InternalQueue, 1);
+	addToQueue( newInMessage(SizeOfPacket + SampleNum , DataToHW ,Res), SizeOfPacket , Self.InternalQueue, 1);
 	}
 
 	//no é master
