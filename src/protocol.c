@@ -1,6 +1,5 @@
 #include "protocol.h"
 
-
 void startRetransmission(retransmitable message_type, void* msg)
 {
 	timespec Res;
@@ -322,6 +321,34 @@ getPacketSize(void* buf)
 void
 handleSD(void* message)
 {
+/*	int operator = 15; //0000 1111
+	
+	if(((byte*)msg->buf)[0]&operator != 1)
+	{
+	fatalErr("Error: how did you even get here, a not SD packet is inside SD, message[0]) %d", message[0]&operator;
+	}
+
+	if(((byte*)msg->buf)[2] == 0)
+	{
+		fatalErr("Error: TTL was 0 when should not");
+	}
+
+	if(Self.IsMaster == true)
+	{
+		//add para a queue da interface de HW do rodrigo [IP | SAMPLE]  e depois mudar para isto[IP | SAMPE | TIMESTAMP]
+		byte DataToHW[((byte*)msg->buf)[7] + 2];
+		DataToHW[0] = ((byte*)msg->buf)[1];
+		DataToHW[1]=message[4];//dao source IP á HW
+
+		for  (int i = 0; i < ((byte*)msg->buf)[7]; i++)
+		{
+			DataToHW[i+2] = ((byte*)msg->buf)[7+i];
+		}
+		
+
+	}
+
+*/
 
 }
 
