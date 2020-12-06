@@ -7,6 +7,8 @@ void startRetransmission(retransmitable message_type, void* msg)
 	pthread_mutex_lock(&(Self.Rt.Lock));
 
 	SETBIT(message_type, Self.Rt.Retransmitables);
+
+	printf("Starting retransmission of %d\n", message_type);
 	
 	clock_gettime(CLOCK_REALTIME, &Res);
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
@@ -50,7 +52,7 @@ bool beginTBTransmission()
 	clock_gettime(CLOCK_REALTIME, &Res);
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 	// A TB is already being retransmitted
-	if(Self.Rt.Retransmitables & rTB)
+	if(CHECKBIT(rTB, Self.Rt.Retransmitables))
 	{
 		// The TB was already transmitted at least once
 		if(Self.Rt.TB_ret_amm)
@@ -79,6 +81,7 @@ bool beginTBTransmission()
 
 void stopRetransmission(retransmitable message_type)
 {
+	printf("Stopping retransmission of %d\n", message_type);
 	pthread_mutex_lock(&(Self.Rt.Lock));
 	CLEARBIT(message_type, Self.Rt.Retransmitables);
 	switch(message_type){
@@ -170,6 +173,12 @@ void* retransmit(void* dummy)
 				addToQueue(newOutMessage(getPacketSize(Self.Rt.NE_ret_msg), Self.Rt.NE_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.NE_ret_amm += 1;
 				Self.Rt.Time_NE += RETRANSMISSION_DELAY_NE;
+				if(Self.Rt.NE_ret_amm == RETRANSMISSION_ATTEMPTS_NE)
+				{
+					pthread_mutex_unlock(&(Self.Rt.Lock));
+					stopRetransmission(rNE);
+					pthread_mutex_lock(&(Self.Rt.Lock));
+				}
 			}
 			else if(Self.Rt.Time_NE < earliest)
 			{
@@ -473,6 +482,30 @@ typedef struct{
 } timetable_msg;
 */
 
+void clearBitmapValue(short* IP, void* bitmap, int size, void* IPs)
+{
+	int place = -1;
+	byte* local_byte;
+
+	for(int i = 0; i < size; i++)
+	{
+		if(((short*)IPs)[i] == IP[0])
+		{
+			place = i;
+			break;
+		}
+	}
+
+	if(place == -1)
+	{
+		printfErr("Could not find IP in bitmap");
+		dumpBin((char*)IPs, size, "IPs: ");
+	}
+	dumpBin((char*)bitmap, 1, " size %d place: %d\n", size, place);
+	local_byte = (byte*)bitmap + (place/8);
+	place = place - 8 * (place/8);
+	local_byte[0] = CLEARBIT(7-place, local_byte[0]);
+}
 bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 {
 	int place = -1;
@@ -506,6 +539,7 @@ timetable* newTimeTable()
     {
         fatalErr("mutex init failed for new IP list lock\n");
     }
+	tm->sync = 0;
 	return tm;
 }
 
@@ -527,8 +561,8 @@ void* generateTB()
 
 	pthread_mutex_lock(&(Self.SubSlaves->Lock));
 	printf("Building TB\n");
-	ip_amm = Self.SubSlaves->L->Size;
-	size = (ip_amm+1)*(2*8+1);
+	ip_amm = Self.SubSlaves->L->Size + 1;	// Account for self
+	size = ip_amm*(2*8+1);
 
 	if(8*(size/8) != size)
 	{
@@ -547,25 +581,24 @@ void* generateTB()
 	((byte*)buff)[2] = Self.IP[1];
 	((byte*)buff)[3] = Self.TB_PBID[0];
 	((byte*)buff)[4] = Self.TB_PBID[1];
+	((short*)Self.TB_PBID)[0] += 1;
 	clock_gettime(CLOCK_REALTIME, &res);
 	((unsigned long int*)((byte*)buff+5))[0] = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
 	printf(" OUT %lu\n", ((unsigned long int*)((byte*)buff+5))[0]);
 	((short*)(((byte*)buff+13)))[0] = DEFAULT_VALIDITY_DELAY;
 	(((byte*)buff+15))[0] = DEFAULT_TIMESLOT_SIZE;
-	((short*)(((byte*)buff+16)))[0] = ip_amm+1;	// Account for self
+	((short*)(((byte*)buff+16)))[0] = ip_amm;
 	printf("Sub-Slave IP Ammount %d\n", ip_amm);
 
-	for(int i = 0; i < ip_amm; i++)
+	((short*)(((byte*)buff+18)))[0] = ((short*)Self.IP)[0];
+	for(int i = 1; i < ip_amm; i++)
 	{
 		pthread_mutex_unlock(&(Self.SubSlaves->Lock));
-		IPHolder = getIPFromList(Self.SubSlaves, i);
+		IPHolder = getIPFromList(Self.SubSlaves, i-1);
 		pthread_mutex_lock(&(Self.SubSlaves->Lock));
 		((short*)(((byte*)buff+18)))[i] = IPHolder[0];
 		printf("Adding IP: %d %d at %d\n", ((byte*)IPHolder)[0],  ((byte*)IPHolder)[1], 18+2*i);
 	}
-	printf("Adding self IP\n");
-	((short*)(((byte*)buff+18)))[ip_amm] = ((short*)Self.IP)[0];
-	ip_amm += 1;
 
 	printf("Adding bitmap at %d\n", 18+ip_amm*2);
 	
@@ -584,6 +617,9 @@ void* generateTB()
 		((byte*)buff)[18+ip_amm*2+(ip_amm/8)] = (0xff<<(8-rest));
 	}
 	
+	CLEARBIT(7, ((byte*)buff)[18+ip_amm*2+(ip_amm/8)]);
+
+	dumpBin((char*)buff, getPacketSize(buff), "GENERATED TB: ");
 	pthread_mutex_unlock(&(Self.SubSlaves->Lock));
 	
 	return buff;

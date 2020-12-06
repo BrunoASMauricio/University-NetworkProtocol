@@ -12,7 +12,7 @@ WF_dispatcher(void* dummy)
 	out_message* To_send;
 	timespec Res;
 	int Size;
-	printf("WF Dispatcher on\n");
+	printf("WF Dispatcher on %u\n", Meta.WF_TX->port);
 	while(1)
     {
 		// Is there still a message to send? If not wait for one
@@ -24,7 +24,7 @@ WF_dispatcher(void* dummy)
 			}
 		}
 		// Not on the network, just send it
-		if(Self.TimeTable == NULL)
+		if(Self.TimeTable->sync == 0)
 		{
 			while(sendToSocket(Meta.WF_TX, To_send->buf, To_send->size) == -1)
 			{
@@ -88,12 +88,6 @@ WF_dispatcher(void* dummy)
     }
 }
 
-void
-sendMessage(void* msg)
-{
-
-}
-
 void*
 HW_dispatcher(void*dummy)
 {
@@ -123,7 +117,10 @@ HW_dispatcher(void*dummy)
 		if (PacketSize > 0)
 		{
 			//dumpBin((char*)Popped, PacketSize, "Sending to HW (%d bytes): ", PacketSize);
-			printf("SENT MESSAGE TO HW %d\n", PacketSize);
+			if(Self.IsMaster)
+			{
+				//printf("SENT MESSAGE TO HW %d\n", PacketSize);
+			}
 			sendToSocket(sockfd, Popped ,sizeof(byte)*PacketSize);
 		}
 
@@ -255,19 +252,16 @@ void TA_TX(byte Originator_IP[2], byte PBID[2])
 {
 
     out_message *TAMessage = buildTAMessage(Originator_IP, PBID);
-    addToQueue(TAMessage->buf, TAMessage->size, Self.OutboundQueue, 1);
+    addToQueue(TAMessage, TAMessage->size, Self.OutboundQueue, 1);
     return;
 
 }
 
 
-void TB_TX(byte PBID[2], void* buff)
+void TB_TX(void* message)
 {
-	// Lock TB_PBID table
-	// Lock SubSlaves
-	addToQueue(newOutMessage(getPacketSize(buff), buff), 8, Self.OutboundQueue, 1);
-	
-	return;
+	out_message* out_message = newOutMessage(getPacketSize(message), message);
+    addToQueue(out_message, out_message->size, Self.OutboundQueue, 1);
 }
 
 void NE_TX(void* message)

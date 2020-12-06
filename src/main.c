@@ -57,12 +57,10 @@ main(int argc, char **argv)
 				if (optarg[0] == 'M')
                 {
 					Self.IsMaster = true;
-					printf("Forcing node to master\n");
 				}
                 else if (optarg[0] == 'S')
                 {
 					Self.IsMaster = false;
-					printf("Forcing node to slave\n");
 				}
                 else
                 {
@@ -113,13 +111,16 @@ main(int argc, char **argv)
 				fatalErr("Undefined argument\n");
 				break;
 			default:
-				printf("?? getopt returned character code 0%o ??\n", c);
+				fatalErr("?? getopt returned character code 0%o ??\n", c);
 		}
 	}
 	
 	// Identifies the main thread
 	// This needs to be here, so that testing output is identified
 	Meta.Main_t = pthread_self();
+	fprintf(stdout, "%d\n", ((unsigned short*)Self.IP)[0]);
+	fprintf(stdout, "%d\n", getpid());
+	fflush(stdout);
 
 	printf("Starting protocol\n");	
 	printf("Quiet: %d\n", Meta.Quiet);
@@ -144,11 +145,12 @@ main(int argc, char **argv)
 	
 	setup();
 
-	handler();
+	if(Self.IsMaster) //setting node as an outside one
+	{
+		startRetransmission(rPB, createPB());
+	}
 
-	clean();
-
-	exit(EXIT_SUCCESS);
+	WF_listener();
 }
 
 void
@@ -179,7 +181,6 @@ setup()
 	Self.PBID_IP_TA = pbidInitializeTable();
 	Self.SubSlaves = newIPList();
 	Self.OutsideSlaves= newIPList();
-	Self.TimeTable = NULL;
 	//Self.RoutingPBIDTable= pbidInitializeTable();
 
     if(Self.IsMaster)
@@ -188,7 +189,7 @@ setup()
     }
 
 	Self.OutsidePending= newIPList();
-	//Self.TimeTable = newTimeTable();
+	Self.TimeTable = newTimeTable();
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {
@@ -201,11 +202,6 @@ setup()
 
 	Meta.WF_TX = newSocket(Meta.WF_TX_port);
 	startSocket(Meta.WF_TX);
-
-	if (rc = pthread_create(&(Meta.WF_listener_t), NULL, WF_listener, NULL))
-    {
-		fatalErr("Error: Unable to create thread, %d\n", rc);
-	}
 
 	if (rc = pthread_create(&(Meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL))
     {
@@ -230,59 +226,44 @@ setup()
 
 
 void
-handler()
+handler(void* _Message)
 {
-	in_message* Message;
-	int dummy;
-
-	if(Self.IsMaster) //setting node as an outside one
+	in_message* Message = (in_message*)_Message;
+	printMessage(Message->buf, Message->size);
+	switch (((byte*)(Message->buf))[0] & 0x0f)
 	{
-		startRetransmission(rPB, createPB());
-	}
-	while (1)
-    {
-		Message = getMessage();
-		if(!(Message = (in_message*)popFromQueue(&dummy, Self.InboundQueue))){
-			usleep(100000);
-			continue;
-		}
-		printMessage(Message->buf, Message->size);
-		switch (((byte*)Message)[0])
-        {
-			case SD:
-				SD_RX(Message);
-				break;
-			case PB:
-				PB_RX(Message);
-				break;
-			case PR:
-				PR_RX(Message);
-				break;
-			case PC:
-				PC_RX(Message);
-				break;
-			case TA:
-				TA_RX(Message);
-				break;
-			case TB:
-				TB_RX(Message);
-				break;
-			case NE:
-				NE_RX(Message);
-				break;
-			case NEP:
-				NEP_RX(Message);
-				break;
-			case NER:
-				NER_RX(Message);
-				break;
-			case NEA:
-				NEA_RX(Message);
-				break;
-			default:
-				printf("Unrecognized Message type %d\n", ((byte*)Message)[0]);
-		}
-		free(Message);
+		case SD:
+			SD_RX(Message);
+			break;
+		case PB:
+			PB_RX(Message);
+			break;
+		case PR:
+			PR_RX(Message);
+			break;
+		case PC:
+			PC_RX(Message);
+			break;
+		case TA:
+			TA_RX(Message);
+			break;
+		case TB:
+			TB_RX(Message);
+			break;
+		case NE:
+			NE_RX(Message);
+			break;
+		case NEP:
+			NEP_RX(Message);
+			break;
+		case NER:
+			NER_RX(Message);
+			break;
+		case NEA:
+			NEA_RX(Message);
+			break;
+		default:
+			printf("Unrecognized Message type %d\n", ((byte*)Message->buf)[0] & 0x0f);
 	}
 }
 
@@ -297,7 +278,8 @@ void
 clean()
 {
 	printf("\nShutting down node\n");
-	fflush(Meta.Log);
+	fflush(stdout);
+	fflush(stderr);
 	if(Meta.WF_TX->s != -1)
 	{
 		close(Meta.WF_TX->s);
@@ -306,9 +288,5 @@ clean()
 	{
 		close(Meta.WF_RX->s);
 	}
-	if(Meta.Log)
-    {
-        fclose(Meta.Log);
-    }
 }
 

@@ -22,8 +22,8 @@
  * * Get SNR from WF
  * * Test thoroughly
  */
-void*
-WF_listener(void* dummy);
+void
+WF_listener();
 
 /*
  * Interface with the WS team (RX)

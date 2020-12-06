@@ -2,8 +2,8 @@
 #include "data.h"
 #include "routing_table.h"
 
-void*
-WF_listener(void* dummy)
+void
+WF_listener()
 {
 	char buff[MAXIMUM_PACKET_SIZE*2];		// *2 to prevent overflow on buff+PrevBytes
 	int PacketSize;
@@ -29,8 +29,7 @@ WF_listener(void* dummy)
 		{
 			continue;
 		}
-		printf("\t\t-------Node got packet (%d bytes) total of %d!!-------\n", ReadBytes, ++received_messages);
-
+		printf("Got %d bytes from socket\n", ReadBytes);
 		if(((byte*)buff)[0] & 0x0f == TB && ReadBytes < 18)
 		{
 			PrevBytes = ReadBytes;
@@ -40,11 +39,11 @@ WF_listener(void* dummy)
 
 		clock_gettime(CLOCK_REALTIME, &res);
 
-		PacketSize = getPacketSize(buff);
+		PacketSize = getPacketSize(buff) + 2; // Also get SNR for the message
 
 		if(PacketSize == -1)
 		{
-			dumpBin(buff, ReadBytes, "Packet size returned -1, dumping buffer\n");
+			dumpBin(buff, ReadBytes+PrevBytes, "Packet size returned -1, dumping buffer\n");
 			continue;
 		}
 
@@ -54,8 +53,17 @@ WF_listener(void* dummy)
 			PrevBytes = ReadBytes;
 			continue;
 		}
+		printf("\t\t-------Node got message (%d/%d bytes) total of %d!!-------\n", ReadBytes, ReadBytes+PrevBytes, ++received_messages);
 
-		addToQueue(newInMessage(PacketSize, buff, res), 8, Self.InboundQueue, 1);
+
+		message = newInMessage(PacketSize-2, buff, res);
+		message->SNR = ((unsigned short*)(buff + PacketSize-2))[0];
+		printf("Received full correct message! Received SNR: %u\n", message->SNR);
+		printMessage(buff, PacketSize);
+		// Directly handle message
+		handler(message);
+
+		//addToQueue(newInMessage(PacketSize, buff, res), 8, Self.InboundQueue, 1);
 
 		// We received more than one packet
 		if(PacketSize < ReadBytes + PrevBytes)
@@ -120,7 +128,10 @@ WS_listener(void* dummy)
 			{
 				memcpy(TotalSample, Self.IP , TAMIP);
 				memcpy(TotalSample+TAMIP, buff, nBytes);
-				printf("RECEIVED MESSAGE FROM WS %d\n", nBytes);
+				if(!Self.IsMaster)
+				{
+					printf("RECEIVED MESSAGE FROM WS %d\n", nBytes);
+				}
 				//dumpBin((char*)TotalSample, nBytes+TAMIP, "Received from WS (%d+2 bytes): ", nBytes);
 				addToQueue((void*)TotalSample, nBytes+TAMIP, Self.InternalQueue, 1);
 				//TotalSample = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE);
@@ -300,6 +311,7 @@ void PB_RX(in_message* msg)
 
 		if(distance!= (unsigned short)65535)
 		{
+			printf("As an outside slave, received a PB with %u distance to Master\n", distance);
 			void* NEMessage = buildNEMessage(Self.IP, SenderIp);
 			NE_TX(NEMessage);
 			startRetransmission(rNE, NEMessage);
@@ -438,46 +450,41 @@ void TA_RX(in_message* msg)
 	PBID[0]=((byte *)msg->buf)[5];
 	PBID[1]=((byte *)msg->buf)[6];
 	void * TBmessage;
-		// TB = retransmission->TB; // TB field not created yet on the retransmission struct! 
-	TBmessage = generateTB();
+	TBmessage = Self.Rt.TB_ret_msg;
 	if(Self.IsMaster) // If Master, sets the corresponding Originator IPs' bit to 0 in the bitmap of the next TB retransmission
-	{  
-
+	{
 		pthread_mutex_lock(&(Self.Rt.Lock));
-		
         if(TBmessage == NULL)
 		{
 			pthread_mutex_unlock(&(Self.Rt.Lock));
 			return;
 		}
-		int ip_amm;
-		ip_amm = Self.SubSlaves->L->Size;
+		short ip_amm;
+		ip_amm = ((short*)(((byte*)TBmessage+16)))[0];
 
-		for(int i = 0; i < ip_amm; i++)
-		{	
-	
-		   if(getIPFromList(Self.SubSlaves, i)[0] == ((short*)Originator_IP)[0])
-		  	{
-				((byte*)TBmessage)[18+ip_amm*2+i] = 0;
-                printf("bitmap of ip %u %u is equal to %d \n", Originator_IP[0], Originator_IP[1], ((byte*)TB)[18+ip_amm*2+i]);
-		  	 }
-        
-		 
-
+		dumpBin((char*)TBmessage, getPacketSize(TBmessage), "before");
+		clearBitmapValue((short*)Originator_IP, (byte*)TBmessage+18+ip_amm*2, ip_amm, (byte*)TBmessage+18);
+		dumpBin((char*)TBmessage, getPacketSize(TBmessage), "after");
 		pthread_mutex_unlock(&(Self.Rt.Lock));
-
+		for(int i = 0; i < ip_amm; i++)
+		{
+			if((byte*)((byte*)TBmessage+18+ip_amm*2)[i])
+			{
+				return;
+			}
 		}
+		stopRetransmission(rTB);
 	}
 	else
 	{
-			TA_TX(Originator_IP, PBID); 
-
+		if(getSubSlave(Originator_IP) && pbidSearchPair(Originator_IP, PBID, Self.PBID_IP_TA))
+		{
+			TA_TX(Originator_IP, PBID);
+			pbidRemovePair(Originator_IP, Self.PBID_IP_TA);
+			pbidInsertPair(Originator_IP, PBID, Self.PBID_IP_TA);
+		}
 		
 	}
-	free(TBmessage);
-	delInMessage(msg);
-	return;
-
 }
 
 
@@ -489,35 +496,34 @@ void TB_RX(in_message* msg)
 	byte* local_byte;
 	int ip_amm;
 	byte slot;
-	// New PBID? Accept new timeslot
-	
-	pthread_mutex_lock(&(Self.TimeTable->Lock));
-	if(((byte*)buff)[0] != Self.TB_PBID[0] && ((byte*)buff)[1] == Self.TB_PBID[1])
-	{
-		Self.TimeTable->local_slot = -1;
-		Self.TimeTable->table_size = ((short*)(((byte*)buff+16)))[0];
-		ip_amm = Self.TimeTable->table_size;
-		for(int i = 0; i < ip_amm; i++)
-		{
-			if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
-			{
-				Self.TimeTable->local_slot = i;
-				break;
-			}
-		}
-		if(Self.TimeTable->local_slot == -1)
-		{
-			dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
-			// SET STATE TO OUTSIDE NETWORK
-			return;
-		}
-		Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
-	}
+	byte PBID[2];
 
+	pthread_mutex_lock(&(Self.TimeTable->Lock));
+	Self.TB_PBID[0] = ((byte*)buff)[0];
+	Self.TB_PBID[1] = ((byte*)buff)[1];
+	Self.TimeTable->local_slot = -1;
+	Self.TimeTable->table_size = ((short*)(((byte*)buff+16)))[0];
+	ip_amm = Self.TimeTable->table_size;
+	for(int i = 0; i < ip_amm; i++)
+	{
+		if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
+		{
+			Self.TimeTable->local_slot = i;
+			slot = i;
+			break;
+		}
+	}
+	if(Self.TimeTable->local_slot == -1)
+	{
+		dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
+		// SET STATE TO OUTSIDE NETWORK
+		return;
+	}
+	Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
 	slot = slot - 8 * (slot/8);
 	send_TA = (0x80 >> slot) & local_byte[0];
-
+	dumpBin((char*)buff, getPacketSize(buff), "Received TB, place = %d TA = %d\n", slot, send_TA);
 	for(int i = 0; i < Self.SubSlaves->L->Size; i++)
 	{
 		retransmit_TB |= getBitmapValue(getIPFromList(Self.SubSlaves, i), (byte*)buff+18+ip_amm*2, ip_amm, (byte*)buff+18);
@@ -525,16 +531,15 @@ void TB_RX(in_message* msg)
 
 	if(send_TA)
 	{
-		// TA_TX()
+		TA_TX(Self.IP, Self.TB_PBID);
 	}
 
-	if(retransmit_TB)
+	if(retransmit_TB && ((byte*)buff)[0] != Self.TB_PBID[0] && ((byte*)buff)[1] == Self.TB_PBID[1])
 	{
-		// TB_TX()
+		TB_TX(buff);
 	}
-	
 	pthread_mutex_unlock(&(Self.TimeTable->Lock));
-	return;
+
 }
 
 void NE_RX(in_message* msg)
@@ -571,7 +576,7 @@ void NE_RX(in_message* msg)
         // (NEP é sempre resposta de NE)
         if(Self.IsMaster)     
         {   
-            generateTB();
+			beginTBTransmission();
             NEP_TX(SenderIP);
         }
         else
@@ -586,9 +591,6 @@ void NE_RX(in_message* msg)
             startRetransmission(rNER, message);
         }
     }
-
-    delInMessage(msg);
-    return;
 }
 
 void NEP_RX(in_message* msg)
@@ -653,7 +655,7 @@ void NER_RX(in_message* msg)
         {
             //This assumes generateTB() generates deadline
             //TODO: Check if it does...
-            generateTB();
+			beginTBTransmission();
             
             //Sends NEA Message back
             //Send Outsiders IP and PBID to NEA
@@ -666,7 +668,7 @@ void NER_RX(in_message* msg)
             //Send Outsiders' IP NER_TX
             message = buildNERMessage(Self.Table->begin->Neigh_IP, &Packet[3]);
 			NER_TX(message);
-            startRetransmission(rNER, message);
+            //startRetransmission(rNER, message);
         }
     } 
     

@@ -16,6 +16,8 @@
 #define RETRANSMISSION_DELAY_NE 2*1E9		// 2 s
 #define RETRANSMISSION_DELAY_NER 2*1E9	// 2 s
 
+#define RETRANSMISSION_ATTEMPTS_NE 5
+
 // Maximum SD payload size in bytes
 #define MAX_PAYLOAD_SIZE 256
 
