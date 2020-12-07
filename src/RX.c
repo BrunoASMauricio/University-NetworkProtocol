@@ -237,21 +237,19 @@ void SD_RX(in_message* msg)
 	
 	byte DataToHW[((byte*)(msg->buf))[6] + 2];
 	DataToHW[0] = ((byte*)msg->buf)[1];
-	DataToHW[1] = ((byte*)msg->buf)[4];					//dao source IP á HW
+	DataToHW[1] = ((byte*)msg->buf)[2];					//dao source IP á HW
 
 	int SizeOfPacket;
 	unsigned long int Act;
 	timespec Res;
 	SizeOfPacket = getPacketSize(DataToHW);
 		
-	printf("AAA1\n");fflush(stdout);
 	//Aqui fica formado o pacote para HW 
-	for(int i = 0; i < ((byte*)msg->buf)[7]; i++)
+	for(int i = 0; i < ((byte*)msg->buf)[6]; i++)
 	{
 		DataToHW[i+2] = ((byte*)msg->buf)[7+i];
 	}
 
-	printf("AAA2\n");fflush(stdout);
 	if(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1])
 	{
 
@@ -261,7 +259,6 @@ void SD_RX(in_message* msg)
         insertSubSlave(sub_slave_IP);
         insertIPList(Self.OutsidePending, sub_slave_IP);
 
-		printf("AAA3\n");fflush(stdout);
         clock_gettime(CLOCK_REALTIME, &Res);
         Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
@@ -274,12 +271,11 @@ void SD_RX(in_message* msg)
         }
 
 	}
-	printf("AAA4\n");fflush(stdout);
 	//caso seja master vai para a Q
 	if(Self.IsMaster)
 	{
-		printf("ADDING TO INTERNAL QUEUE\n");
-		addToQueue( newInMessage(SizeOfPacket + SampleNum , DataToHW ,Res), SizeOfPacket , Self.InternalQueue, 1);
+		dumpBin((char*)DataToHW, ((byte*)(msg->buf))[6] + 2, "ADDING TO INTERNAL QUEUE\n");
+		addToQueue(DataToHW, ((byte*)(msg->buf))[6] + 2, Self.InternalQueue, 1);
 	}
 	else
 	{

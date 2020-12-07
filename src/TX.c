@@ -116,7 +116,7 @@ HW_dispatcher(void*dummy)
 
 		if (PacketSize > 0)
 		{
-			//dumpBin((char*)Popped, PacketSize, "Sending to HW (%d bytes): ", PacketSize);
+			dumpBin((char*)Popped, PacketSize, "Sending to HW (%d bytes): ", PacketSize);
 			if(Self.IsMaster)
 			{
 				//printf("SENT MESSAGE TO HW %d\n", PacketSize);
