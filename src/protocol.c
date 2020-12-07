@@ -216,6 +216,7 @@ insertRegisteredSlave(byte IP[2])
 void
 insertSubSlave(byte IP[2])
 {
+	printf("Sub\n");
 	insertIPList(Self.SubSlaves, IP);
 }
 
@@ -228,12 +229,14 @@ getSubSlave(byte IP[2])
 void
 removeSubSlave(byte IP[2])
 {
+	printf("Sub\n");
 	removeIPList(Self.SubSlaves, IP);
 }
 
 void
 insertOutsideSlave(byte IP[2])
 {
+	printf("Outside\n");
 	insertIPList(Self.OutsideSlaves, IP);
 }
 
@@ -246,6 +249,7 @@ getOutsideSlave(byte IP[2])
 void
 removeOutsideSlave(byte IP[2])
 {
+	printf("Outside\n");
 	removeIPList(Self.OutsideSlaves, IP);
 }
 
@@ -285,7 +289,7 @@ getPacketSize(void* buf)
 
 	if(version != PROTOCOL_VERSION)
 	{
-		printfErr("Wrong version. Got %d, was expecting %d\n", version, PROTOCOL_VERSION);
+		printf("Wrong version. Got %d, was expecting %d\n", version, PROTOCOL_VERSION);
 		return -1;
 	}
 
@@ -320,7 +324,7 @@ getPacketSize(void* buf)
 		default:
 			if(type > sizeof(Packet_Sizes) -1)
 			{
-				printfErr("Unrecognized Message type %d\n", type);
+				printf("Unrecognized Message type %d\n", type);
 				return -1;
 			}
 			return Packet_Sizes[type];
@@ -498,7 +502,7 @@ void clearBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 
 	if(place == -1)
 	{
-		printfErr("Could not find IP in bitmap");
+		printf("Could not find IP in bitmap");
 		dumpBin((char*)IPs, size, "IPs: ");
 	}
 	dumpBin((char*)bitmap, 1, " size %d place: %d\n", size, place);
@@ -522,7 +526,7 @@ bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 
 	if(place == -1)
 	{
-		printfErr("Could not find IP in bitmap");
+		printf("Could not find IP in bitmap");
 		dumpBin((char*)IPs, size, "IPs: ");
 		return false;
 	}

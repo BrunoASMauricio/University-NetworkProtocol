@@ -25,11 +25,11 @@ void
  */
 printfLog(const char *fmt, ...);
 
-void
+//void
 /*
  * Error output
  */
-printfErr(const char *fmt, ...);
+//printfErr(const char *fmt, ...);
 
 void
 /*

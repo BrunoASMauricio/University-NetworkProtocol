@@ -239,10 +239,8 @@ void SD_RX(in_message* msg)
 	DataToHW[0] = ((byte*)msg->buf)[1];
 	DataToHW[1] = ((byte*)msg->buf)[2];					//dao source IP á HW
 
-	int SizeOfPacket;
 	unsigned long int Act;
 	timespec Res;
-	SizeOfPacket = getPacketSize(DataToHW);
 		
 	//Aqui fica formado o pacote para HW 
 	for(int i = 0; i < ((byte*)msg->buf)[6]; i++)
@@ -542,7 +540,7 @@ void NE_RX(in_message* msg)
 	void* message;
     if(msg->buf == NULL)
     {
-        printfErr("msg passed to NE_RX does not have NE packet format!\n");
+        printf("msg passed to NE_RX does not have NE packet format!\n");
         return;
     }
     
@@ -554,8 +552,8 @@ void NE_RX(in_message* msg)
         byte SenderIP[2];
         SenderIP[0] = Packet[1];
         SenderIP[1] = Packet[2];
-        insertSubSlave(SenderIP);  
-        insertOutsideSlave(SenderIP);  
+        insertSubSlave(SenderIP);
+        //insertOutsideSlave(SenderIP);
 
         unsigned long int Act;
         timespec Res;
@@ -569,8 +567,8 @@ void NE_RX(in_message* msg)
 
         // se é o master que recebe NE, gera TimeBroadcast e gera NEP 
         // (NEP é sempre resposta de NE)
-        if(Self.IsMaster)     
-        {   
+        if(Self.IsMaster)
+        {
 			beginTBTransmission();
             NEP_TX(SenderIP);
         }
@@ -592,7 +590,7 @@ void NEP_RX(in_message* msg)
 {
     if(msg->buf == NULL)
     {
-        printfErr("msg passed to NEP_RX does not have NEP packet format!\n");
+        printf("msg passed to NEP_RX does not have NEP packet format!\n");
         return;
     }
     
@@ -614,7 +612,7 @@ void NER_RX(in_message* msg)
 	byte* Packet = (byte*)msg->buf;
     if(msg->buf == NULL)
     {
-        printfErr("msg passed to NER_RX does not have NER packet format!\n");
+        printf("msg passed to NER_RX does not have NER packet format!\n");
         return;
     }
     
@@ -677,7 +675,7 @@ void NEA_RX(in_message* msg)
 {
     if(msg->buf == NULL)
     {
-        printfErr("msg passed to NEA_RX does not have NEA packet format!\n");
+        printf("msg passed to NEA_RX does not have NEA packet format!\n");
         return;
     }
     

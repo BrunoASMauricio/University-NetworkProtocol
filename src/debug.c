@@ -130,7 +130,7 @@ printfLog(const char *fmt, ...)
 	fflush(stdout);
 }
 
-
+/*
 void
 printfErr(const char *fmt, ...)
 {
@@ -152,7 +152,7 @@ printfErr(const char *fmt, ...)
 		//fflush(Meta.Log);
 	}
 }
-
+*/
 
 void
 fatalErr(const char *fmt, ...)

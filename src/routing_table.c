@@ -28,7 +28,7 @@ table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, dou
 
     if(Entry == NULL) 
     {
-        printfErr("Error in allocating table_entry memory\n");
+        printf("Error in allocating table_entry memory\n");
         return NULL;
     }
 
@@ -50,7 +50,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
 {
     if(tbl == NULL) 
     {
-       printfErr("Tried to insert/update a non-existent routTable\n");
+       printf("Tried to insert/update a non-existent routTable\n");
        return NULL;
     }
     

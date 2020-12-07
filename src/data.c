@@ -283,9 +283,11 @@ getIPFromList(IPList* IPL, byte IP[2])
 }
 
 void
-insertIPList(IPList* IPL, byte IP[2])
+insertIPList(IPList* IPL, byte in_IP[2])
 {
 	List_el* Helper;
+	byte* IP = (byte*)malloc(sizeof(byte)*2);
+	memcpy(IP, in_IP, 2);
 	pthread_mutex_lock(&(IPL->Lock));
 	Helper = IPL->L->First;
 
@@ -296,6 +298,7 @@ insertIPList(IPList* IPL, byte IP[2])
 		{
 			// Already exists
 			pthread_mutex_unlock(&(IPL->Lock));
+			free(IP);
 			return;
 		}
 		Helper = (List_el*)Helper->Next;
@@ -309,6 +312,7 @@ void
 removeIPList(IPList* IPL, byte IP[2])
 {
 	List_el* Helper;
+	byte* prevIP;
 	pthread_mutex_lock(&(IPL->Lock));
 	Helper = IPL->L->First;
 
@@ -318,6 +322,7 @@ removeIPList(IPList* IPL, byte IP[2])
 		   ((byte*)(Helper->Buff))[1] == IP[1])
 		{
 			// Not the most efficient way, but simple
+			free(getIPFromList(IPL, i));
 			removeFromList(IPL->L, i);
 			pthread_mutex_unlock(&(IPL->Lock));
 			return;
