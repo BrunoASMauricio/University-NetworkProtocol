@@ -238,7 +238,7 @@ typedef struct{
 	IPList* OutsidePending;
 	byte TB_PBID[2];
 	node_status Status;
-	//pbid_ip_pairs* RoutingPBIDTable;
+	pbid_ip_table* RoutingPBIDTable;
     pbid PBID;
 	// ...
 } node;
@@ -422,6 +422,7 @@ buildNEPMessage(byte* SenderIP, byte* OutsiderIP);
 out_message* 
 buildTAMessage(byte* Originator_IP, byte * PBID);
 
+void* buildPRMessage(byte Originator_IP[2], byte PBID[2], byte SNR);
 
 meta_data Meta;
 node Self;

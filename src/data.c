@@ -639,6 +639,23 @@ buildNEAMessage(byte* OutsiderIP, pbid PBID)
     return NEAMessage;
 }
 
+void* buildPRMessage(byte Originator_IP[2], byte PBID[2], byte SNR)
+{
+	byte* PRPacket = (byte*)malloc(sizeof(byte)*10);
+
+    table_entry* FirstEntry = routGetEntryByPos(Self.Table, 1);
+    PRPacket[0]=(PROTOCOL_VERSION<<4)+PR;
+    PRPacket[1]=Self.IP[0];
+    PRPacket[2]=Self.IP[1];
+    PRPacket[3]=Originator_IP[0];
+    PRPacket[4]=Originator_IP[1];
+    PRPacket[5]=PBID[0];
+    PRPacket[6]=PBID[1];
+    PRPacket[7]=(FirstEntry->Distance >> 8) &0xff;
+    PRPacket[8]=FirstEntry->Distance &0xff;
+    PRPacket[9]=SNR;
+	return PRPacket;
+}
 out_message* 
 buildTAMessage(byte* Originator_IP, byte * PBID)
 {

@@ -197,27 +197,9 @@ void PB_TX(void* packet)
     addToQueue(message, message->size, Self.OutboundQueue, 1);
 }
 
-void PR_TX(byte Originator_IP[2], byte PBID[2], byte SNR)
+
+void PR_TX(void* PRPacket)
 {
-	byte* PRPacket = (byte*)malloc(sizeof(byte)*10);
-
-    if(PRPacket == NULL)
-    {
-        fatalErr("Couldn't assign memory to PB Packet \n");
-    }
-
-    table_entry* FirstEntry = routGetEntryByPos(Self.Table, 1);
-    PRPacket[0]=(PROTOCOL_VERSION<<4)+PR;
-    PRPacket[1]=Self.IP[0];
-    PRPacket[2]=Self.IP[1];
-    PRPacket[3]=Originator_IP[0];
-    PRPacket[4]=Originator_IP[1];
-    PRPacket[5]=PBID[0];
-    PRPacket[6]=PBID[1];
-    PRPacket[7]=(FirstEntry->Distance >> 8) &0xff;
-    PRPacket[8]=FirstEntry->Distance &0xff;
-    PRPacket[9]=SNR;
-
 	out_message* message = newOutMessage(getPacketSize(PRPacket), PRPacket);
 	addToQueue(message, message->size, Self.OutboundQueue, 1);
 

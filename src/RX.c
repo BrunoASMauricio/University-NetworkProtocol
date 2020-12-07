@@ -83,12 +83,6 @@ WF_listener()
 	}
 }
 
-in_message*
-getMessage()
-{
-	return NULL;
-}
-
 
 void*
 WS_listener(void* dummy)
@@ -231,7 +225,7 @@ void SD_RX(in_message* msg)
 	//checks para verificação de erros
 	if((((byte*)msg->buf)[0]&math) != 1)
 	{
-	fatalErr("Error: how did you even get here, a not SD packet is inside SD, message[0]) %d", ((byte*)msg->buf)[0]&math);
+		fatalErr("Error: how did you even get here, a not SD packet is inside SD, message[0]) %d", ((byte*)msg->buf)[0]&math);
 	}
 	//checks para verificação de erros
 	if(((byte*)msg->buf)[2] == 0)
@@ -241,21 +235,23 @@ void SD_RX(in_message* msg)
 
 	//add [IP | SAMPEN | SAMPLE1 | SAMPLE2 ...]
 	
-	byte DataToHW[((byte*)msg->buf)[6] + 2];
+	byte DataToHW[((byte*)(msg->buf))[6] + 2];
 	DataToHW[0] = ((byte*)msg->buf)[1];
-	DataToHW[1]=((byte*)msg->buf)[4];					//dao source IP á HW
+	DataToHW[1] = ((byte*)msg->buf)[4];					//dao source IP á HW
 
 	int SizeOfPacket;
 	unsigned long int Act;
 	timespec Res;
 	SizeOfPacket = getPacketSize(DataToHW);
 		
+	printf("AAA1\n");fflush(stdout);
 	//Aqui fica formado o pacote para HW 
-	for  (int i = 0; i < ((byte*)msg->buf)[7]; i++)
+	for(int i = 0; i < ((byte*)msg->buf)[7]; i++)
 	{
 		DataToHW[i+2] = ((byte*)msg->buf)[7+i];
 	}
 
+	printf("AAA2\n");fflush(stdout);
 	if(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1])
 	{
 
@@ -265,6 +261,7 @@ void SD_RX(in_message* msg)
         insertSubSlave(sub_slave_IP);
         insertIPList(Self.OutsidePending, sub_slave_IP);
 
+		printf("AAA3\n");fflush(stdout);
         clock_gettime(CLOCK_REALTIME, &Res);
         Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
@@ -272,19 +269,19 @@ void SD_RX(in_message* msg)
 
         if(am_i_sub_slave == NULL)
         {
-            printf("THe received IP of the sender is not a SubSlave So Im adding");	  
+            printf("The received IP of the sender is not a SubSlave So Im adding");
             routInsertOrUpdateEntry(Self.Table, sub_slave_IP,UNREACHABLE, msg->SNR, 1, msg->received_time);
         }
 
 	}
+	printf("AAA4\n");fflush(stdout);
 	//caso seja master vai para a Q
-	if(Self.IsMaster == true)
+	if(Self.IsMaster)
 	{
-	addToQueue( newInMessage(SizeOfPacket + SampleNum , DataToHW ,Res), SizeOfPacket , Self.InternalQueue, 1);
+		printf("ADDING TO INTERNAL QUEUE\n");
+		addToQueue( newInMessage(SizeOfPacket + SampleNum , DataToHW ,Res), SizeOfPacket , Self.InternalQueue, 1);
 	}
-
-	//no é master
-	if(Self.IsMaster == false)
+	else
 	{
 	//sends the sample nº to SD_TX 
 		//SD_TX(SampleNum);
@@ -293,6 +290,7 @@ void SD_RX(in_message* msg)
 
 void PB_RX(in_message* msg)
 {
+	void* buff;
 	byte SenderIp[2];
 	byte PBID[2];
 	SenderIp[0]=((byte*)msg->buf)[1];
@@ -320,17 +318,18 @@ void PB_RX(in_message* msg)
 	}
 	else
 	{
-		/*if(pibdSearchPair(SenderIp,PBID,Self.RoutingPBIDTable)==0)
+		if(!pbidSearchPair(SenderIp, PBID, Self.RoutingPBIDTable))
 		{
-			pbidInsertPair(SenderIP,PBID,Self.RoutingPBIDTable); //stores pair in PBID table
+			pbidInsertPair(SenderIp, PBID, Self.RoutingPBIDTable); //stores pair in PBID table
 
 			clock_gettime(CLOCK_REALTIME, &Res);
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
 			routInsertOrUpdateEntry(Self.Table, SenderIp, distance, 0,0,Act); //stores distance when receiveing PB so later when it receives PC can update
-			PR_TX(SenderIp, PBID, msg->SNR);
-			startRetransmission(rPR);
-		}*/
+			buff = buildPRMessage(SenderIp, PBID, msg->SNR);
+			PR_TX(buff);
+			startRetransmission(rPR, buff);
+		}
 	}
 
 	delInMessage(msg);

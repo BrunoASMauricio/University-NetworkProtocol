@@ -118,7 +118,7 @@ main(int argc, char **argv)
 	// Identifies the main thread
 	// This needs to be here, so that testing output is identified
 	Meta.Main_t = pthread_self();
-	fprintf(stdout, "%d\n", ((unsigned short*)Self.IP)[0]);
+	fprintf(stdout, "%u\n", (Self.IP[0]<<8) | Self.IP[1]);
 	fprintf(stdout, "%d\n", getpid());
 	fflush(stdout);
 
@@ -181,7 +181,7 @@ setup()
 	Self.PBID_IP_TA = pbidInitializeTable();
 	Self.SubSlaves = newIPList();
 	Self.OutsideSlaves= newIPList();
-	//Self.RoutingPBIDTable= pbidInitializeTable();
+	Self.RoutingPBIDTable = pbidInitializeTable();
 
     if(Self.IsMaster)
     {
