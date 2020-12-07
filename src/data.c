@@ -399,10 +399,10 @@ pbid_ip_table* pbidInitializeTable()
     fatalErr("Memory allocation failed.\n");
   }
 
-  table->PresentIP[0] = {0x00};
-	table->PresentIP[1] = {0x00};
-  table->PresentPBID[0] = {0x00};
-	table->PresentPBID[1] = {0x00};
+  table->PresentIP[0] = 0x00;
+	table->PresentIP[1] = 0x00;
+  table->PresentPBID[0] = 0x00;
+	table->PresentPBID[1] = 0x00;
   table->next_pair = NULL;
 	table->IsLastPair = true;
 
@@ -546,10 +546,10 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head)
 	{
 		if(temp->next_pair == NULL)
 		{
-			temp->PresentIP[0] = {0x00};
-			temp->PresentIP[1] = {0x00};
-			temp->PresentPBID[0] = {0x00};
-			temp->PresentPBID[1] = {0x00};
+			temp->PresentIP[0] = 0x00;
+			temp->PresentIP[1] = 0x00;
+			temp->PresentPBID[0] = 0x00;
+			temp->PresentPBID[1] = 0x00;
 			temp->IsLastPair = true;
 
 			table_head->first_pair = temp;
