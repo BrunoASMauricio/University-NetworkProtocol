@@ -37,7 +37,7 @@ WF_listener()
 
 		clock_gettime(CLOCK_REALTIME, &res);
 
-		PacketSize = getPacketSize(buff) + 2; // Also get SNR for the message
+		PacketSize = getPacketSize(buff) + 4; // Also get SNR for the message
 
 		if(PacketSize == -1)
 		{
@@ -54,9 +54,9 @@ WF_listener()
 		printf("\t\t-------Node got message (%d/%d bytes) total of %d!!-------\n", ReadBytes, ReadBytes+PrevBytes, ++received_messages);
 
 
-		message = newInMessage(PacketSize-2, buff, res);
-		message->SNR = ((unsigned short*)(buff + PacketSize-2))[0];
-		printf("Received full correct message! Received SNR: %u\n", message->SNR);
+		message = newInMessage(PacketSize-4, buff, res);
+		message->PBE = ((float*)(buff + PacketSize-4))[0];
+		printf("Received full correct message! Received SNR: %u\n", message->PBE);
 		printMessage(buff, PacketSize);
 		// Directly handle message
 		handler(message);
