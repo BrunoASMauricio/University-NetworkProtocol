@@ -3,6 +3,9 @@
 #define CLEARBIT(bit,byte) byte &= ~(1 << bit)
 #define CHECKBIT(bit,byte) (byte) & (1 << bit)
 
+//#define range(min, max) (rand()/RAND_MAX) * (max - min + 1) + min
+#define range(min, max) (unsigned long int)(((double)rand()/(double)RAND_MAX)* (double)(max-min+1) + (double)min)
+
 #define printf printfLog
 
 typedef uint8_t byte;

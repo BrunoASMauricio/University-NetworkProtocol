@@ -15,27 +15,27 @@ void startRetransmission(retransmitable message_type, void* msg)
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 	switch(message_type){
 		case rPB:
-			Self.Rt.Time_PB = Act + RETRANSMISSION_DELAY_PB;
+			Self.Rt.Time_PB = Act + PB_TIMEOUT;
 			Self.Rt.PB_ret_msg = msg;
 			Self.Rt.PB_ret_amm = 0;
 			break;
 		case rTB:
-			Self.Rt.Time_TB = Act + RETRANSMISSION_DELAY_TB;
+			Self.Rt.Time_TB = Act + TB_TIMEOUT;
 			Self.Rt.TB_ret_msg = msg;
 			Self.Rt.TB_ret_amm = 0;
 			break;
 		case rPR:
-			Self.Rt.Time_PR = Act + RETRANSMISSION_DELAY_PR;
+			Self.Rt.Time_PR = Act + PR_TIMEOUT;
 			Self.Rt.PR_ret_msg = msg;
 			Self.Rt.PR_ret_amm = 0;
 			break;
 		case rNE:
-			Self.Rt.Time_NE = Act + RETRANSMISSION_DELAY_NE;
+			Self.Rt.Time_NE = Act + NE_TIMEOUT;
 			Self.Rt.NE_ret_msg = msg;
 			Self.Rt.NE_ret_amm = 0;
 			break;
 		case rNER:
-			Self.Rt.Time_NER = Act + RETRANSMISSION_DELAY_NER;
+			Self.Rt.Time_NER = Act + NER_TIMEOUT;
 			Self.Rt.NER_ret_msg = msg;
 			Self.Rt.NER_ret_amm = 0;
 			break;
@@ -73,6 +73,16 @@ void* retransmit(void* dummy)
 	unsigned long int Act;
 	timespec Res;
 	printf("Retransmission thread on\n");
+	/*
+	for(int i = 0; i < 100; i++){
+		double a = TB_TIMEOUT;
+		printf("TB %f\n", a);
+		printf("TB %lu\n\n", (unsigned long int)a);
+		a = PB_TIMEOUT;
+		printf("PB %f\n", a);
+		printf("PB %lu\n\n", (unsigned long int)a);
+	}
+	*/
 	while(1)
 	{
 		clock_gettime(CLOCK_REALTIME, &Res);
@@ -90,7 +100,7 @@ void* retransmit(void* dummy)
 				dumpBin((char*)(Self.Rt.PB_ret_msg), 7, ">>>");
 				addToQueue(newOutMessage(getPacketSize(Self.Rt.PB_ret_msg), Self.Rt.PB_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.PB_ret_amm += 1;
-				Self.Rt.Time_PB += RETRANSMISSION_DELAY_PB;
+				Self.Rt.Time_PB += PB_TIMEOUT;
 			}
 			else if(Self.Rt.Time_PB < earliest)
 			{
@@ -105,7 +115,8 @@ void* retransmit(void* dummy)
 				printf("Retransmitting a TB\n");
 				addToQueue(newOutMessage(getPacketSize(Self.Rt.TB_ret_msg), Self.Rt.TB_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.TB_ret_amm += 1;
-				Self.Rt.Time_TB += RETRANSMISSION_DELAY_TB;
+				Self.Rt.Time_TB += TB_TIMEOUT;
+				printf("Current time: %lu\nNew transmission: %lu\n", Act, Self.Rt.Time_TB);
 			}
 			else if(Self.Rt.Time_TB < earliest)
 			{
@@ -120,7 +131,7 @@ void* retransmit(void* dummy)
 				printf("Retransmitting a PR\n");
 				addToQueue(newOutMessage(getPacketSize(Self.Rt.PR_ret_msg), Self.Rt.PR_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.PR_ret_amm += 1;
-				Self.Rt.Time_PR += RETRANSMISSION_DELAY_PR;
+				Self.Rt.Time_PR += PR_TIMEOUT;
 			}
 			else if(Self.Rt.Time_PR < earliest)
 			{
@@ -135,7 +146,7 @@ void* retransmit(void* dummy)
 				printf("Retransmitting an NE\n");
 				addToQueue(newOutMessage(getPacketSize(Self.Rt.NE_ret_msg), Self.Rt.NE_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.NE_ret_amm += 1;
-				Self.Rt.Time_NE += RETRANSMISSION_DELAY_NE;
+				Self.Rt.Time_NE += NE_TIMEOUT;
 				if(Self.Rt.NE_ret_amm == RETRANSMISSION_ATTEMPTS_NE)
 				{
 					pthread_mutex_unlock(&(Self.Rt.Lock));
@@ -156,7 +167,7 @@ void* retransmit(void* dummy)
 				printf("Retransmitting an NER\n");
 				addToQueue(newOutMessage(getPacketSize(Self.Rt.NER_ret_msg), Self.Rt.NER_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.NER_ret_amm += 1;
-				Self.Rt.Time_NER += RETRANSMISSION_DELAY_NER;
+				Self.Rt.Time_NER += NER_TIMEOUT;
 			}
 			else if(Self.Rt.Time_NER < earliest)
 			{
