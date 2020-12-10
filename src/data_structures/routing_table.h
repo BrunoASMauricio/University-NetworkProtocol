@@ -1,7 +1,5 @@
-#ifndef TABLE_H
-
-typedef uint8_t byte;
-#define UNREACHABLE 65535
+#ifndef DATA_STRUCTURE_ROUTING_TABLE
+#define DATA_STRUCTURE_ROUTING_TABLE
 
 /**
  * entry struct represents table entry, it contains the neighbours nodes' IP as index,
@@ -30,8 +28,6 @@ typedef struct table_entry
     int size;
 	pthread_mutex_t lock;
  } table;
-
-/********************************/
 
 /**
  * creates an empty table
@@ -79,7 +75,6 @@ table_entry* routSearchByIp(table *tbl, byte neigh_IP[2]);
  * returns null if anything goes wrong
  */
 table_entry* routGetEntryByPos(table *tbl, int pos);
- 
 
-#define TABLE_H
+
 #endif

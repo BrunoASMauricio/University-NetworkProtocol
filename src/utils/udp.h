@@ -1,11 +1,13 @@
-#ifndef UDP
-#define UDP
+#ifndef UTILS_UDP
+#define UTILS_UDP
 
 #define MAX_TRANS_SIZE 4496
 
 #include<arpa/inet.h>
 #include<sys/socket.h>
 #include<fcntl.h>
+
+#include "../utils/debug.h"
 
 typedef struct{
 	int s;
@@ -20,5 +22,6 @@ void startSocket_ws(socket_s* sk);
 int sendToSocket(socket_s* sk, void* buff, int size);
 int getFromSocket(socket_s* sk, void* buff);
 void closeSocket(socket_s* sk);
+
 
 #endif

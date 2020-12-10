@@ -1,6 +1,4 @@
 #include "main.h"
-#include "data.h"
-#include "routing_table.h"
 
 /*
  * Main function

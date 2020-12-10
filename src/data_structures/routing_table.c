@@ -170,7 +170,6 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
     pthread_mutex_unlock(&(tbl->lock));
     return NULL;
 }
-
 int routPrintTableContent(table *tbl)
 {
     pthread_mutex_lock(&(tbl->lock));
@@ -194,7 +193,6 @@ int routPrintTableContent(table *tbl)
         return tbl->size;
     }
 }
-
 table_entry* routSearchByIp(table *tbl, byte neigh_IP[2])
 {
     table_entry *Ptr = tbl->begin;
@@ -210,7 +208,6 @@ table_entry* routSearchByIp(table *tbl, byte neigh_IP[2])
         }
     return NULL;
 }
-
 bool routRemoveEntry(table *tbl, byte neigh_IP[2])
 {
     table_entry *Current = NULL;

@@ -1,18 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <getopt.h>
-#include <stdbool.h>
-#include <string.h>
-#include <signal.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <errno.h>
-#include <ifaddrs.h>
-#include <dirent.h>
+#include "imports.h"
 
 
 /*
@@ -41,13 +30,45 @@ clean();
 void
 clean(int signo);
 
-#include "data.c"
-#include "udp.c"
-#include "routing_table.c"
-#include "protocol.c"
-#include "TX.c"
-#include "RX.c"
+#include "./utils/udp.c"
+#include "./utils/debug.c"
+#include "./utils/macros.h"
+#include "./utils/queue.c"
+// node.c requires this
+#include "./utils/list.h"
 
-#include "debug.c"
+#include "./data_structures/node.c"
+#include "./utils/list.c"
 
+#include "./data_structures/routing_table.c"
+#include "./data_structures/pbid_table.c"
+#include "./data_structures/message_build.c"
+#include "./data_structures/time_table.c"
+
+#include "./TX/network.c"
+#include "./TX/application.c"
+#include "./TX/routing.c"
+#include "./TX/time_table.c"
+#include "./TX/retransmission.c"
+#include "./TX/WF.c"
+#include "./TX/HW.c"
+
+#include "./RX/network.c"
+#include "./RX/routing.c"
+#include "./RX/application.c"
+#include "./RX/time_table.c"
+#include "./RX/WF.c"
+#include "./RX/WS.c"
+
+/*
+#include "./tests/network.c"
+#include "./tests/queue.c"
+#include "./tests/pbid_table.c"
+#include "./tests/performance.c"
+#include "./tests/time_table.c"
+#include "./tests/routing_table.c"
+#include "./tests/routing.c"
+#include "./tests/list.c"
+*/
+#include "./tests/test.c"
 #endif

@@ -1,6 +1,5 @@
 #include "udp.h"
 
-
 socket_s* newSocket(int port)
 {
 	socket_s* ret = (socket_s*)malloc(sizeof(socket_s));
@@ -14,10 +13,6 @@ socket_s* newSocket(int port)
 	ret->sockaddr.sin_addr.s_addr = INADDR_ANY;
 	return ret;
 }
-
-
-
-
 void startSocket(socket_s* sk)
 {
 	int opt;
@@ -46,7 +41,6 @@ void startSocket(socket_s* sk)
 	}
 	*/
 }
-
 void startSocket_ws(socket_s* sk)
 {
 	int opt;
@@ -71,3 +65,4 @@ int getFromSocket(socket_s* sk, void* buff)
 void closeSocket(socket_s* sk){
 	close(sk->s); //no need for shutdows because it's not TCP
 }
+
