@@ -15,7 +15,7 @@ typedef struct{
 	int size;				// Buffer allocated size/total message size
 	void* buf;				// Buffer where the message is stored
 	long int received_time;	// input timestamp
-	short SNR;				// link quality (perhaps not SNR)
+	float PBE;				// link quality (perhaps not SNR)
 } in_message;
 
 /*

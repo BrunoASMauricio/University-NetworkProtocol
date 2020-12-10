@@ -38,7 +38,7 @@ void PB_RX(in_message* msg)
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
 			routInsertOrUpdateEntry(Self.Table, SenderIp, distance, 0,0,Act); //stores distance when receiveing PB so later when it receives PC can update
-			buff = buildPRMessage(SenderIp, PBID, msg->SNR);
+			buff = buildPRMessage(SenderIp, PBID, msg->PBE);
 			PR_TX(buff);
 			startRetransmission(rPR, buff);
 		}
@@ -82,7 +82,7 @@ void PR_RX(in_message* msg)
 			//somehow update in routTable using existance distance, SNRofSentPB (remote snr) and msg->snr (local snr)
 			//distance=updateDistance(distance, SNRofSentPB, msg->snr) or something like that 
 			//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, SNRofSentPB,Act);
-			PC_TX(SenderIp,PBID,msg->SNR);
+			PC_TX(SenderIp,PBID,msg->PBE);
 			Self.PBID++;//this only makes sense to update if it hasn't received that pair
 
 		//}
