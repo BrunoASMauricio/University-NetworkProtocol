@@ -24,26 +24,17 @@ void SD_RX(in_message* msg)
 
 	//add [IP | SAMPEN | SAMPLE1 | SAMPLE2 ...]
 	
-	byte DataToHW[((byte*)(msg->buf))[6] + 2];
-	DataToHW[0] = ((byte*)msg->buf)[1];
-	DataToHW[1] = ((byte*)msg->buf)[2];					//dao source IP á HW
-
 	unsigned long int Act;
 	timespec Res;
-		
-	//Aqui fica formado o pacote para HW 
-	for(int i = 0; i < ((byte*)msg->buf)[6]; i++)
-	{
-		DataToHW[i+2] = ((byte*)msg->buf)[7+i];
-	}
-
+	// Am I the next hop?
 	if(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1])
 	{
-
 		byte sub_slave_IP[2];
-        sub_slave_IP[0]= ((byte*)msg->buf)[1];
+
+		sub_slave_IP[0]= ((byte*)msg->buf)[1];
         sub_slave_IP[1]= ((byte*)msg->buf)[2];
-        insertSubSlave(sub_slave_IP);
+
+		insertSubSlave(sub_slave_IP);
         insertIPList(Self.OutsidePending, sub_slave_IP);
 
         clock_gettime(CLOCK_REALTIME, &Res);
@@ -56,18 +47,28 @@ void SD_RX(in_message* msg)
             printf("The received IP of the sender is not a SubSlave So Im adding");
             routInsertOrUpdateEntry(Self.Table, sub_slave_IP,UNREACHABLE, msg->PBE, 1, msg->received_time);
         }
+		//caso seja master vai para a Q
+		if(Self.IsMaster)
+		{
+			byte* DataToHW = (byte*)malloc(((byte*)(msg->buf))[6] + 2);
+			DataToHW[0] = ((byte*)msg->buf)[1];
+			DataToHW[1] = ((byte*)msg->buf)[2];					//dao source IP á HW
 
-	}
-	//caso seja master vai para a Q
-	if(Self.IsMaster)
-	{
-		dumpBin((char*)DataToHW, ((byte*)(msg->buf))[6] + 2, "ADDING TO INTERNAL QUEUE\n");
-		addToQueue(DataToHW, ((byte*)(msg->buf))[6] + 2, Self.InternalQueue, 1);
-	}
-	else
-	{
-	//sends the sample nº to SD_TX 
-		//SD_TX(SampleNum);
+			//Aqui fica formado o pacote para HW 
+			for(int i = 0; i < ((byte*)msg->buf)[6]; i++)
+			{
+				DataToHW[i+2] = ((byte*)msg->buf)[7+i];
+			}
+
+			dumpBin((char*)DataToHW, ((byte*)(msg->buf))[6] + 2, "ADDING TO INTERNAL QUEUE\n");
+			addToQueue(DataToHW, ((byte*)(msg->buf))[6] + 2, Self.InternalQueue, 1);
+		}
+		else
+		{
+			//sends the sample nº to SD_TX
+			SD_TX(msg->buf+7, ((byte*)(msg->buf))[6]);
+		}
+
 	}
 	clearInMessage(msg);
 }

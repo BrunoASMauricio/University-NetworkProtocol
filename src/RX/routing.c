@@ -141,6 +141,8 @@ void PC_RX(in_message* msg)
 				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->SNR, SNRofSentPB,Act);
 			}
 		}*/
+		stopRetransmission(rPR);
+		startRetransmission(rPB, createPB());
 	}	
 	
 	clearInMessage(msg);

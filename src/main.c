@@ -227,7 +227,6 @@ void
 handler(void* _Message)
 {
 	in_message* Message = (in_message*)_Message;
-	printMessage(Message->buf, Message->size);
 	switch (((byte*)(Message->buf))[0] & 0x0f)
 	{
 		case SD:
