@@ -56,8 +56,9 @@ testTA_RX()
     timespec Res;
     clock_gettime(CLOCK_REALTIME, &Res);
     
-    in_message* TAreceived = newInMessage(7, dummyPacket, Res);
-    dumpBin((char*)(TAreceived->buf), TAreceived->size, ">>Sent this to TA_RX: %X");
+    in_message TAreceived;
+	newInMessage(&TAreceived, 7, dummyPacket, Res);
+    dumpBin((char*)(TAreceived.buf), TAreceived.size, ">>Sent this to TA_RX: %X");
    
 	if(Self.IsMaster)
 	{  // If Master, sets the corresponding Originator IPs' bit to 0 in the bitmap of the next TB retransmission
@@ -99,7 +100,7 @@ testTA_RX()
 	Self.SubSlaves = NULL;
 	printf("\nFinished TA_RX;\n");
 	free(TBmessage);
-	delInMessage(TAreceived);
+	clearInMessage(&TAreceived);
 	return;
 
 }

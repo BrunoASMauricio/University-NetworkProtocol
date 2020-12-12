@@ -69,6 +69,7 @@ void SD_RX(in_message* msg)
 	//sends the sample nº to SD_TX 
 		//SD_TX(SampleNum);
 	}
+	clearInMessage(msg);
 }
 
 

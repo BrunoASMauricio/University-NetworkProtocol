@@ -25,6 +25,7 @@ void PB_RX(in_message* msg)
 			void* NEMessage = buildNEMessage(Self.IP, SenderIp);
 			NE_TX(NEMessage);
 			startRetransmission(rNE, NEMessage);
+			clearInMessage(msg);
 			return;
 		}	
 	}
@@ -43,9 +44,7 @@ void PB_RX(in_message* msg)
 			startRetransmission(rPR, buff);
 		}
 	}
-
-	delInMessage(msg);
-	return;
+	clearInMessage(msg);
 }
 
 
@@ -101,8 +100,7 @@ void PR_RX(in_message* msg)
 		//}
 		
 	}
-	delInMessage(msg);
-	return;
+	clearInMessage(msg);
 }
 void PC_RX(in_message* msg)
 {
@@ -145,7 +143,6 @@ void PC_RX(in_message* msg)
 		}*/
 	}	
 	
-	delInMessage(msg);
-	return;
+	clearInMessage(msg);
 }
 

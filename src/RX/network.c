@@ -3,11 +3,6 @@
 void NE_RX(in_message* msg)
 {
 	void* message;
-    if(msg->buf == NULL)
-    {
-        printf("msg passed to NE_RX does not have NE packet format!\n");
-        return;
-    }
     
     byte* Packet = (byte*)msg->buf;
     
@@ -49,14 +44,10 @@ void NE_RX(in_message* msg)
             startRetransmission(rNER, message);
         }
     }
+	clearInMessage(msg);
 }
 void NEP_RX(in_message* msg)
 {
-    if(msg->buf == NULL)
-    {
-        printf("msg passed to NEP_RX does not have NEP packet format!\n");
-        return;
-    }
     
     byte* Packet = (byte*)msg->buf;
     if(Packet[3] == Self.IP[0] && Packet[4] == Self.IP[1])
@@ -66,19 +57,13 @@ void NEP_RX(in_message* msg)
         // Communication was established with possible proxy
         Self.Status = Waiting;
     }
-    delInMessage(msg);
-	return;
+	clearInMessage(msg);
 }
 
 void NER_RX(in_message* msg)
 {
 	void* message;
 	byte* Packet = (byte*)msg->buf;
-    if(msg->buf == NULL)
-    {
-        printf("msg passed to NER_RX does not have NER packet format!\n");
-        return;
-    }
     
     if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
     {
@@ -127,47 +112,32 @@ void NER_RX(in_message* msg)
 			NER_TX(message);
             //startRetransmission(rNER, message);
         }
-    } 
-    
-    //Discard packet
-    delInMessage(msg);
-	return;
-
+    }
+	clearInMessage(msg);
 }
 
 void NEA_RX(in_message* msg)
 {
-    if(msg->buf == NULL)
-    {
-        printf("msg passed to NEA_RX does not have NEA packet format!\n");
-        return;
-    }
-    
     byte* Packet = (byte*)msg->buf;
-    
     byte OutsiderIP[2];
+
     OutsiderIP[0] = Packet[1];
     OutsiderIP[1] = Packet[2];
     pbid PBID;
     PBID = (0<<4) + Packet[3];
     PBID = Packet[4];
-    
+
     // se existir outside slave e for o outsider IP, quer dizer que chegamos ao proxy
-    if(getOutsideSlave(OutsiderIP)) 
+    if(getOutsideSlave(OutsiderIP))
     {
         stopRetransmission(rNER);
     }
-    else if(getIPFromList(Self.OutsidePending, OutsiderIP) == 0) 
-    {
-        return;
-    }
-    else    // se existir na lista de IPs, retiramos para cada node o outsider IP e retransmitimos até chegar ao Proxy
+	// se existir na lista de IPs, retiramos para cada node o outsider IP e retransmitimos até chegar ao Proxy
+    else if(getIPFromList(Self.OutsidePending, OutsiderIP))
     {
         removeIPList(Self.OutsidePending, OutsiderIP);
         NEA_TX(OutsiderIP, PBID);
     }
-
-	delInMessage(msg);
-	return;
+	clearInMessage(msg);
 }
 

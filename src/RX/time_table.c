@@ -29,6 +29,7 @@ void TB_RX(in_message* msg)
 	{
 		dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
 		// SET STATE TO OUTSIDE NETWORK
+		clearInMessage(msg);
 		return;
 	}
 	Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
@@ -51,7 +52,7 @@ void TB_RX(in_message* msg)
 		TB_TX(buff);
 	}
 	pthread_mutex_unlock(&(Self.TimeTable->Lock));
-
+	clearInMessage(msg);
 }
 
 
@@ -77,6 +78,7 @@ void TA_RX(in_message* msg)
         if(TBmessage == NULL)
 		{
 			pthread_mutex_unlock(&(Self.Rt.Lock));
+			clearInMessage(msg);
 			return;
 		}
 		short ip_amm;
@@ -90,6 +92,7 @@ void TA_RX(in_message* msg)
 		{
 			if((byte*)((byte*)TBmessage+18+ip_amm*2)[i])
 			{
+				clearInMessage(msg);
 				return;
 			}
 		}
@@ -105,4 +108,5 @@ void TA_RX(in_message* msg)
 		}
 		
 	}
+	clearInMessage(msg);
 }

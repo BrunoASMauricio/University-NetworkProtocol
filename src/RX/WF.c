@@ -8,7 +8,7 @@ WF_listener()
 	int ReadBytes = 0;
 	int PrevBytes = 0;
 	unsigned int received_messages = 0;
-	in_message* message;
+	in_message message;
 	timespec res;
 
 	printf("WF Listener on port %u\n", Meta.WF_RX->port);
@@ -54,12 +54,13 @@ WF_listener()
 		printf("\t\t-------Node got message (%d/%d bytes) total of %d!!-------\n", ReadBytes, ReadBytes+PrevBytes, ++received_messages);
 
 
-		message = newInMessage(PacketSize-4, buff, res);
-		message->PBE = ((float*)(buff + PacketSize-4))[0];
-		printf("Received full correct message! Received SNR: %u\n", message->PBE);
+		newInMessage(&message, PacketSize-4, buff, res);
+		message.PBE = ((float*)(buff + PacketSize-4))[0];
+		printf("Received full correct message! Received SNR: %u\n", message.PBE);
 		printMessage(buff, PacketSize);
 		// Directly handle message
-		handler(message);
+		handler(&message);
+
 
 		//addToQueue(newInMessage(PacketSize, buff, res), 8, Self.InboundQueue, 1);
 

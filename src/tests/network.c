@@ -15,9 +15,10 @@ testNEP_RX()
     timespec Res;
     clock_gettime(CLOCK_REALTIME, &Res);
     
-    in_message* NEPreceived = newInMessage(5, dummyPacket, Res);
-    dumpBin((char*)(NEPreceived->buf), NEPreceived->size, ">>Sent this to NEP_RX: %X");
-    NEP_RX(NEPreceived);
+    in_message NEPreceived;
+   	newInMessage(&NEPreceived, 5, dummyPacket, Res);
+    dumpBin((char*)(NEPreceived.buf), NEPreceived.size, ">>Sent this to NEP_RX: %X");
+    NEP_RX(&NEPreceived);
     
     printf("Expected to have STOPPED Retransmission on NE\n");
     printf("Checking if Self.Rt.Retransmitables is set on NE:\n");
@@ -80,9 +81,10 @@ testNER_RX()
     timespec Res;
     clock_gettime(CLOCK_REALTIME, &Res);
     
-    in_message* NERreceived = newInMessage(5, dummyPacket, Res);
-    dumpBin((char*)(NERreceived->buf), NERreceived->size, ">>Sent this to NEP_RX: %X");
-    NER_RX(NERreceived);
+    in_message NERreceived;
+   	newInMessage(&NERreceived, 5, dummyPacket, Res);
+    dumpBin((char*)(NERreceived.buf), NERreceived.size, ">>Sent this to NEP_RX: %X");
+    NER_RX(&NERreceived);
 
     printf("\nExpected to have added IP 0x01 0x02 as SubSlave:\n");
     byte SubSlaveIP[2] = {0x01, 0x02};
@@ -137,8 +139,9 @@ testNEA_RX()
     
     printf("\nTesting direct connection to OutsideSlave 1st\n");
     insertOutsideSlave(OutsiderIP);
-    in_message* NEAreceived = newInMessage(5, dummyPacket, Res);
-    NEA_RX(NEAreceived);
+    in_message NEAreceived;
+   	newInMessage(&NEAreceived, 5, dummyPacket, Res);
+    NEA_RX(&NEAreceived);
     
     printf("Expected to have stoped startRetransmission on NER\n");
     printf("Self.Rt.Retransmitables on NER:%s\n", 
@@ -149,8 +152,8 @@ testNEA_RX()
     
     insertIPList(Self.OutsidePending, OutsiderIP);
     printf("getIPFromList got: %d\n", getIPFromList(Self.OutsidePending, OutsiderIP));
-    NEAreceived = newInMessage(5, dummyPacket, Res);
-    NEA_RX(NEAreceived);
+   	newInMessage(&NEAreceived, 5, dummyPacket, Res);
+    NEA_RX(&NEAreceived);
     printf("Expected to have removed OutsiderIP from OutsiderPending\n");
     printf("getIPFromList got: %d\n", getIPFromList(Self.OutsidePending, OutsiderIP));
     
@@ -214,9 +217,10 @@ testNE_RX()
     timespec Res;
     clock_gettime(CLOCK_REALTIME, &Res);
     
-    in_message* NEreceived = newInMessage(5, dummyPacket, Res);
-    dumpBin((char*)(NEreceived->buf), NEreceived->size, ">>Sent this to NE_RX: %X");
-    NE_RX(NEreceived);
+    in_message NEreceived;
+   	newInMessage(&NEreceived, 5, dummyPacket, Res);
+    dumpBin((char*)(NEreceived.buf), NEreceived.size, ">>Sent this to NE_RX: %X");
+    NE_RX(&NEreceived);
 
     printf("\nExpected to have added IP 0x01 0x02 as OutsideSlave:\n");
     byte OutsideSlaveIP[2] = {0x01, 0x02};

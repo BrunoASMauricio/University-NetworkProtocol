@@ -1,26 +1,17 @@
 #include "messages.h"
 
-in_message* newInMessage(int size, void* buffer, timespec res)
+void newInMessage(in_message* msg, int size, void* buffer, timespec res)
 {
-	in_message* ret = (in_message*)malloc(sizeof(in_message));
-
-	ret->size = size;
-	ret->buf = (void*)malloc(size);
-	memcpy(ret->buf, buffer, size);
-	ret->received_time = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
-
-	return ret;
+	msg->size = size;
+	msg->buf = (void*)malloc(size);
+	memcpy(msg->buf, buffer, size);
+	msg->received_time = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
 }
 
-void delInMessage(in_message* Message)
-{
-	if(Message == NULL)
-	{
-		return;
-	}
 
-	free(Message->buf);
-	free(Message);
+void clearInMessage(in_message* msg)
+{
+	free(msg->buf);
 }
 
 

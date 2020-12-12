@@ -22,14 +22,15 @@ typedef struct{
  * Generate a new message structure from
  * buffer
  */
-in_message*
-newInMessage(int size, void* buffer, timespec res);
+void
+newInMessage(in_message* msg, int size, void* buffer, timespec res);
 
 /*
- * Clean a message structure
+ * Clean an in_message structure
+ * frees msg->buffer
  */
 void
-delInMessage(in_message* Message);
+clearInMessage(in_message* msg);
 
 /*
  * Generate a new message structure from
