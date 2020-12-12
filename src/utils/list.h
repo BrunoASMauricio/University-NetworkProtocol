@@ -76,6 +76,7 @@ void
 /*
  * Insert an IP into an IP List
  * Only does so if it doesn't already exist
+ * Allocates and copies IP
  * THREAD SAFE
  */
 insertIPList(IPList* IPL, byte IP[2]);
@@ -83,6 +84,7 @@ insertIPList(IPList* IPL, byte IP[2]);
 void
 /*
  * Remove an IP from an IP List
+ * Frees IP
  * THREAD SAFE
  */
 removeIPList(IPList* IPL, byte IP[2]);

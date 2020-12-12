@@ -206,9 +206,9 @@ void removeIPList(IPList* IPL, byte IP[2])
 		   ((byte*)(Helper->Buff))[1] == IP[1])
 		{
 			// Not the most efficient way, but simple
+			pthread_mutex_unlock(&(IPL->Lock));
 			free(getIPFromList(IPL, i));
 			removeFromList(IPL->L, i);
-			pthread_mutex_unlock(&(IPL->Lock));
 			return;
 		}
 		Helper = (List_el*)Helper->Next;
