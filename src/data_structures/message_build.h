@@ -32,6 +32,6 @@ buildNEPMessage(byte* SenderIP, byte* OutsiderIP);
 out_message*
 buildTAMessage(byte* Originator_IP, byte * PBID);
 
-void* buildPRMessage(byte Originator_IP[2], byte PBID[2], byte SNR);
+void* buildPRMessage(byte Originator_IP[2], byte PBID[2], float PBE);
 
 #endif

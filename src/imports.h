@@ -19,6 +19,7 @@
 #include "./utils/queue.h"
 #include "./utils/udp.h"
 #include "./utils/debug.h"
+#include "./utils/equations.h"
 
 
 #include "./data_structures/time_table.h"

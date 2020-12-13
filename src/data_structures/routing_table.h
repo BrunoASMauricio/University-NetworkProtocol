@@ -10,9 +10,9 @@
 typedef struct table_entry
 {
     byte Neigh_IP[2];
-    short Distance;
-    short LocalSNR; //this probably needs to be updated after math stuff
-    short  RemoteSNR; //this probably needs to be updated after math stuff
+    unsigned short Distance;
+    float LocalPBE; //this probably needs to be updated after math stuff
+    float  RemotePBE; //this probably needs to be updated after math stuff
     unsigned long int LastHeard;
     struct table_entry *next;
 } table_entry;
@@ -40,7 +40,7 @@ table* routNewTable();
  * return: pointer to newly created entry
  *         if it fails to be created, returns null 
  */
-table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, double RemoteSNR, unsigned long int LastHeard);
+table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard);
 
 /**
  * inserts new entry on the routing table or updates an entry if the received IP is already there
@@ -48,7 +48,7 @@ table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, dou
  * returns NULL if anything goes wrong
  */
 
-table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short LocalSNR, short RemoteSNR, unsigned long int LastHeard);
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalSNR, float RemotePBE, unsigned long int LastHeard);
 /**
  * prints routing table's content
  * return: number of entries if there's no problems

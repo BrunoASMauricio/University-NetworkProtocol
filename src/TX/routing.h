@@ -15,7 +15,7 @@ void PR_TX(void* PRPacket);
 /*
  * Creates a PC message and adds to outbound queue 
  */
-void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR);
+void PC_TX(byte Reached_IP[2], byte PBID[2], float PBE);
 
 
 #endif

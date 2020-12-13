@@ -53,6 +53,8 @@ clean(int signo);
 #include "./TX/WF.c"
 #include "./TX/HW.c"
 
+#include "./utils/equations.c"
+
 #include "./RX/network.c"
 #include "./RX/routing.c"
 #include "./RX/application.c"

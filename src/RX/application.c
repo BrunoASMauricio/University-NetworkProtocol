@@ -66,7 +66,7 @@ void SD_RX(in_message* msg)
 		else
 		{
 			//sends the sample nº to SD_TX
-			SD_TX(msg->buf+7, ((byte*)(msg->buf))[6]);
+			SD_TX(((byte*)msg->buf)+7, ((byte*)(msg->buf))[6]);
 		}
 
 	}

@@ -130,7 +130,7 @@ buildTAMessage(byte* Originator_IP, byte * PBID)
 
     return TAmessage;
 }
-void* buildPRMessage(byte Originator_IP[2], byte PBID[2], byte SNR)
+void* buildPRMessage(byte Originator_IP[2], byte PBID[2], float PBE)
 {
 	byte* PRPacket = (byte*)malloc(sizeof(byte)*10);
 
@@ -144,7 +144,8 @@ void* buildPRMessage(byte Originator_IP[2], byte PBID[2], byte SNR)
     PRPacket[6]=PBID[1];
     PRPacket[7]=(FirstEntry->Distance >> 8) &0xff;
     PRPacket[8]=FirstEntry->Distance &0xff;
-    PRPacket[9]=SNR;
+    *((float*)(&(PRPacket[9]))) = PBE;
+
 	return PRPacket;
 }
 

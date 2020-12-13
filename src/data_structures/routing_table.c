@@ -21,7 +21,7 @@ table* routNewTable()
     return tbl;
 }
 
-table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, double RemoteSNR, unsigned long int LastHeard)
+table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard)
 {
     /* allocate memory for new entry*/
     table_entry *Entry = (table_entry*)malloc(sizeof(table_entry));
@@ -37,8 +37,8 @@ table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, dou
     
     Entry->Distance=Distance;
     /*check this after everything*/
-    Entry->LocalSNR = LocalSNR;
-    Entry->RemoteSNR = RemoteSNR;
+    Entry->LocalPBE = LocalPBE;
+    Entry->RemotePBE = RemotePBE;
     Entry->LastHeard = LastHeard;
 
     Entry->next=NULL;
@@ -46,7 +46,7 @@ table_entry* routNewEntry(byte NeighIP[2], double Distance, double LocalSNR, dou
     return Entry;
 }
 
-table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distance, short LocalSNR, short RemoteSNR, unsigned long int LastHeard)
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard)
 {
     if(tbl == NULL) 
     {
@@ -63,7 +63,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
     /*if the table is empty and we just have to put there the entry*/
     if (tbl->size == 0)
     {
-        tbl->begin=routNewEntry(NeighIP, Distance, LocalSNR, RemoteSNR, LastHeard);
+        tbl->begin=routNewEntry(NeighIP, Distance, LocalPBE, RemotePBE, LastHeard);
 
             if(tbl->begin == NULL)
             {
@@ -81,7 +81,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
    
     if(entry == NULL)
     {
-        aux=routNewEntry(NeighIP, Distance, LocalSNR, RemoteSNR,LastHeard);
+        aux=routNewEntry(NeighIP, Distance, LocalPBE, RemotePBE,LastHeard);
 
             if(aux == NULL) 
             {
@@ -96,12 +96,12 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], short Distanc
         //do the updates 
         byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
         memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
-        double StoreAvg= entry->LocalSNR;
-        double StoreEff= entry->RemoteSNR;
+        float StoreLocalPBE= entry->LocalPBE;
+        float StoreRemotePBE= entry->RemotePBE;
         
         routRemoveEntry(tbl, entry->Neigh_IP);
 
-        aux=routNewEntry(Store_IP, Distance, StoreAvg, StoreEff, LastHeard);
+        aux=routNewEntry(Store_IP, Distance, StoreLocalPBE, StoreRemotePBE, LastHeard);
         tbl->size++;
     }
 	

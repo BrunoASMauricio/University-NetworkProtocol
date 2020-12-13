@@ -15,7 +15,7 @@ void PR_TX(void* PRPacket)
 	return;
 }
 
-void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
+void PC_TX(byte Reached_IP[2], byte PBID[2], float PBE)
 {
 	byte* PCPacket = (byte*)malloc(sizeof(byte)*8);
 
@@ -31,7 +31,8 @@ void PC_TX(byte Reached_IP[2], byte PBID[2], byte SNR)
     PCPacket[4]=Reached_IP[1];
     PCPacket[5]=PBID[0];
     PCPacket[6]=PBID[1];
-    PCPacket[7]=SNR;
+    *((float*)(&(PCPacket[7]))) = PBE;
+
 
 	out_message* message = newOutMessage(getPacketSize(PCPacket), PCPacket);
 	addToQueue(message, message->size, Self.OutboundQueue, 1);
