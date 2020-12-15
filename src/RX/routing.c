@@ -38,7 +38,17 @@ void PB_RX(in_message* msg)
 			clock_gettime(CLOCK_REALTIME, &Res);
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
-			routInsertOrUpdateEntry(Self.Table, SenderIp, distance, 0,0,Act); //stores distance when receiveing PB so later when it receives PC can update
+			table_entry* prev = routSearchByIp(Self.Table, SenderIp);
+			if(prev == NULL)
+			{
+				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, WORST_QUALITY, Act);
+			}
+			else
+			{
+				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, prev->RemotePBE, Act);
+			}
+
+			//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, WORST_QUALITY, WORST_QUALITY,Act); //stores distance when receiveing PB so later when it receives PC can update
 			buff = buildPRMessage(SenderIp, PBID, msg->PBE);
 			PR_TX(buff);
 			startRetransmission(rPR, buff);
@@ -76,31 +86,16 @@ void PR_RX(in_message* msg)
 
 	if(OriginatorIp[0]== Self.IP[0] && OriginatorIp[1]== Self.IP[1]) //the node is receiving a PR from a PB it generated
 	{
+		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, PBEofSentPB,Act);
+		clock_gettime(CLOCK_REALTIME, &Res);
+		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+		// THIS WAS OPTIMIZED, AND NOW ITS CLEAR ITS NOT DOING ANYTHING
 		if(pbidSearchPair(SenderIp,PBID,Self.RoutingPBIDTable)==0)
 		{
-			clock_gettime(CLOCK_REALTIME, &Res);
-			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 			//somehow update in routTable using existance distance, SNRofSentPB (remote snr) and msg->snr (local snr)
-			Distance=updateDistance(PBEofSentPB, 0,0);
-			routInsertOrUpdateEntry(Self.Table, SenderIp, Distance, msg->PBE, PBEofSentPB,Act);
-			PC_TX(SenderIp,PBID,msg->PBE);
 			Self.PBID++;//this only makes sense to update if it hasn't received that pair
-
 		}
-
-		else
-		{
-			clock_gettime(CLOCK_REALTIME, &Res);
-			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
-			//somehow checks if the extrapolated distance it's better than one we have 
-			Distance=updateDistance(PBEofSentPB, 0,0);
-			SenderEntry = routSearchByIp(Self.Table, SenderIp);
-			if(SenderEntry->Distance > Distance)
-			{
-				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, PBEofSentPB,Act);
-				PC_TX(SenderIp,PBID,msg->PBE); //warning that there's 
-			}
-		}
+		PC_TX(SenderIp,PBID,msg->PBE); //warning that there's 
 		
 	}
 	clearInMessage(msg);
@@ -128,30 +123,26 @@ void PC_RX(in_message* msg)
 
 	if(ReachedIP[0]== Self.IP[0] && ReachedIP[1]== Self.IP[1])
 	{
+		SenderEntry = routSearchByIp(Self.Table, SenderIP);
 
 		if(pbidSearchPair(SenderIP,PBID,Self.RoutingPBIDTable)==0)
 		{
 			clock_gettime(CLOCK_REALTIME, &Res);
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 			//somehow update in routTable using existance distance, SNRofSentPR (remote snr) and msg->snr (local snr)
-			Distance=updateDistance(PBEofSentPR,0,0); 
-			routInsertOrUpdateEntry(Self.Table, SenderIP, Distance, msg->PBE, PBEofSentPR,Act);
-			stopRetransmission(rPR); 
-			startRetransmission(rPB, createPB());
+			//Distance=updateDistance(PBEofSentPR,0,0) + SenderEntry->Distance;
+			routInsertOrUpdateEntry(Self.Table, SenderIP, SenderEntry->Distance, msg->PBE, PBEofSentPR,Act);
 		}
 
 		else
 		{
 			clock_gettime(CLOCK_REALTIME, &Res);
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
-			//somehow checks if the extrapolated distance it's better than one we have 
-			Distance=updateDistance(PBEofSentPR,0,0); 
-			SenderEntry = routSearchByIp(Self.Table, SenderIP);
-			if(SenderEntry->Distance > Distance)
-			{
-				routInsertOrUpdateEntry(Self.Table, SenderIP, Distance, msg->PBE, PBEofSentPR,Act);
-			}
+			//somehow checks if the extrapolated distance it's better than one we have
+			routInsertOrUpdateEntry(Self.Table, SenderIP, SenderEntry->Distance, msg->PBE, PBEofSentPR,Act);
 		}
+		stopRetransmission(rPR);
+		startRetransmission(rPB, createPB());
 		
 	}	
 	

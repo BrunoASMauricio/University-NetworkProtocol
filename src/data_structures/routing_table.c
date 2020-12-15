@@ -53,6 +53,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
        printf("Tried to insert/update a non-existent routTable\n");
        return NULL;
     }
+	printf("Adding route to %u.%u dist=%d local_pbe=%f remote_pbe=%f\n",NeighIP[0], NeighIP[1], Distance, LocalPBE, RemotePBE);
     
     table_entry *aux = NULL;
     table_entry *aux1 = NULL;
@@ -93,7 +94,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
     } 
     else //if there's already an entry
     {
-        //do the updates 
+        //do the updates
         byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
         memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
         float StoreLocalPBE= entry->LocalPBE;
@@ -101,7 +102,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
         
         routRemoveEntry(tbl, entry->Neigh_IP);
 
-        aux=routNewEntry(Store_IP, Distance, StoreLocalPBE, StoreRemotePBE, LastHeard);
+        aux=routNewEntry(Store_IP, Distance, LocalPBE, RemotePBE, LastHeard);
         tbl->size++;
     }
 	
@@ -122,7 +123,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
 
     if(tbl->begin->next == NULL) //if it exists and there's only one entry in the table, we are talking about the same entry
     {  
-        if (tbl->begin->Distance < aux->Distance)
+        if (getDistance(tbl->begin) < getDistance(aux))
         {   
             tbl->begin->next=aux;
             tbl->begin->next->next=NULL;
@@ -146,7 +147,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
 
         while( aux1 != NULL)
         {
-            if(aux->Distance < aux1->Distance) break;
+            if(getDistance(aux) < getDistance(aux1)) break;
 
             aux2=aux1; //to store the previous
             aux1=aux1->next;

@@ -161,11 +161,13 @@ setup()
 
 	if(Self.IsMaster)
 	{
+		((short*)Self.TB_PBID)[0] = 1;
 		Self.Status=NA;
 		printf("I am the Master!\n");
 	}
 	else //setting node as an outside one
 	{
+		((short*)Self.TB_PBID)[0] = 0;
 		Self.Status=Outside;
 		printf("I am a Slave!\n");
 	}

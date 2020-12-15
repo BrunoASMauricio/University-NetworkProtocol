@@ -26,7 +26,7 @@ WF_dispatcher(void* dummy)
 		// Not on the network, just send it
 		if(Self.TimeTable->sync == 0)
 		{
-			while(sendToSocket(Meta.WF_TX, To_send->buf, To_send->size) == -1)
+			while(sendToSocket(Meta.WF_TX, To_send->buf, getPacketSize(To_send->buf)) == -1)
 			{
 				continue;
 			}
@@ -40,7 +40,7 @@ WF_dispatcher(void* dummy)
 				}
 			}
 			printf("Message sent! total of %d\n", ++sent_messages);
-			printMessage(To_send->buf, To_send->size);
+			printMessage(To_send->buf, getPacketSize(To_send->buf));
 			//dumpBin((char*)(To_send->buf), To_send->size, "SENT PACKET!: ");
 			delOutMessage(To_send);
 			To_send = NULL;
@@ -62,7 +62,9 @@ WF_dispatcher(void* dummy)
 			if (Vact < Self.TimeTable->table_size * (Vact / Self.TimeTable->table_size) + Self.TimeTable->timeslot_size - TRANSMISSION_DELAY)
 			{
 				//printf("In timeslot: %lu\n", act);
-				while(sendToSocket(Meta.WF_TX, To_send->buf, To_send->size) == -1)
+				printf("Message sent! total of %d size :%d\n", ++sent_messages, getPacketSize(To_send->buf));
+				printMessage(To_send->buf, getPacketSize(To_send->buf));
+				while(sendToSocket(Meta.WF_TX, To_send->buf, getPacketSize(To_send->buf)) == -1)
 				{
 					continue;
 				}

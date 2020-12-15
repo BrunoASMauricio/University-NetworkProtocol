@@ -18,10 +18,12 @@ void* createPB()
     PBPacket[3]= (getNewPBID()>> 8) &0xff;
     PBPacket[4]= Self.PBID &0xff ;
 
-    if(Self.IsMaster == false)
+    if(!Self.IsMaster)
     {
-        PBPacket[5]= (FirstEntry->Distance >> 8) &0xff;
-        PBPacket[6]= FirstEntry->Distance &0xff;
+		//unsigned short myDistance (float Quality, int NumberOfSubSlaves, int MaxThroughput)
+		unsigned short Distance = myDistance();
+        PBPacket[5]= (Distance >> 8) &0xff;
+        PBPacket[6]= Distance &0xff;
     }
     else
     {
@@ -106,6 +108,35 @@ void* generateTB()
 	return buff;
 }
 
+	out_message*
+buildSDMessage(void* buff, int size, byte* IP)
+{
+	int TotalSize=0, NumSamples=0, Popped;
+
+	byte packet[Packet_Sizes[SD]+MAX_PAYLOAD_SIZE];
+   	//	= (byte*)malloc(sizeof(byte)*(Packet_Sizes[SD] + size));
+	byte* NextHopIP = Self.Table->begin->Neigh_IP;
+	//Assuming first position in table is itself; otherwise, search in table by self IP or something else
+
+	if (NextHopIP == NULL)
+	{
+		printf("Next hop still undefined, dropping data message\n");
+        return NULL;
+	}
+
+	packet[0] = (PROTOCOL_VERSION<<4) + SD;
+	packet[1] = IP[0];
+	packet[2] = IP[1];
+	packet[3] = NextHopIP[0];
+	packet[4] = NextHopIP[1];
+	// To be replaced by Seq and TTL(set to a max of 8)
+	packet[5] = (0<<4) + 8;
+	packet[6] = size;
+	memcpy(&packet[7], buff, size);
+
+    out_message* SDmessage = newOutMessage(getPacketSize(packet), packet);
+	return SDmessage;
+}
 out_message*
 buildTAMessage(byte* Originator_IP, byte * PBID)
 {
@@ -132,9 +163,8 @@ buildTAMessage(byte* Originator_IP, byte * PBID)
 }
 void* buildPRMessage(byte Originator_IP[2], byte PBID[2], float PBE)
 {
-	byte* PRPacket = (byte*)malloc(sizeof(byte)*10);
+	byte* PRPacket = (byte*)malloc(sizeof(byte)*13);
 
-    table_entry* FirstEntry = routGetEntryByPos(Self.Table, 1);
     PRPacket[0]=(PROTOCOL_VERSION<<4)+PR;
     PRPacket[1]=Self.IP[0];
     PRPacket[2]=Self.IP[1];
@@ -142,8 +172,9 @@ void* buildPRMessage(byte Originator_IP[2], byte PBID[2], float PBE)
     PRPacket[4]=Originator_IP[1];
     PRPacket[5]=PBID[0];
     PRPacket[6]=PBID[1];
-    PRPacket[7]=(FirstEntry->Distance >> 8) &0xff;
-    PRPacket[8]=FirstEntry->Distance &0xff;
+	unsigned short Distance = myDistance();
+	PRPacket[7]=(Distance >> 8) &0xff;
+	PRPacket[8]=Distance &0xff;
     *((float*)(&(PRPacket[9]))) = PBE;
 
 	return PRPacket;

@@ -5,7 +5,8 @@
 #include "../utils/messages.c"
 
 // Packet sizes in bytes
-const int Packet_Sizes[11] = {-1, 56/8, 56/8, 80/8, 64/8, 144/8, 56/8, 40/8, 40/8, 40/8, 40/8};
+// (first -1 is to align the packets type with array index)
+const int Packet_Sizes[11] = {-1, 56/8, 56/8, 104/8, 88/8, 144/8, 56/8, 40/8, 40/8, 40/8, 40/8};
 
 enum packet_type{
 	SD = 1,
@@ -33,5 +34,8 @@ out_message*
 buildTAMessage(byte* Originator_IP, byte * PBID);
 
 void* buildPRMessage(byte Originator_IP[2], byte PBID[2], float PBE);
+
+out_message*
+buildSDMessage(void* buff, int size, byte* IP);
 
 #endif

@@ -17,7 +17,7 @@ void PR_TX(void* PRPacket)
 
 void PC_TX(byte Reached_IP[2], byte PBID[2], float PBE)
 {
-	byte* PCPacket = (byte*)malloc(sizeof(byte)*8);
+	byte* PCPacket = (byte*)malloc(sizeof(byte)*11);
 
     if(PCPacket == NULL)
     {
