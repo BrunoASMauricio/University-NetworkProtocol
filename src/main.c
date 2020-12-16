@@ -14,7 +14,6 @@ main(int argc, char **argv)
 	Meta.Debug = false;
 	Meta.Quiet = false;
 	Meta.Post= false;
-	Meta.Log = NULL;
 	Self.IsMaster = UNSET;
 	Self.IP[0] = 0xff;
 	Self.SyncTimestamp = true;
@@ -34,7 +33,6 @@ main(int argc, char **argv)
     {
 		int option_index = 0;
 		static struct option long_options[] = {
-			{"log",		no_argument,		0, 'l'},
 			{"post",	no_argument,		0, 'p'},
 			{"debug",	no_argument,		0, 'd'},
 			{"quiet",	no_argument,		0, 'q'},
@@ -46,7 +44,7 @@ main(int argc, char **argv)
 			{0,			0,					0,  0 }
 		};
 
-		c = getopt_long(argc, argv, "qlpdr:H:W:T:R:I:s", long_options, &option_index);
+		c = getopt_long(argc, argv, "qpdr:H:W:T:R:I:s", long_options, &option_index);
 
 		if (c == -1)	break;
 
@@ -63,14 +61,6 @@ main(int argc, char **argv)
                 else
                 {
 					fatalErr("Node can only be master (M) or slave (S)\n");
-				}
-				break;
-
-			case 'l':
-				sprintf(buf, "./%u.%u_log.sim", Self.IP[0], Self.IP[1]);
-				if((Meta.Log = fopen(buf, "w")) == NULL)
-				{
-					fatalErr("Could not open log file for node %u %u. Errno set to: %d\n", Self.IP[0], Self.IP[1], errno);
 				}
 				break;
 

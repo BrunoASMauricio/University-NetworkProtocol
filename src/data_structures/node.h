@@ -34,7 +34,6 @@ typedef struct{
 	bool Post;
 	bool Debug;
 	bool Quiet;
-	FILE* Log;
 	
 	int WF_TX_port;
 	int WF_RX_port;

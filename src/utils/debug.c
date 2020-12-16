@@ -19,18 +19,6 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 	fprintf(stdout, "\n");
 
 	va_end(args);
-
-	if (Meta.Log)
-    {
-		va_start(args, fmt);
-		vfprintf(Meta.Log, fmt, args);
-			for(int i = 0; i < size; i++)
-        	{
-				fprintf(Meta.Log, "0x%02hhx ", buf[i]);
-			}
-		fprintf(Meta.Log, "\n");
-		va_end(args);
-	}
 }
 void printMessage(void* buff, int size)
 {
@@ -115,10 +103,6 @@ printfLog(const char *fmt, ...)
 		va_start(args, fmt);
 		vfprintf(stdout, fmt, args);
 		va_end(args);
-	}
-
-	if(Meta.Log)
-	{
 	}
 
 	fflush(stdout);
