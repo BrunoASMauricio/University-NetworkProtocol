@@ -4,22 +4,6 @@
 #include "../data_structures/node.h"
 #include "../utils/messages.c"
 
-// Packet sizes in bytes
-// (first -1 is to align the packets type with array index)
-const int Packet_Sizes[11] = {-1, 56/8, 56/8, 104/8, 88/8, 144/8, 56/8, 40/8, 40/8, 40/8, 40/8};
-
-enum packet_type{
-	SD = 1,
-	PB,
-	PR,
-	PC,
-	TB,
-	TA,
-	NE,
-	NEP,
-	NER,
-	NEA
-};
 
 void*
 /*

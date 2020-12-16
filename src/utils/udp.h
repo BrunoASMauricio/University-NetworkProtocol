@@ -1,8 +1,6 @@
 #ifndef UTILS_UDP
 #define UTILS_UDP
 
-#define MAX_TRANS_SIZE 4496
-
 #include<arpa/inet.h>
 #include<sys/socket.h>
 #include<fcntl.h>

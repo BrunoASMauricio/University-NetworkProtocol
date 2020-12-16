@@ -5,20 +5,18 @@
 #include "../data_structures/retransmission.h"
 
 #define UNSET 255
+
+// Unnecessary
 #define SAMPLE_SIZE 16
-#define PROTOCOL_VERSION 2
-#define MAXIMUM_PACKET_SIZE 4496	// 256 node network TB
-#define DEFAULT_VALIDITY_DELAY 1000	//in ns
-#define DEFAULT_TIMESLOT_SIZE 1		//in ms
+#define MAX_TRANS_SIZE 4496
+
+
 
 #define DEFAULT_HW_PORT 901
 #define DEFAULT_WS_PORT 23092
 #define DEFAULT_WF_TX_PORT 903
 #define DEFAULT_WF_RX_PORT 904
 
-// The delay since the TB transmission is
-// requested, and it first begins (in ns)
-#define TB_GENERATION_DELAY	1000000	//(1ms)
 
 
 typedef struct{
