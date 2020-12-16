@@ -8,7 +8,7 @@ unsigned short getDistance(table_entry* t_en)
 	{
 		return UNREACHABLE;
 	}
-	return (unsigned short)((1-t_en->LocalPBE)*10+(1-t_en->RemotePBE)*45+(1-(float)t_en->Distance/(float)UNREACHABLE)*45);
+	return (unsigned short)((1-t_en->LocalPBE)*10+(1-t_en->RemotePBE)*45+(float)t_en->Distance);
     //return ((unsigned short)((float)((31-t_en->LocalPBE)/t_en->LocalPBE+100)))+1U+t_en->Distance;
 }
 
@@ -24,6 +24,7 @@ unsigned short myDistance()
 		return 0;
 	}
    	FirstEntry = routGetEntryByPos(Self.Table, 1);
+	routPrintTableContent(Self.Table);
 	if(!FirstEntry)
 	{
 		printf("TB SIZE: %d %p DISTANCE: 0\n", Self.Table->size, FirstEntry);
