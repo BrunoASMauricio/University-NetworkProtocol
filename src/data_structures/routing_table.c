@@ -179,7 +179,7 @@ int routPrintTableContent(table *tbl)
 
     while(aux != NULL)
     {
-        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %hi Next: %p Last heard: %lu\n",tbl->size, aux->Neigh_IP[0], aux->Neigh_IP[1], aux->Distance, aux->next, aux->LastHeard);
+        printf( "Table size: %d Ip[0]: %d, Ip[1]: %d, Distance: %u Next: %p Last heard: %lu\n",tbl->size, aux->Neigh_IP[0], aux->Neigh_IP[1], getDistance(aux), aux->next, aux->LastHeard);
         aux=aux->next;
         n++;
     }
