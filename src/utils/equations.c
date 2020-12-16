@@ -18,7 +18,12 @@ unsigned short getDistance(table_entry* t_en)
 //unsigned short myDistance (float Quality, int NumberOfSubSlaves, int MaxThroughput)
 unsigned short myDistance()
 {
-    table_entry* FirstEntry = routGetEntryByPos(Self.Table, 1);
+    table_entry* FirstEntry;
+	if(Self.IsMaster)
+	{
+		return 0;
+	}
+   	FirstEntry = routGetEntryByPos(Self.Table, 1);
 	if(!FirstEntry)
 	{
 		printf("TB SIZE: %d %p DISTANCE: 0\n", Self.Table->size, FirstEntry);
