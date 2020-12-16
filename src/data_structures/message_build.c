@@ -4,7 +4,6 @@
 void* createPB()
 {
 	byte* PBPacket = (byte*)malloc(sizeof(byte)*7);
-    short MasterDistance =0;
 	
     if(PBPacket == NULL)
     {
@@ -18,18 +17,9 @@ void* createPB()
     PBPacket[3]= (getNewPBID()>> 8) &0xff;
     PBPacket[4]= Self.PBID &0xff ;
 
-    if(!Self.IsMaster)
-    {
-		//unsigned short myDistance (float Quality, int NumberOfSubSlaves, int MaxThroughput)
-		unsigned short Distance = myDistance();
-        PBPacket[5]= (Distance >> 8) &0xff;
-        PBPacket[6]= Distance &0xff;
-    }
-    else
-    {
-        PBPacket[5]= (MasterDistance >> 8) &0xff;
-        PBPacket[6]= MasterDistance &0xff;
-    }
+	unsigned short Distance = myDistance();
+	PBPacket[5]= (Distance >> 8) &0xff;
+	PBPacket[6]= Distance &0xff;
 	return PBPacket;
 }
 void* generateTB()
