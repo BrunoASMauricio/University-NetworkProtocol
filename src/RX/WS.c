@@ -1,5 +1,7 @@
 #include "WS.h"
 
+
+
 void*
 WS_listener(void* dummy)
 {
@@ -12,8 +14,13 @@ WS_listener(void* dummy)
 
 	socket_s* sockfd = newSocket(Meta.WS_port);
 	startSocket_ws(sockfd);
-	sleep(1);
-	sendToSocket(sockfd, &nBytes, 2);
+	//sleep(1);
+	//sendToSocket(sockfd, &nBytes, 2);
+	struct sockaddr_in addr;
+	inet_aton("127.0.0.1", &addr.sin_addr);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(Meta.WS_port);
+	bind(sockfd->s,(struct sockaddr*)&addr, sizeof(addr));
 
 
 	if (setsockopt(sockfd->s,SOL_SOCKET,SO_REUSEADDR,&aux,sizeof(int)) == -1)

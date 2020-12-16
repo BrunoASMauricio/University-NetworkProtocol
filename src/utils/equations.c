@@ -6,7 +6,7 @@ unsigned short getDistance(table_entry* t_en)
 	// Full routing conversation hasn't taken place yet
 	if(t_en->LocalPBE == 1 || t_en->RemotePBE == 1 || t_en->Distance == UNREACHABLE)
 	{
-		return 0;
+		return UNREACHABLE;
 	}
 	return (unsigned short)((1-t_en->LocalPBE)*10+(1-t_en->RemotePBE)*45+(1-(float)t_en->Distance/(float)UNREACHABLE)*45);
     //return ((unsigned short)((float)((31-t_en->LocalPBE)/t_en->LocalPBE+100)))+1U+t_en->Distance;
