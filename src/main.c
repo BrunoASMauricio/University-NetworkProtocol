@@ -27,8 +27,8 @@ main(int argc, char **argv)
 
 	signal(SIGINT, clean);
 
-	// Need this here to open the correct log file
-	memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
+	// Setting IP
+	memcpy(Self.IP, getIP(), sizeof(Self.IP));
 
 	while (1)
     {
@@ -114,7 +114,7 @@ main(int argc, char **argv)
 	}
 	
 	// Identifies the main thread
-	// This needs to be here, so that testing output is identified
+	// This needs to be here, so that testing output is correctly identified
 	Meta.Main_t = pthread_self();
 	fprintf(stdout, "%u\n", (Self.IP[0]<<8) | Self.IP[1]);
 	fprintf(stdout, "%d\n", getpid());
@@ -127,27 +127,35 @@ main(int argc, char **argv)
 	printf("WS: %d\n", Meta.WS_port);
 	printf("WF_TX: %d\n", Meta.WF_TX_port);
 	printf("WF_RX: %d\n", Meta.WF_RX_port);
+
+	// Print IP if it was hardcoded
 	if(Self.IP[0] != 0xff)
 	{
 		printf("Configured with IP %d %d\n", Self.IP[0], Self.IP[1]);
 	}
+
+	// Are we in the WF simulation? (sending timestamps)
 	if(Self.SyncTimestamp)
 	{
 		printf("We are in the matrix\n");
 	}
 
+	// Power On Self Test?
     if (Meta.Post)
     {
         testAll();
     }
 	
+	// Setup data structures and threads
 	setup();
 
-	if(Self.IsMaster) //setting node as an outside one
+	// Master immediately starts transmitting PBs
+	if(Self.IsMaster)
 	{
 		startRetransmission(rPB, createPB());
 	}
 
+	// Main thread runs the WF listener directly
 	WF_listener();
 }
 
@@ -155,25 +163,26 @@ void
 setup()
 {
 	int rc;
-	//memcpy(Self.IP,getIP(),sizeof(Self.IP)); //setting IP
+
 	setMaster();
-	Self.PBID=1;
 
 	if(Self.IsMaster)
 	{
+		// Setting node as the Master
+		Self.Status = NA;
+		// TB starts at 1 in the Master, so Slaves are "behind" it
 		((short*)Self.TB_PBID)[0] = 1;
-		Self.Status=NA;
 		printf("I am the Master!\n");
 	}
-	else //setting node as an outside one
+	else
 	{
+		// Setting node as outside node
+		Self.Status = Outside;
 		((short*)Self.TB_PBID)[0] = 0;
-		Self.Status=Outside;
 		printf("I am a Slave!\n");
 	}
 	
     Self.PBID = 0;
-
 	Self.OutboundQueue = newQueue();
 	Self.InboundQueue = newQueue();
 	Self.InternalQueue = newQueue();
@@ -182,12 +191,6 @@ setup()
 	Self.SubSlaves = newIPList();
 	Self.OutsideSlaves= newIPList();
 	Self.RoutingPBIDTable = pbidInitializeTable();
-
-    if(Self.IsMaster)
-    {
-	    Self.RegisteredSlaves= newIPList();
-    }
-
 	Self.OutsidePending= newIPList();
 	Self.TimeTable = newTimeTable();
 
@@ -203,21 +206,25 @@ setup()
 	Meta.WF_TX = newSocket(Meta.WF_TX_port);
 	startSocket(Meta.WF_TX);
 
+	// WF message sender
 	if (rc = pthread_create(&(Meta.WF_dispatcher_t), NULL, WF_dispatcher, NULL))
     {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 	
+	// WS data payload receiver
 	if (rc = pthread_create(&(Meta.WS_listener_t), NULL, WS_listener, NULL))
     {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
+	// HW data payload sender
 	if (rc = pthread_create(&(Meta.HW_dispatcher_t), NULL, HW_dispatcher, NULL))
     {
 		fatalErr("Error: Unable to create thread, %d\n", rc);
 	}
 
+	// Retransmissions responsible thread
 	if (rc = pthread_create(&(Meta.Retransmission_t), NULL, retransmit, NULL))
 	{
 		fatalErr("Error: Unable to create thread, %d\n", rc);
@@ -226,7 +233,7 @@ setup()
 
 
 void
-handler(void* _Message)
+handler(in_message* _Message)
 {
 	in_message* Message = (in_message*)_Message;
 	switch (((byte*)(Message->buf))[0] & 0x0f)

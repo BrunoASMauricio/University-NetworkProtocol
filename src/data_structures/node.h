@@ -66,7 +66,6 @@ typedef struct{
 	retransmission Rt;
 	IPList* SubSlaves;
 	IPList* OutsideSlaves;
-	IPList* RegisteredSlaves;
 	IPList* OutsidePending;
 	byte TB_PBID[2];
 	node_status Status;

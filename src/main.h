@@ -14,7 +14,7 @@ setup();
  * Continuously handles the received packets
  */
 void
-handler(void* _Message);
+handler(in_message* _Message);
 
 
 /*
