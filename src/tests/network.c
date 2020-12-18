@@ -222,14 +222,10 @@ testNE_RX()
     dumpBin((char*)(NEreceived.buf), NEreceived.size, ">>Sent this to NE_RX: %X");
     NE_RX(&NEreceived);
 
-    printf("\nExpected to have added IP 0x01 0x02 as OutsideSlave:\n");
+    printf("\nExpected to have added IP 0x01 0x02 as SubSlave:\n");
     byte OutsideSlaveIP[2] = {0x01, 0x02};
-    printf("Is OutsideSlave present? %s",
-            getIPFromList(Self.OutsideSlaves, OutsideSlaveIP) ? "YES\n": "NO\n");
-    
-    printf("Expected to have updated LastHeard on routTable\n");
-    table_entry* Outsider = routSearchByIp(Self.Table, &dummyPacket[1]);
-    printf("Current LastHeard: %lu\n", Outsider->LastHeard);
+    printf("Is SubSlave present? %s",
+            getIPFromList(Self.SubSlaves, OutsideSlaveIP) ? "YES\n": "NO\n");
     
     if(Self.IsMaster)
     {
