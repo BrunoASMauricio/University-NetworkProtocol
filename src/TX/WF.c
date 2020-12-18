@@ -8,7 +8,10 @@ WF_dispatcher(void* dummy)
 	unsigned long int Vact;
 	unsigned long int Next;
 	unsigned long int Slot;
+	unsigned long int Sleep;
+	unsigned int message_size;
 	unsigned int sent_messages = 0;
+
 	out_message* To_send;
 	timespec Res;
 	int Size;
@@ -22,11 +25,16 @@ WF_dispatcher(void* dummy)
 			{
 				usleep(TX_MESSAGE_WAIT);
 			}
+			message_size = getPacketSize(To_send->buf);
 		}
+		clock_gettime(CLOCK_REALTIME, &Res);
+		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+		checkNewTimeTable(Act);
 		// Not on the network, just send it
 		if(Self.TimeTable->sync == 0)
 		{
-			while(sendToSocket(Meta.WF_TX, To_send->buf, getPacketSize(To_send->buf)) == -1)
+			printf("Not on the network, blind transmition\n");
+			while(sendToSocket(Meta.WF_TX, To_send->buf, message_size) == -1)
 			{
 				continue;
 			}
@@ -40,51 +48,71 @@ WF_dispatcher(void* dummy)
 				}
 			}
 			printf("Message sent! total of %d\n", ++sent_messages);
-			printMessage(To_send->buf, getPacketSize(To_send->buf));
+			printMessage(To_send->buf, message_size);
 			//dumpBin((char*)(To_send->buf), To_send->size, "SENT PACKET!: ");
 			delOutMessage(To_send);
 			To_send = NULL;
 		}
 		else
 		{
-			clock_gettime(CLOCK_REALTIME, &Res);
-			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 			Slot = Self.TimeTable->sync + Self.TimeTable->local_slot * Self.TimeTable->timeslot_size;
 			Vact = Act - Slot;
 			Next = Self.TimeTable->table_size * ((Vact/Self.TimeTable->table_size) + 1) + Slot;
-			
 			// Timetable isn't yet valid or first timeslot hasn't elapsed
 			if(Act < Self.TimeTable->sync || Act < Slot)
 			{
-				continue;
-			}
-
-			if (Vact < Self.TimeTable->table_size * (Vact / Self.TimeTable->table_size) + Self.TimeTable->timeslot_size - TRANSMISSION_DELAY)
-			{
-				//printf("In timeslot: %lu\n", act);
-				printf("Message sent! total of %d size :%d\n", ++sent_messages, getPacketSize(To_send->buf));
-				printMessage(To_send->buf, getPacketSize(To_send->buf));
-				while(sendToSocket(Meta.WF_TX, To_send->buf, getPacketSize(To_send->buf)) == -1)
+				// Sleep until sync
+				// This sleep may slightly exceed what is requested
+				if(Act < Self.TimeTable->sync)
 				{
-					continue;
+					printf("1\n");
+					printf("Sleeping for %lu us\n", (Self.TimeTable->sync-Act)/1E3);
+					usleep((Self.TimeTable->sync-Act)/1E3);
 				}
-				if(Self.SyncTimestamp)
+				else
 				{
-					while(sendToSocket(Meta.WF_TX, &Act, 8) == -1)
-					{
-						continue;
-					}
+					printf("2\n");
+					printf("Sleeping for %lu us\n", (Slot-Act)/1E3);
+					usleep((Slot-Act)/1E3);
 				}
-				delOutMessage(To_send);
-				To_send = NULL;
 			}
 			else
 			{
-				// Tried to make the thread sleep precisely, but failed miserably (for now)
-				//clock_gettime(CLOCK_REALTIME, &res);
-				//act = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
-				//printf("Sleeping for %ld", (next-act)/100UL);
-				//usleep((next-act)/1000UL);
+				if (Vact < Self.TimeTable->table_size * (Vact / Self.TimeTable->table_size) + Self.TimeTable->timeslot_size - TRANSMISSION_DELAY*8*message_size)
+				{
+					printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
+					printMessage(To_send->buf, message_size);
+					while(sendToSocket(Meta.WF_TX, To_send->buf, message_size) == -1)
+					{
+						continue;
+					}
+					if(Self.SyncTimestamp)
+					{
+						while(sendToSocket(Meta.WF_TX, &Act, 8) == -1)
+						{
+							continue;
+						}
+					}
+					delOutMessage(To_send);
+					To_send = NULL;
+				}
+				else
+				{
+					printf("Timetable info:\n");
+					printf("Sync: %lu\n", Self.TimeTable->sync);
+					printf("timeslot: %lu %lu\n", Self.TimeTable->timeslot_size, Slot);
+					printf("timetable size: %lu, ammount of elapsed %lu\n",Self.TimeTable->table_size,((Vact/(Self.TimeTable->table_size)) + 1));
+					printf("In timeslot: %lu, from %lu to %lu\n", Act, Next-Self.TimeTable->table_size, Next);
+					// Tried to make the thread sleep precisely, but failed miserably (for now)
+					//clock_gettime(CLOCK_REALTIME, &res);
+					//act = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
+					//printf("Sleeping for %ld", (next-act)/100UL);
+					//usleep((next-act)/1000UL);
+					Sleep = (Next - Act)/1E3;
+					printf("Sleeping for %lu us\n", Sleep);
+					fflush(stdout);
+					usleep(Sleep);
+				}
 			}
 		}
         //sleep(1);

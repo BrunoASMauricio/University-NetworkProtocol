@@ -183,6 +183,7 @@ setup()
 	Self.RoutingPBIDTable = pbidInitializeTable();
 	Self.OutsidePending= newIPList();
 	Self.TimeTable = newTimeTable();
+	Self.NewTimeTable = newTimeTable();
 
 	if (pthread_mutex_init(&(Self.Rt.Lock), NULL) != 0)
     {

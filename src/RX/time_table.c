@@ -10,27 +10,35 @@ void TB_RX(in_message* msg)
 	byte slot;
 	byte PBID[2];
 
-	pthread_mutex_lock(&(Self.TimeTable->Lock));
-	Self.TimeTable->local_slot = -1;
-	Self.TimeTable->table_size = ((short*)(((byte*)buff+16)))[0];
-	ip_amm = Self.TimeTable->table_size;
+	pthread_mutex_lock(&(Self.NewTimeTable->Lock));
+	Self.NewTimeTable->local_slot = -1;
+	unsigned long int validity_delay = (unsigned long int)(*((unsigned short*)(((byte*)buff+13))))*1E3;
+	Self.NewTimeTable->sync = *((unsigned long int*)(((byte*)buff+5)));
+	Self.NewTimeTable->timeslot_size = *(((byte*)buff+15))*1E6;
+	ip_amm = *((short*)(((byte*)buff+16)));
+	Self.NewTimeTable->table_size = ip_amm*Self.NewTimeTable->timeslot_size;
+	printf("SYNC TIMESTAMP %lu %lu\n", Self.NewTimeTable->sync, validity_delay);
+	Self.NewTimeTable->sync += validity_delay;
+
+	timespec res;
+	clock_gettime(CLOCK_REALTIME, &res);
+	printf("%lu\n", res.tv_sec * (int64_t)1000000000UL + res.tv_nsec);
 	for(int i = 0; i < ip_amm; i++)
 	{
 		if(((short*)(((byte*)buff+18)))[i] == ((short*)Self.IP)[0])
 		{
-			Self.TimeTable->local_slot = i;
+			Self.NewTimeTable->local_slot = i;
 			slot = i;
 			break;
 		}
 	}
-	if(Self.TimeTable->local_slot == -1)
+	if(Self.NewTimeTable->local_slot == -1)
 	{
 		dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
 		// SET STATE TO OUTSIDE NETWORK
 		clearInMessage(msg);
 		return;
 	}
-	Self.TimeTable->timeslot_size = (((byte*)buff+15))[0];
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
 	slot = slot - 8 * (slot/8);
 	send_TA = (0x80 >> slot) & local_byte[0];
@@ -51,7 +59,7 @@ void TB_RX(in_message* msg)
 		Self.TB_PBID[1] = ((byte*)buff)[4];
 		TB_TX(buff);
 	}
-	pthread_mutex_unlock(&(Self.TimeTable->Lock));
+	pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
 	clearInMessage(msg);
 }
 

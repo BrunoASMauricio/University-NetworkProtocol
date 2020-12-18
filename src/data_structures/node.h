@@ -58,6 +58,7 @@ typedef struct{
 	byte IP[2];
 	table* Table;
 	timetable* TimeTable;
+	timetable* NewTimeTable;
 	pbid_ip_table* PBID_IP_TA;
 	bool SyncTimestamp;
 	retransmission Rt;

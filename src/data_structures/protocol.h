@@ -33,8 +33,8 @@ enum packet_type{
 
 
 //								TimeTable
-#define DEFAULT_VALIDITY_DELAY 1000	//in ns
-#define DEFAULT_TIMESLOT_SIZE 1		//in ms
+#define DEFAULT_VALIDITY_DELAY 1000	//in us
+#define DEFAULT_TIMESLOT_SIZE 100		//in ms
 
 // The delay since the TB transmission is
 // requested, and it first begins (in ns)
@@ -74,7 +74,7 @@ enum packet_type{
 // The transmission delay since the message is sent to WF,
 // to when WF finishes sending it
 // In nanoseconds
-#define TRANSMISSION_DELAY 1000 // 1 us
+#define TRANSMISSION_DELAY ((unsigned long int)(3*1E4)) // 30us/bit
 
 #define DATAPAYLOADLENGTH   3
 #define IPLENGTH            2

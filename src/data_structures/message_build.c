@@ -94,6 +94,17 @@ void* generateTB()
 
 	dumpBin((char*)buff, getPacketSize(buff), "GENERATED TB: ");
 	pthread_mutex_unlock(&(Self.SubSlaves->Lock));
+
+	pthread_mutex_lock(&(Self.NewTimeTable->Lock));
+	Self.NewTimeTable->local_slot = 0;
+	unsigned long int validity_delay = (unsigned long int)(*((unsigned short*)(((byte*)buff+13))))*1E3;
+	Self.NewTimeTable->sync = *((unsigned long int*)(((byte*)buff+5)));
+	Self.NewTimeTable->timeslot_size = *(((byte*)buff+15))*1E6;
+	ip_amm = *((short*)(((byte*)buff+16)));
+	Self.NewTimeTable->table_size = ip_amm*Self.NewTimeTable->timeslot_size;
+	Self.NewTimeTable->sync += validity_delay;
+	pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
+
 	
 	return buff;
 }

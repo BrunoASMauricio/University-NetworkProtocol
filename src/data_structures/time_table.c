@@ -52,6 +52,23 @@ bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 	return (0x80 >> place) & local_byte[0];
 }
 
+void checkNewTimeTable(unsigned long int act)
+{
+	if(pthread_mutex_trylock(&(Self.NewTimeTable->Lock)))
+	{
+		return;
+	}
+	if(Self.NewTimeTable->sync && Self.NewTimeTable->sync < act)
+	{
+		printf("Changing TIMETABLES %lu %lu\n");
+		Self.TimeTable->local_slot =	Self.NewTimeTable->local_slot;
+		Self.TimeTable->sync = 			Self.NewTimeTable->sync;
+		Self.TimeTable->timeslot_size =	Self.NewTimeTable->timeslot_size;
+		Self.TimeTable->table_size =	Self.NewTimeTable->table_size;
+		Self.NewTimeTable->sync = 0;
+	}
+	pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
+}
 
 timetable* newTimeTable()
 {
