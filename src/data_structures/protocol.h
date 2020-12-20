@@ -76,7 +76,7 @@ enum packet_type{
 // In nanoseconds
 #define TRANSMISSION_DELAY ((unsigned long int)(3*1E4)) // 30us/bit
 
-#define DATAPAYLOADLENGTH   3
+#define DATAPAYLOADLENGTH   134
 #define IPLENGTH            2
 #define TOTALLENGTH IPLENGTH+DATAPAYLOADLENGTH
 
@@ -86,7 +86,7 @@ enum packet_type{
 #define UNREACHABLE 65535
 
 #define TAMIP   2   //  2 bytes the ip
-#define DATAPAYLOAD 3 // bytes
+#define DATAPAYLOAD 134 // bytes
 #define TAMTOTALSAMPLE  TAMIP + DATAPAYLOAD   // bytes   
 
 
