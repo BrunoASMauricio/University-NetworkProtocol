@@ -190,6 +190,11 @@ setup()
         fatalErr("mutex init failed for outbound lock\n");
     }
 
+	if (pthread_mutex_init(&(Self.OutputLock), NULL) != 0)
+    {
+        fatalErr("mutex init failed for outbound lock\n");
+    }
+
 
 	Meta.WF_RX = newSocket(Meta.WF_RX_port);
 	startSocket(Meta.WF_RX);

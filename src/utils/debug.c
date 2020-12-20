@@ -9,6 +9,7 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 	}
 
 	va_start(args, fmt);
+	pthread_mutex_lock(&(Self.OutputLock));
 	fprintf(stdout, "[%c] [!]", getThreadChar());
 	vfprintf(stdout, fmt, args);
 
@@ -18,6 +19,7 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 	}
 
 	fprintf(stdout, "\n");
+	pthread_mutex_unlock(&(Self.OutputLock));
 
 	va_end(args);
 }
@@ -100,9 +102,11 @@ printfLog(const char *fmt, ...)
 	va_list args;
 	if(!Meta.Quiet)
 	{
-		fprintf(stdout, "[%c] [!]", getThreadChar());
 		va_start(args, fmt);
+		pthread_mutex_lock(&(Self.OutputLock));
+		fprintf(stdout, "[%c] [!]", getThreadChar());
 		vfprintf(stdout, fmt, args);
+		pthread_mutex_unlock(&(Self.OutputLock));
 		va_end(args);
 	}
 

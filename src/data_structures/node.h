@@ -69,6 +69,7 @@ typedef struct{
 	node_status Status;
 	pbid_ip_table* RoutingPBIDTable;
     pbid PBID;
+	pthread_mutex_t OutputLock;
 	// ...
 } node;
 
