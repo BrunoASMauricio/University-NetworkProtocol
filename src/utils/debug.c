@@ -9,6 +9,7 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 	}
 
 	va_start(args, fmt);
+	fprintf(stdout, "[%c] [!]", getThreadChar());
 	vfprintf(stdout, fmt, args);
 
 	for(int i = 0; i < size; i++)
