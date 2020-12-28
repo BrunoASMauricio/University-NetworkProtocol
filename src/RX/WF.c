@@ -12,73 +12,45 @@ WF_listener()
 	timespec res;
 
 	printf("WF Listener on port %u\n", Meta.WF_RX->port);
+	startSocket_ws(Meta.WF_RX);
 
-	// This is needed to kickstart the connection
-	// Everywhere I looked, client always spoke first
-	// Always found "in UDP it doesn't matter who talks first"
-	// But if client doesn't send this ping, it doesn't work
-	sleep(1);
-	sendToSocket(Meta.WF_RX, &PrevBytes, 2);
+	struct sockaddr_in addr;
+	inet_aton("127.0.0.1", &addr.sin_addr);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(Meta.WF_RX->port);
+	bind(Meta.WF_RX->s,(struct sockaddr*)&addr, sizeof(addr));
+	int aux = 1;
 
+	if (setsockopt(Meta.WF_RX->s,SOL_SOCKET,SO_REUSEADDR,&aux,sizeof(int)) == -1)
+	{
+		perror("Setsockopt");
+		exit(1);
+	}
 	PrevBytes = 0;
 	while(1)
 	{
-		while((ReadBytes = getFromSocket(Meta.WF_RX, buff+PrevBytes)) == -1)
+		while((ReadBytes = getFromSocket(Meta.WF_RX, buff)) == -1)
 		{
-			continue;
-		}
-		printf("Got %d bytes from socket\n", ReadBytes);
-		if(((byte*)buff)[0] & 0x0f == TB && ReadBytes < 18)
-		{
-			PrevBytes = ReadBytes;
-			printf("Got truncated TB\n");
 			continue;
 		}
 
 		clock_gettime(CLOCK_REALTIME, &res);
+		printf("\t\t-------Node got message (%d/%d bytes) total of %d!!-------\n", ReadBytes, ++received_messages);
 
-		PacketSize = getPacketSize(buff) + 4; // Also get SNR for the message
+		newInMessage(&message, ReadBytes, buff, res);
 
-		if(PacketSize == -1)
+		while((ReadBytes = getFromSocket(Meta.WF_RX, &(message.PBE))) == -1)
 		{
-			dumpBin(buff, ReadBytes+PrevBytes, "Packet size returned -1, dumping buffer\n");
 			continue;
 		}
 
-		if(PacketSize > ReadBytes + PrevBytes)
-		{
-			dumpBin(buff, ReadBytes, "Packet size (%d) is more than what was received (%d).\n", PacketSize, ReadBytes + PrevBytes);
-			PrevBytes = ReadBytes;
-			continue;
-		}
-		printf("\t\t-------Node got message (%d/%d bytes) total of %d!!-------\n", ReadBytes, ReadBytes+PrevBytes, ++received_messages);
+		assert(ReadBytes == sizeof(message.PBE));
 
-
-		newInMessage(&message, PacketSize-4, buff, res);
-		message.PBE = ((float*)(buff + PacketSize-4))[0];
 		printf("Received full correct message! Received SNR: %u\n", message.PBE);
-		printMessage(buff, PacketSize);
+		printMessage(buff, ReadBytes);
 		// Directly handle message
 		handler(&message);
-
-
 		//addToQueue(newInMessage(PacketSize, buff, res), 8, Self.InboundQueue, 1);
-
-		// We received more than one packet
-		if(PacketSize < ReadBytes + PrevBytes)
-		{
-			printf("\t\tMore than one packet (%d, %d)\n", PacketSize, ReadBytes+PrevBytes);
-			// Copy the last of the read bytes, to the beggining of the buffer
-			for(int i = 0; PacketSize + i < ReadBytes + PrevBytes; i++)
-			{
-				buff[i] = buff[PacketSize+i];
-			}
-			PrevBytes = PacketSize - (PrevBytes + ReadBytes);
-		}
-		else
-		{
-			PrevBytes = 0;
-		}
 	}
 }
 
