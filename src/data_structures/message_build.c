@@ -1,5 +1,45 @@
 #include "message_build.h"
 
+void sendNetStats(netstat_type type)
+{
+	short* IPHolder;
+	byte* payload;
+	int payload_size;
+	switch(type)
+	{
+		case STAT_TIMETABLE:
+			pthread_mutex_lock(&(Self.SubSlaves->Lock));
+			payload_size = 16+3+(Self.SubSlaves->L->Size+1)*2;
+			payload = (byte*)malloc(sizeof(byte)*(payload_size));	// 16byte header, 3 bytes for timetable info, 2 bytes per IP (Account for self)
+			for(int i = 0; i < 17; i++)
+			{
+				payload[i] = 0;
+			}
+			payload[16] = Self.TimeTable->timeslot_size;
+			((short*)(&payload[17]))[0] = Self.TimeTable->table_size;
+			payload[19] = Self.IP[0];
+			payload[20] = Self.IP[1];
+			for(int i = 0; i < Self.SubSlaves->L->Size; i++)
+			{
+				pthread_mutex_unlock(&(Self.SubSlaves->Lock));
+				IPHolder = getIPFromList(Self.SubSlaves, i);
+				pthread_mutex_lock(&(Self.SubSlaves->Lock));
+				((short*)(&(payload[21+i*2])))[0] = *IPHolder;
+				printf("TB IP %u.%u\n", ((byte*)IPHolder)[0], ((byte*)IPHolder)[1]);
+			}
+			pthread_mutex_unlock(&(Self.SubSlaves->Lock));
+			dumpBin((char*)payload, payload_size, "TB information message\n");
+			addToQueue((void*)payload, payload_size, Self.InternalQueue, 1);
+
+			break;
+			/*
+		case STAT_ROUTING:
+			payload = (byte*)malloc(sizeof(byte)*Self.Table->size);
+			break;
+			*/
+	}
+
+}
 
 void* createPB()
 {
@@ -109,7 +149,7 @@ void* generateTB()
 	return buff;
 }
 
-	out_message*
+out_message*
 buildSDMessage(void* buff, int size, byte* IP)
 {
 	int TotalSize=0, NumSamples=0, Popped;

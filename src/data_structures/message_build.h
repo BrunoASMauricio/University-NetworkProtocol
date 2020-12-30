@@ -4,6 +4,10 @@
 #include "../data_structures/node.h"
 #include "../utils/messages.c"
 
+enum netstat_type{
+	STAT_TIMETABLE,
+	STAT_ROUTING
+};
 
 void*
 /*

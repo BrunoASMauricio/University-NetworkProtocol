@@ -104,6 +104,7 @@ void TA_RX(in_message* msg)
 				return;
 			}
 		}
+		sendNetStats(STAT_TIMETABLE);
 		stopRetransmission(rTB);
 	}
 	else
