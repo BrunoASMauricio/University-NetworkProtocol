@@ -36,6 +36,7 @@ main(int argc, char **argv)
 			{"post",	no_argument,		0, 'p'},
 			{"debug",	no_argument,		0, 'd'},
 			{"quiet",	no_argument,		0, 'q'},
+			{"Sim",		no_argument,		0, 's'},
 			{"HW",		required_argument,		0, 'H'},
 			{"WS",		required_argument,		0, 'W'},
 			{"WF_TX",	required_argument,		0, 'T'},
