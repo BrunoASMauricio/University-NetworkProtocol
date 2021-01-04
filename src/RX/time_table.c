@@ -9,6 +9,15 @@ void TB_RX(in_message* msg)
 	int ip_amm;
 	byte slot;
 	byte PBID[2];
+	byte senderIP[2];
+
+	senderIP[0] = ((byte*)(buff))[1];
+	senderIP[1] = ((byte*)(buff))[2];
+	if(senderIP[0] == Self.IP[0] && senderIP[1] == Self.IP[1])
+	{
+		clearInMessage(msg);
+		return;
+	}
 
 	pthread_mutex_lock(&(Self.NewTimeTable->Lock));
 	Self.NewTimeTable->local_slot = -1;
