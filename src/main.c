@@ -16,7 +16,7 @@ main(int argc, char **argv)
 	Meta.Post= false;
 	Self.IsMaster = UNSET;
 	Self.IP[0] = 0xff;
-	Self.SyncTimestamp = true;
+	Self.SyncTimestamp = false;
 	Self.Rt.Retransmitables = 0;
 
 	Meta.HW_port = DEFAULT_HW_PORT;
