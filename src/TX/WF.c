@@ -12,7 +12,7 @@ WF_dispatcher(void* dummy)
 	unsigned int message_size;
 	unsigned int sent_messages = 0;
 
-	out_message* To_send;
+	out_message* To_send = NULL;
 	timespec Res;
 	int Size;
 	printf("WF Dispatcher on %u\n", Meta.WF_TX->port);
