@@ -121,7 +121,7 @@ main(int argc, char **argv)
 	// Print IP if it was hardcoded
 	if(Self.IP[0] != 0xff)
 	{
-		printf("Configured with IP %d %d\n", Self.IP[0], Self.IP[1]);
+		printf("Configured with IP 0x%02hhx 0x%02hhx\n", Self.IP[0], Self.IP[1]);
 	}
 
 	// Are we in the WF simulation? (sending timestamps)
