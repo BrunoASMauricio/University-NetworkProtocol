@@ -22,7 +22,7 @@ void PB_RX(in_message* msg)
 		return;
 	}
 
-	if(Self.Status == Outside)
+	if(Self.Status != Inside)
 	{ //if the node is an outside slave 
 
 		if(distance!= (unsigned short)65535)
