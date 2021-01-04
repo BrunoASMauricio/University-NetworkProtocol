@@ -70,6 +70,7 @@ void TB_RX(in_message* msg)
 	}
 	pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
 	clearInMessage(msg);
+	Self.Status = Inside;
 }
 
 

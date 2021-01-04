@@ -22,7 +22,7 @@ void PB_RX(in_message* msg)
 		return;
 	}
 
-	if(Self.Status != Inside)
+	if(Self.Status == Outside)
 	{ //if the node is an outside slave 
 
 		if(distance!= (unsigned short)65535)
@@ -35,7 +35,7 @@ void PB_RX(in_message* msg)
 			return;
 		}	
 	}
-	else
+	else if(Self.Status == Inside)
 	{
 		if(!pbidSearchPair(SenderIp, PBID, Self.RoutingPBIDTable))
 		{
