@@ -15,6 +15,12 @@ void PB_RX(in_message* msg)
 	timespec Res;
 	unsigned long int Act;
 
+	// Master hears it's own PBs
+	if(SenderIp[0] == Self.IP[0] && SenderIp[1] == Self.IP[1])
+	{
+		clearInMessage(msg);
+		return;
+	}
 
 	if(Self.Status == Outside)
 	{ //if the node is an outside slave 
