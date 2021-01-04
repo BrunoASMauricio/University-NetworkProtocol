@@ -9,6 +9,7 @@ WF_listener()
 	unsigned int received_messages = 0;
 	in_message message;
 	timespec res;
+	int n;
 
 	printf("WF Listener on port %u\n", Meta.WF_RX->port);
 	startSocket_ws(Meta.WF_RX);
@@ -37,12 +38,12 @@ WF_listener()
 
 		newInMessage(&message, ReadBytes, buff, res);
 
-		while(getFromSocket(Meta.WF_RX, &(message.PBE)) == -1)
+		while((n=getFromSocket(Meta.WF_RX, &(message.PBE))) == -1)
 		{
 			continue;
 		}
 
-		printf("Received full correct message! Received SNR: %u\n", message.PBE);
+		printf("Received full correct message! Received SNR: %f %d\n", message.PBE);
 		printMessage(buff, ReadBytes);
 		// Directly handle message
 		handler(&message);
