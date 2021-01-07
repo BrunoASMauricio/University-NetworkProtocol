@@ -44,7 +44,7 @@ void SD_RX(in_message* msg)
 
         if(am_i_sub_slave == NULL)
         {
-            printf("The received IP of the sender is not a SubSlave So Im adding");
+            printf("The received IP of the sender is not a SubSlave So Im adding\n");
             routInsertOrUpdateEntry(Self.Table, sub_slave_IP,UNREACHABLE, msg->PBE, 1, msg->received_time);
         }
 		//caso seja master vai para a Q
