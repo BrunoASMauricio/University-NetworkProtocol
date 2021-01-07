@@ -92,9 +92,9 @@ void PR_RX(in_message* msg)
 
 	if(OriginatorIp[0]== Self.IP[0] && OriginatorIp[1]== Self.IP[1]) //the node is receiving a PR from a PB it generated
 	{
-		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, PBEofSentPB,Act);
 		clock_gettime(CLOCK_REALTIME, &Res);
 		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, PBEofSentPB,Act);
 		// THIS WAS OPTIMIZED, AND NOW ITS CLEAR ITS NOT DOING ANYTHING
 		if(pbidSearchPair(SenderIp,PBID,Self.RoutingPBIDTable)==0)
 		{
