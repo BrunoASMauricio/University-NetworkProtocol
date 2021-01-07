@@ -10,6 +10,9 @@ void SD_RX(in_message* msg)
 	byte NextHopIp[2];
 	NextHopIp[0] = ((byte*)msg->buf)[3];
 	NextHopIp[1] = ((byte*)msg->buf)[4];
+	byte SourceIP[2];
+	SourceIP[0] = ((byte*)msg->buf)[1];
+	SourceIP[1] = ((byte*)msg->buf)[2];
 	
 	//checks para verificação de erros
 	if((((byte*)msg->buf)[0]&math) != 1)
@@ -26,6 +29,9 @@ void SD_RX(in_message* msg)
 	
 	unsigned long int Act;
 	timespec Res;
+	clock_gettime(CLOCK_REALTIME, &Res);
+	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+	routUpdateLastHeard(Self.Table, SourceIP, Act);
 	// Am I the next hop?
 	if(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1])
 	{
@@ -37,8 +43,6 @@ void SD_RX(in_message* msg)
 		insertSubSlave(sub_slave_IP);
         insertIPList(Self.OutsidePending, sub_slave_IP);
 
-        clock_gettime(CLOCK_REALTIME, &Res);
-        Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
         table_entry* am_i_sub_slave = routSearchByIp(Self.Table, sub_slave_IP);
 
