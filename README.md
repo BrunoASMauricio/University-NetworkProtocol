@@ -10,14 +10,25 @@ Code parameters:
 
     -r [S|M] : force node to be either a master or a slave
 
-    -l : Enable logging (prints are stored in the "./log" file)
+    -d/--debug : Debugging is enabled (every error is outputted)
 
-    -d : Debugging is enabled (every error is outputted)
+    -p/--post : Enable Power On Self Testing (launches "testAll()" which performs all tests all data structure manipulation functions).
+	
+	-s/--Sim : Enable timestamp output (for simulator purposes)
 
-    -p : Enable Power On Self Testing (launches "testAll()" which performs all tests all data structure manipulation functions).
+	-H/--HW : HW interface port
+
+	-W/--WS : WS interface port
+
+	-T/--WF_TX : WF TX interface port
+
+	-R/--WF_RX : WF RX interface port
+
+	-I/--IP : Force IP (requires last IP byte, forced IPs always have 0x82 as the first byte)
+	
 
 Usage example:
-    ./NP -ldp -r S
+    ./NP -dp -r S --HW 1234 --WS 1235 --WF_TX 1236 --WF_RX 1237 --IP 2
 
 Compiling:
 	Just type "make" in the same directory, the makefile resides in.
