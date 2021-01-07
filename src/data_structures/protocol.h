@@ -76,6 +76,9 @@ enum packet_type{
 // In nanoseconds
 #define TRANSMISSION_DELAY ((unsigned long int)(3*1E4)) // 30us/bit
 
+// Transmission jitter in ns
+#define TRANSMISSION_JITTER ((unsigned long int)(30*1E6)) // 30ms
+
 #define DATAPAYLOADLENGTH   136
 #define IPLENGTH            2
 #define TOTALLENGTH IPLENGTH+DATAPAYLOADLENGTH

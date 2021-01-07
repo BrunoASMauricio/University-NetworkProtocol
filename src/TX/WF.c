@@ -78,7 +78,7 @@ WF_dispatcher(void* dummy)
 			}
 			else
 			{
-				if (Vact < Self.TimeTable->table_size * (Vact / Self.TimeTable->table_size) + Self.TimeTable->timeslot_size - TRANSMISSION_DELAY*8*message_size)
+				if (Vact < Self.TimeTable->table_size * (Vact / Self.TimeTable->table_size) + Self.TimeTable->timeslot_size - TRANSMISSION_JITTER/*TRANSMISSION_DELAY*8*message_size*/)
 				{
 					printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
 					printMessage(To_send->buf, message_size);
