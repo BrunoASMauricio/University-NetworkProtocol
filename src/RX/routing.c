@@ -15,12 +15,16 @@ void PB_RX(in_message* msg)
 	timespec Res;
 	unsigned long int Act;
 
-	// Master hears it's own PBs
+	// Node hears it's own PBs
 	if(SenderIp[0] == Self.IP[0] && SenderIp[1] == Self.IP[1])
 	{
 		clearInMessage(msg);
 		return;
 	}
+	clock_gettime(CLOCK_REALTIME, &Res);
+	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+	
+	routUpdateLastHeard(Self.Table, SenderIp, Act);
 
 	if(Self.Status == Outside)
 	{ //if the node is an outside slave 
@@ -41,8 +45,6 @@ void PB_RX(in_message* msg)
 		{
 			pbidInsertPair(SenderIp, PBID, Self.RoutingPBIDTable); //stores pair in PBID table
 
-			clock_gettime(CLOCK_REALTIME, &Res);
-			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 
 			table_entry* prev = routSearchByIp(Self.Table, SenderIp);
 			if(prev == NULL)
