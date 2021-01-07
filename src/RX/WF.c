@@ -43,7 +43,7 @@ WF_listener()
 			continue;
 		}
 
-		printf("Received full correct message! Received SNR: %f %d\n", message.PBE);
+		printf("Received full correct message! Received SNR: %f\n", message.PBE);
 		printMessage(buff, ReadBytes);
 		// Directly handle message
 		handler(&message);
