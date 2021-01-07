@@ -45,7 +45,15 @@ table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalP
 
     return Entry;
 }
-
+void routUpdateLastHeard(table * tbl, byte IP[2], unsigned long int LastHeard)
+{
+	table_entry* entr = routSearchByIp(tbl, IP);
+	if(entr)
+	{
+		printf("Updating last heard from %lu to %lu: %lu\n", entr->LastHeard, LastHeard, LastHeard-entr->LastHeard);
+		routInsertOrUpdateEntry(tbl, IP, entr->Distance, entr->LocalPBE, entr->RemotePBE, LastHeard);
+	}
+}
 table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard)
 {
     if(tbl == NULL) 
@@ -53,7 +61,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
        printf("Tried to insert/update a non-existent routTable\n");
        return NULL;
     }
-	printf("Adding route to %u.%u dist=%d local_pbe=%f remote_pbe=%f\n",NeighIP[0], NeighIP[1], Distance, LocalPBE, RemotePBE);
+	printf("Adding route to %u.%u dist=%d local_pbe=%f remote_pbe=%f last heard = %lu\n",NeighIP[0], NeighIP[1], Distance, LocalPBE, RemotePBE, LastHeard);
     
     table_entry *aux = NULL;
     table_entry *aux1 = NULL;
