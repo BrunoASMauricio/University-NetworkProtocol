@@ -66,6 +66,8 @@ void TB_RX(in_message* msg)
 	{
 		Self.TB_PBID[0] = ((byte*)buff)[3];
 		Self.TB_PBID[1] = ((byte*)buff)[4];
+		((byte*)(buff))[1] = Self.IP[0];
+		((byte*)(buff))[2] = Self.IP[1];
 		TB_TX(buff);
 	}
 	pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
