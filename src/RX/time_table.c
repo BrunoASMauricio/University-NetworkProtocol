@@ -99,6 +99,11 @@ void TA_RX(in_message* msg)
 	PBID[1]=((byte *)msg->buf)[6];
 	void * TBmessage;
 	TBmessage = Self.Rt.TB_ret_msg;
+	if(SenderIp[0] == Self.IP[0] && SenderIp[1] == Self.IP[1])
+	{
+		clearInMessage(msg);
+		return;
+	}
 	if(Self.IsMaster) // If Master, sets the corresponding Originator IPs' bit to 0 in the bitmap of the next TB retransmission
 	{
 		pthread_mutex_lock(&(Self.Rt.Lock));
