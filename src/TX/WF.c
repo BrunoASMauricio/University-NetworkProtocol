@@ -11,6 +11,7 @@ WF_dispatcher(void* dummy)
 	unsigned long int Sleep;
 	unsigned int message_size;
 	unsigned int sent_messages = 0;
+	int n;
 
 	out_message* To_send = NULL;
 	timespec Res;
@@ -34,18 +35,20 @@ WF_dispatcher(void* dummy)
 		if(Self.TimeTable->sync == 0)
 		{
 			printf("Not on the network, blind transmition\n");
-			while(sendToSocket(Meta.WF_TX, To_send->buf, message_size) == -1)
+			while((n=sendToSocket(Meta.WF_TX, To_send->buf, message_size)) == -1)
 			{
 				continue;
 			}
+			printf("Message sent %d/%d\n",n,message_size);
 			if(Self.SyncTimestamp)
 			{
 				clock_gettime(CLOCK_REALTIME, &Res);
 				Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
-				while(sendToSocket(Meta.WF_TX, &Act, 8) == -1)
+				while((n=sendToSocket(Meta.WF_TX, &Act, 8)) == -1)
 				{
 					continue;
 				}
+				printf("Timestamp sent %d/%d\n",n,8);
 			}
 			printf("Message sent! total of %d\n", ++sent_messages);
 			printMessage(To_send->buf, message_size);
@@ -80,19 +83,23 @@ WF_dispatcher(void* dummy)
 			{
 				if (Vact < Self.TimeTable->table_size * (Vact / Self.TimeTable->table_size) + Self.TimeTable->timeslot_size - TRANSMISSION_JITTER/*TRANSMISSION_DELAY*8*message_size*/)
 				{
-					printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
-					printMessage(To_send->buf, message_size);
-					while(sendToSocket(Meta.WF_TX, To_send->buf, message_size) == -1)
+					while((n=sendToSocket(Meta.WF_TX, To_send->buf, message_size)) == -1)
 					{
 						continue;
 					}
+					printf("Message sent %d/%d\n",n,message_size);
 					if(Self.SyncTimestamp)
 					{
-						while(sendToSocket(Meta.WF_TX, &Act, 8) == -1)
+						clock_gettime(CLOCK_REALTIME, &Res);
+						Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+						while((n=sendToSocket(Meta.WF_TX, &Act, 8)) == -1)
 						{
 							continue;
 						}
+						printf("Timestamp sent %d/%d\n",n,8);
 					}
+					printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
+					printMessage(To_send->buf, message_size);
 					delOutMessage(To_send);
 					To_send = NULL;
 				}
