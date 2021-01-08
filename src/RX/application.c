@@ -31,7 +31,7 @@ void SD_RX(in_message* msg)
 	timespec Res;
 	clock_gettime(CLOCK_REALTIME, &Res);
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
-	routUpdateLastHeard(Self.Table, SourceIP, Act);
+	routUpdateLastHeard(Self.Table, SourceIP);
 	// Am I the next hop?
 	if(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1])
 	{

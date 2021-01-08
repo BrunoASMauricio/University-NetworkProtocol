@@ -45,7 +45,7 @@ table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalP
 /*
  * Updates the last heard on an entry (if that entry exists)
  */
-void routUpdateLastHeard(table * tbl, byte IP[2], unsigned long int LastHeard);
+void routUpdateLastHeard(table * tbl, byte IP[2]);
 
 /**
  * inserts new entry on the routing table or updates an entry if the received IP is already there

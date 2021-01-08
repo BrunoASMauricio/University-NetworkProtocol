@@ -45,13 +45,17 @@ table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalP
 
     return Entry;
 }
-void routUpdateLastHeard(table * tbl, byte IP[2], unsigned long int LastHeard)
+void routUpdateLastHeard(table * tbl, byte IP[2])
 {
 	table_entry* entr = routSearchByIp(tbl, IP);
 	if(entr)
 	{
-		printf("Updating last heard from %lu to %lu: %lu\n", entr->LastHeard, LastHeard, LastHeard-entr->LastHeard);
-		routInsertOrUpdateEntry(tbl, IP, entr->Distance, entr->LocalPBE, entr->RemotePBE, LastHeard);
+		timespec Res;
+		unsigned long int Act;
+		clock_gettime(CLOCK_REALTIME, &Res);
+		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+		printf("Updating last heard of %u.%u from %lu to %lu: %lu\n", IP[0], IP[1], entr->LastHeard, Act, Act-entr->LastHeard);
+		routInsertOrUpdateEntry(tbl, IP, entr->Distance, entr->LocalPBE, entr->RemotePBE, Act);
 	}
 }
 table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard)
