@@ -115,6 +115,7 @@ void* retransmit(void* dummy)
 				printf("Retransmitting a TB\n");
 				addToQueue(newOutMessage(getPacketSize(Self.Rt.TB_ret_msg), Self.Rt.TB_ret_msg), 8, Self.OutboundQueue, 1);
 				Self.Rt.TB_ret_amm += 1;
+				(*(short*)(&((byte*)(Self.Rt.TB_ret_msg))[3]))++;
 				Self.Rt.Time_TB += TB_TIMEOUT;
 				printf("Current time: %lu\nNew transmission: %lu\n", Act, Self.Rt.Time_TB);
 			}
