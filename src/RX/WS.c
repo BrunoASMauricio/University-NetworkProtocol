@@ -45,9 +45,9 @@ WS_listener(void* dummy)
 			{
 				memcpy(TotalSample, Self.IP , TAMIP);
 				memcpy(TotalSample+TAMIP, buff, nBytes);
-				if(!Self.IsMaster)
+				if(Self.IsMaster)
 				{
-					printf("RECEIVED MESSAGE FROM WS %d\n", nBytes);
+					printf("RECEIVED MESSAGE FROM WS %u\n", nBytes);
 				}
 				//dumpBin((char*)TotalSample, nBytes+TAMIP, "Received from WS (%d+2 bytes): ", nBytes);
 				addToQueue((void*)TotalSample, nBytes+TAMIP, Self.InternalQueue, 1);
@@ -88,7 +88,7 @@ WS_listener(void* dummy)
 			nBytes = getFromSocket(sockfd,buff);
 			if(nBytes > 0)
 			{
-				printf("RECEIVED MESSAGE FROM WS %u\n");
+				printf("RECEIVED MESSAGE FROM WS %u\n", nBytes);
 				//memcpy(TotalSample, buff, nBytes);
 				//addToQueue((void*)TotalSample, sizeof(byte)*DATAPAYLOAD, Self.InternalQueue, 0);
 				SD_TX(buff, nBytes);
