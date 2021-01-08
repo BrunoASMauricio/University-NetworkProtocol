@@ -34,7 +34,7 @@ enum packet_type{
 
 //								TimeTable
 #define DEFAULT_VALIDITY_DELAY 1000	//in us
-#define DEFAULT_TIMESLOT_SIZE 100		//in ms
+#define DEFAULT_TIMESLOT_SIZE 200		//in ms
 
 // The delay since the TB transmission is
 // requested, and it first begins (in ns)
