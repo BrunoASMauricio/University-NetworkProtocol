@@ -183,7 +183,6 @@ buildTAMessage(byte* Originator_IP, byte * PBID)
 {
     int size = sizeof(byte)*7;
 	byte* TAPacket = (byte*)malloc(size);
-	byte SELF_IP[2] = {7,8};
 
 	if(TAPacket == NULL){
         fatalErr("Couldn't assign memory to TA Packet \n");
@@ -191,8 +190,8 @@ buildTAMessage(byte* Originator_IP, byte * PBID)
 
 
     TAPacket[0]=(PROTOCOL_VERSION<<4)+TA;
-    TAPacket[1]=SELF_IP[0];
-    TAPacket[2]=SELF_IP[1];
+    TAPacket[1]=Self.IP[0];
+    TAPacket[2]=Self.IP[1];
     TAPacket[3]=Originator_IP[0];
     TAPacket[4]=Originator_IP[1];
     TAPacket[5]=PBID[0];
