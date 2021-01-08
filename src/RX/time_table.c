@@ -60,7 +60,7 @@ void TB_RX(in_message* msg)
 	{
 		TA_TX(Self.IP, Self.TB_PBID);
 	}
-	dumpBin((char*)buff, getPacketSize(buff), "Received TB, place = %d TA = %d rTB=%d %d\n", slot, send_TA, retransmit_TB, retransmit_TB && (((byte*)buff)[0] != Self.TB_PBID[0] || ((byte*)buff)[1] != Self.TB_PBID[1]));
+	dumpBin((char*)buff, getPacketSize(buff), "Received TB, place = %d TA = %d rTB=%d %d\n", slot, send_TA, retransmit_TB, retransmit_TB && (((byte*)buff)[3] != Self.TB_PBID[0] || ((byte*)buff)[4] != Self.TB_PBID[1]));
 
 	if(retransmit_TB && (((byte*)buff)[3] != Self.TB_PBID[0] || ((byte*)buff)[4] != Self.TB_PBID[1]))
 	{
