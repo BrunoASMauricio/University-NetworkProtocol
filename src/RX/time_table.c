@@ -13,7 +13,7 @@ void TB_RX(in_message* msg)
 
 	senderIP[0] = ((byte*)(buff))[1];
 	senderIP[1] = ((byte*)(buff))[2];
-	if(senderIP[0] == Self.IP[0] && senderIP[1] == Self.IP[1])
+	if((senderIP[0] == Self.IP[0] && senderIP[1] == Self.IP[1]) || Self.IsMaster)
 	{
 		clearInMessage(msg);
 		return;
@@ -68,6 +68,7 @@ void TB_RX(in_message* msg)
 		Self.TB_PBID[1] = ((byte*)buff)[4];
 		((byte*)(buff))[1] = Self.IP[0];
 		((byte*)(buff))[2] = Self.IP[1];
+		printf("Retransmitting received TB\n");
 		TB_TX(buff);
 	}
 	pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
