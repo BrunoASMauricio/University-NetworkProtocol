@@ -92,8 +92,8 @@ void* generateTB()
 	((byte*)buff)[0] = (0xf0 & (PROTOCOL_VERSION<<4)) | TB;
 	((byte*)buff)[1] = Self.IP[0];
 	((byte*)buff)[2] = Self.IP[1];
-	((byte*)buff)[3] = Self.TB_PBID[0];
-	((byte*)buff)[4] = Self.TB_PBID[1];
+	((byte*)buff)[3] = 0;//Self.TB_PBID[0];
+	((byte*)buff)[4] = 0;//Self.TB_PBID[1];
 	((short*)Self.TB_PBID)[0] += 1;
 	clock_gettime(CLOCK_REALTIME, &res);
 	((unsigned long int*)((byte*)buff+5))[0] = res.tv_sec * (int64_t)1000000000UL + res.tv_nsec;
