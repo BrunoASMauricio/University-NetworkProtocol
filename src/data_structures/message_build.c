@@ -28,7 +28,7 @@ void sendNetStats(netstat_type type)
 				printf("TB IP %u.%u\n", ((byte*)IPHolder)[0], ((byte*)IPHolder)[1]);
 			}
 			pthread_mutex_unlock(&(Self.SubSlaves->Lock));
-			dumpBin((char*)payload, payload_size, "TB information message\n");
+			//dumpBin((char*)payload, payload_size, "TB information message\n");
 			addToQueue((void*)payload, payload_size, Self.InternalQueue, 1);
 
 			break;
@@ -132,7 +132,7 @@ void* generateTB()
 	
 	CLEARBIT(7, ((byte*)buff)[18+ip_amm*2+(ip_amm/8)]);
 
-	dumpBin((char*)buff, getPacketSize(buff), "GENERATED TB: ");
+	//dumpBin((char*)buff, getPacketSize(buff), "GENERATED TB: ");
 	pthread_mutex_unlock(&(Self.SubSlaves->Lock));
 
 	pthread_mutex_lock(&(Self.NewTimeTable->Lock));
