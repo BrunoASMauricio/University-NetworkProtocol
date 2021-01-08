@@ -113,7 +113,7 @@ void PC_RX(in_message* msg)
 
 	byte SenderIP[2];
 	byte ReachedIP[2];
-	byte PBEofSentPR;
+	float PBEofSentPR;
 	byte PBID[2];
 	SenderIP[0]=((byte*)msg->buf)[1];
 	SenderIP[1]=((byte*)msg->buf)[2];
