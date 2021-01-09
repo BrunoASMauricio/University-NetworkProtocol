@@ -47,6 +47,7 @@ void TB_RX(in_message* msg)
 		dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
 		// SET STATE TO OUTSIDE NETWORK
 		clearInMessage(msg);
+		pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
 		return;
 	}
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
