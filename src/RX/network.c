@@ -20,11 +20,6 @@ void NE_RX(in_message* msg)
         clock_gettime(CLOCK_REALTIME, &Res);
         Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
         
-        //NOTE(GoncaloX): This is the 1st contact of an new node, as such
-        //it shoul be added to the routTable.
-        //table_entry* Outsider = routInsertOrUpdateEntry(Self.Table, SenderIP, UNREACHABLE, msg->PBE, 1, msg->received_time);
-        //Outsider->LastHeard = Act;
-
         // se é o master que recebe NE, gera TimeBroadcast e gera NEP 
         // (NEP é sempre resposta de NE)
         if(Self.IsMaster)
@@ -34,7 +29,6 @@ void NE_RX(in_message* msg)
         }
         else
         {
-            //NOTE(GoncaloX): Maybe this should also happen if node is Master?
             insertOutsideSlave(SenderIP);
             NEP_TX(SenderIP);
 

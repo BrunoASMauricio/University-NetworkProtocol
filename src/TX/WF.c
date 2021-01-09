@@ -39,7 +39,6 @@ WF_dispatcher(void* dummy)
 			{
 				continue;
 			}
-			printf("Message sent %d/%d\n",n,message_size);
 			if(Self.SyncTimestamp)
 			{
 				clock_gettime(CLOCK_REALTIME, &Res);
@@ -48,9 +47,8 @@ WF_dispatcher(void* dummy)
 				{
 					continue;
 				}
-				printf("Timestamp sent %d/%d\n",n,8);
 			}
-			printf("Message sent! total of %d\n", ++sent_messages);
+			//printf("Message sent! total of %d\n", ++sent_messages);
 			printMessage(To_send->buf, message_size);
 			//dumpBin((char*)(To_send->buf), To_send->size, "SENT PACKET!: ");
 			delOutMessage(To_send);
@@ -68,13 +66,11 @@ WF_dispatcher(void* dummy)
 				// This sleep may slightly exceed what is requested
 				if(Act < Self.TimeTable->sync)
 				{
-					printf("1\n");
 					printf("Sleeping for %lu us\n", (Self.TimeTable->sync-Act)/1E3);
 					usleep((Self.TimeTable->sync-Act)/1E3);
 				}
 				else
 				{
-					printf("2\n");
 					printf("Sleeping for %lu us\n", (Slot-Act)/1E3);
 					usleep((Slot-Act)/1E3);
 				}
@@ -87,7 +83,6 @@ WF_dispatcher(void* dummy)
 					{
 						continue;
 					}
-					printf("Message sent %d/%d\n",n,message_size);
 					if(Self.SyncTimestamp)
 					{
 						clock_gettime(CLOCK_REALTIME, &Res);
@@ -96,9 +91,8 @@ WF_dispatcher(void* dummy)
 						{
 							continue;
 						}
-						printf("Timestamp sent %d/%d\n",n,8);
 					}
-					printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
+					//printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
 					printMessage(To_send->buf, message_size);
 					delOutMessage(To_send);
 					To_send = NULL;

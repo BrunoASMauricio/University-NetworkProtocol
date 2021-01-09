@@ -60,7 +60,7 @@ void checkNewTimeTable(unsigned long int act)
 	}
 	if(Self.NewTimeTable->sync && Self.NewTimeTable->sync < act)
 	{
-		printf("Changing TIMETABLES %lu %lu\n");
+		printf("Setting new timetable %lu %lu\n");
 		Self.TimeTable->local_slot =	Self.NewTimeTable->local_slot;
 		Self.TimeTable->sync = 			Self.NewTimeTable->sync;
 		Self.TimeTable->timeslot_size =	Self.NewTimeTable->timeslot_size;

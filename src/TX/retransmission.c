@@ -117,7 +117,6 @@ void* retransmit(void* dummy)
 				Self.Rt.TB_ret_amm += 1;
 				(*(short*)(&((byte*)(Self.Rt.TB_ret_msg))[3]))++;
 				Self.Rt.Time_TB += TB_TIMEOUT;
-				printf("Current time: %lu\nNew transmission: %lu\n", Act, Self.Rt.Time_TB);
 			}
 			else if(Self.Rt.Time_TB < earliest)
 			{

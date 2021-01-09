@@ -220,7 +220,6 @@ void removeIPList(IPList* IPL, byte IP[2])
 void
 insertSubSlave(byte IP[2])
 {
-	printf("Sub\n");
 	insertIPList(Self.SubSlaves, IP);
 }
 
@@ -233,14 +232,12 @@ getSubSlave(byte IP[2])
 void
 removeSubSlave(byte IP[2])
 {
-	printf("Sub\n");
 	removeIPList(Self.SubSlaves, IP);
 }
 
 void
 insertOutsideSlave(byte IP[2])
 {
-	printf("Outside\n");
 	insertIPList(Self.OutsideSlaves, IP);
 }
 
@@ -253,7 +250,6 @@ getOutsideSlave(byte IP[2])
 void
 removeOutsideSlave(byte IP[2])
 {
-	printf("Outside\n");
 	removeIPList(Self.OutsideSlaves, IP);
 }
 
