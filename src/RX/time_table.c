@@ -46,6 +46,7 @@ void TB_RX(in_message* msg)
 	{
 		dumpBin((char*)buff, getPacketSize(buff), "Did not receive timeslot from TB\n");
 		// SET STATE TO OUTSIDE NETWORK
+        Self.Status = Outside;
 		clearInMessage(msg);
 		pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
 		return;
