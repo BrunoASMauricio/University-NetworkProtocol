@@ -62,14 +62,15 @@ void TB_RX(in_message* msg)
 	if(send_TA)
 	{
 		TA_TX(Self.IP, Self.TB_PBID);
+		((short*)Self.TB_PBID)[0] += 1;
 	}
 	dumpBin((char*)buff, getPacketSize(buff), "Received TB, place = %d TA = %d rTB=%d %d\n", slot, send_TA, retransmit_TB, retransmit_TB && (((byte*)buff)[3] != Self.TB_PBID[0] || ((byte*)buff)[4] != Self.TB_PBID[1]));
 
 	// Need to retransmit
 	if(retransmit_TB &&
-			// PBID is new
-			((((byte*)buff)[3] != Self.TB_PBID[0] || ((byte*)buff)[4] != Self.TB_PBID[1]) ||
-			// PBID is "old", but it's the first one and it's a new table
+			// PBID is new (aka higher)
+			((((byte*)buff)[3] > Self.TB_PBID[0] || ((byte*)buff)[4] > Self.TB_PBID[1]) ||
+			// PBID is "old", but it's the reset one and it's a new table
 			(((byte*)buff)[3] == 0 && ((byte*)buff)[4] == 0 && prev_table_size != Self.NewTimeTable->table_size)))
 	{
 		Self.TB_PBID[0] = ((byte*)buff)[3];
