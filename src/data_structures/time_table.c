@@ -17,12 +17,13 @@ void clearBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 
 	if(place == -1)
 	{
-		printf("Could not find IP in bitmap");
-		dumpBin((char*)IPs, size, "IPs: ");
+		printf("Could not find IP %u.%u in bitmap", ((byte*)IP)[0], ((byte*)IP)[1]);
+		dumpBin((char*)IPs, size*2, "IPs: ");
+		return;
 	}
-	dumpBin((char*)bitmap, 1, " size %d place: %d\n", size, place);
 	local_byte = (byte*)bitmap + (place/8);
 	place = place - 8 * (place/8);
+	dumpBin((char*)bitmap, 1, " size %d place: %d local_byte: 0x%02hhx\n", size, place, local_byte[0]);
 	local_byte[0] = CLEARBIT(7-place, local_byte[0]);
 }
 
@@ -43,8 +44,8 @@ bool getBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 
 	if(place == -1)
 	{
-		printf("Could not find IP in bitmap");
-		dumpBin((char*)IPs, size, "IPs: ");
+		printf("Could not find IP %u.%u in bitmap", ((byte*)IP)[0], ((byte*)IP)[1]);
+		dumpBin((char*)IPs, size*2, "IPs: ");
 		return false;
 	}
 	local_byte = (byte*)bitmap + (place/8);
