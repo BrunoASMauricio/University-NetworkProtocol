@@ -136,7 +136,8 @@ void TA_RX(in_message* msg)
 	}
 	else
 	{
-		if(getSubSlave(Originator_IP) && !pbidSearchPair(Originator_IP, PBID, Self.PBID_IP_TA))
+		pbid_ip_pairs* existing = pbidSearchPair(Originator_IP, PBID, Self.PBID_IP_TA);
+		if(getSubSlave(Originator_IP) && (!existing || ((short*)&(existing->PresentPBID))[0] < ((short*)PBID)[0]))
 		{
 			TA_TX(Originator_IP, PBID);
 			pbidRemovePair(Originator_IP, Self.PBID_IP_TA);

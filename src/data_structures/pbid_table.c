@@ -66,14 +66,14 @@ void pbidPrintTable(pbid_ip_table* table_head)
     table = table->next_pair;
   }
 }
-int pbidSearchPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head)
+pbid_ip_pairs* pbidSearchPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head)
 {
 	pbid_ip_pairs* table = table_head->first_pair;
   //if table is empty
   if(table->PresentIP[0] == 0x00 && table->PresentPBID[0] == 0x00
 		&& table->PresentIP[1] == 0x00 && table->PresentPBID[1] == 0x00)
   {
-    return 0;
+    return NULL;
   }
 
   //if table not empty
@@ -85,12 +85,12 @@ int pbidSearchPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head
     {
       //no hits
 			pthread_mutex_unlock(&(table_head->Lock));
-      return 0;
+      return NULL;
     }
   }
 
 	pthread_mutex_unlock(&(table_head->Lock));
-  return 1;
+  return table;
 }
 
 void pbidInsertPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head)

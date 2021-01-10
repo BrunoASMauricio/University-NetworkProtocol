@@ -34,7 +34,7 @@ void pbidInsertPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_hea
  *   if no - adds an entirely new pair
  */
 
-int pbidSearchPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head);
+pbid_ip_pairs* pbidSearchPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head);
 /*
  * should always be performed BEFORE pbid_storePair as stated on the protocol
  * returns 1 if the pair of "IP_ofPair" and "PBID_ofPair" is found on the table pointed by "table_head",
