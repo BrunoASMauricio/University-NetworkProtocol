@@ -31,6 +31,7 @@ bool beginTBTransmission()
 		if(Self.Rt.TB_ret_amm)
 		{
 			// Ignore for now
+			printf("TB already being transmitted. Ignoring for now.\n");
 			pthread_mutex_unlock(&(Self.Rt.Lock));
 			return false;
 		}// The TB hasn't yet been transmitted
@@ -38,14 +39,17 @@ bool beginTBTransmission()
 		{
 			// Just create the TB with the new slave
 			// Do not update the transmission time
-			free(Self.Rt.TB_ret_msg);
+			printf("Remaking TB\n");
+			void* prev = Self.Rt.TB_ret_msg;
 			Self.Rt.TB_ret_msg = generateTB();
+			free(prev);
 		}
 	}
 	else
 	{
 		Self.Rt.Time_TB = Act + TB_GENERATION_DELAY;
 		Self.Rt.TB_ret_msg = generateTB();
+		printf("Beggining transmition of TB\n");
 		SETBIT(rTB, Self.Rt.Retransmitables);
 	}
 	pthread_mutex_unlock(&(Self.Rt.Lock));
