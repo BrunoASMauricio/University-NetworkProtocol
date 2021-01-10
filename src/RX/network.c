@@ -91,12 +91,13 @@ void NER_RX(in_message* msg)
         {
             //This assumes generateTB() generates deadline
             //TODO: Check if it does...
-			beginTBTransmission();
-            
-            //Sends NEA Message back
-            //Send Outsiders IP and PBID to NEA
-            pbid PBID = getNewPBID();
-            NEA_TX(&Packet[3], PBID);
+			if(beginTBTransmission())
+			{
+				//Sends NEA Message back
+				//Send Outsiders IP and PBID to NEA
+				pbid PBID = getNewPBID();
+				NEA_TX(&Packet[3], PBID);
+			}
         }
         else
         {
