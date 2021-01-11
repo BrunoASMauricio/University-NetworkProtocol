@@ -62,9 +62,14 @@ void TB_RX(in_message* msg)
 		retransmit_TB |= getBitmapValue(getIPFromList(Self.SubSlaves, i), (byte*)buff+18+ip_amm*2, ip_amm, (byte*)buff+18);
 	}
 	
+	printf(">>> %d %d\n", previous_Timetable_size, previous_Timetable_size != 3+ip_amm*2);
+	if(previous_Timetable_size != -1){
+		printf(">>> %d\n", 		!memcmp(previous_Timetable, (byte*)buff+15, previous_Timetable_size));
+		
+	}
 	if(	previous_Timetable_size == -1 ||
 		previous_Timetable_size != 3+ip_amm*2 ||
-		!memcmp(previous_Timetable, (byte*)buff+15, previous_Timetable_size))
+		memcmp(previous_Timetable, (byte*)buff+15, previous_Timetable_size))
 	{
 		new_Timetable = true;
 	}
@@ -76,7 +81,7 @@ void TB_RX(in_message* msg)
 	}
 	dumpBin((char*)buff, getPacketSize(buff), "Received TB, place = %d TA = %d rTB=%d %d\n", slot, send_TA, retransmit_TB, retransmit_TB && (((byte*)buff)[3] != Self.TB_PBID[0] || ((byte*)buff)[4] != Self.TB_PBID[1]));
 
-	if(newTimeTable)
+	if(new_Timetable)
 	{
 		emptyTable(&(Self.PBID_IP_TA));
 		if(previous_Timetable != NULL)
@@ -90,15 +95,17 @@ void TB_RX(in_message* msg)
 	// Need to retransmit
 	if(retransmit_TB &&
 			// PBID is new (aka higher)
-			((((byte*)buff)[3] > Self.TB_PBID[0] || ((byte*)buff)[4] > Self.TB_PBID[1]) ||
+			( ((short*)&(((byte*)buff)[3]))[0] > ((short*)Self.TB_PBID)[0] ||
 			// PBID is "old", but it's the reset one and it's a new table
-			(((byte*)buff)[3] == 0 && ((byte*)buff)[4] == 0 && newTimeTable)))
+			(((byte*)buff)[3] == 0 && ((byte*)buff)[4] == 0 && new_Timetable))
+		)
 	{
+		printf("%d %d %d\n",retransmit_TB, ((short*)&(((byte*)buff)[3]))[0] > ((short*)Self.TB_PBID)[0],  (((byte*)buff)[3] == 0 && ((byte*)buff)[4] == 0 && new_Timetable));
+		printf("Retransmitting received TB %d %u %u\n",new_Timetable, ((byte*)buff)[3], ((byte*)buff)[4]);
 		Self.TB_PBID[0] = ((byte*)buff)[3];
 		Self.TB_PBID[1] = ((byte*)buff)[4];
 		((byte*)(buff))[1] = Self.IP[0];
 		((byte*)(buff))[2] = Self.IP[1];
-		printf("Retransmitting received TB\n");
 		TB_TX(buff);
 	}
 	pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
