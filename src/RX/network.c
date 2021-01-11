@@ -24,8 +24,10 @@ void NE_RX(in_message* msg)
         // (NEP é sempre resposta de NE)
         if(Self.IsMaster)
         {
-			beginTBTransmission();
-            NEP_TX(SenderIP);
+			if(beginTBTransmission())
+			{
+				NEP_TX(SenderIP);
+			}
         }
         else
         {
