@@ -151,6 +151,7 @@ void* retransmit(void* dummy)
 				{
 					pthread_mutex_unlock(&(Self.Rt.Lock));
 					stopRetransmission(rNE);
+					Self.Status = Outside;
 					pthread_mutex_lock(&(Self.Rt.Lock));
 				}
 			}
