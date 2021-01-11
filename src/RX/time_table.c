@@ -5,11 +5,14 @@ void TB_RX(in_message* msg)
 	void* buff = msg->buf;
 	bool send_TA = false;
 	bool retransmit_TB = false;
+	bool new_Timetable = false;
 	byte* local_byte;
 	int ip_amm;
 	byte slot;
 	byte PBID[2];
 	byte senderIP[2];
+	static byte* previous_Timetable = NULL;
+	static int previous_Timetable_size = -1;
 	unsigned long int prev_table_size = Self.NewTimeTable->table_size;
 
 	senderIP[0] = ((byte*)(buff))[1];
@@ -58,6 +61,13 @@ void TB_RX(in_message* msg)
 	{
 		retransmit_TB |= getBitmapValue(getIPFromList(Self.SubSlaves, i), (byte*)buff+18+ip_amm*2, ip_amm, (byte*)buff+18);
 	}
+	
+	if(	previous_Timetable_size == -1 ||
+		previous_Timetable_size != 3+ip_amm*2 ||
+		!memcmp(previous_Timetable, (byte*)buff+15, previous_Timetable_size))
+	{
+		new_Timetable = true;
+	}
 
 	if(send_TA)
 	{
@@ -66,12 +76,23 @@ void TB_RX(in_message* msg)
 	}
 	dumpBin((char*)buff, getPacketSize(buff), "Received TB, place = %d TA = %d rTB=%d %d\n", slot, send_TA, retransmit_TB, retransmit_TB && (((byte*)buff)[3] != Self.TB_PBID[0] || ((byte*)buff)[4] != Self.TB_PBID[1]));
 
+	if(newTimeTable)
+	{
+		//emptyTable(&(Self.PBID_IP_TA));
+		if(previous_Timetable != NULL)
+		{
+			free(previous_Timetable);
+		}
+		previous_Timetable_size = 3+ip_amm*2;
+		previous_Timetable = (byte*)malloc(sizeof(byte)*(previous_Timetable_size));
+		memcpy(previous_Timetable, (byte*)buff+15,previous_Timetable_size);
+	}
 	// Need to retransmit
 	if(retransmit_TB &&
 			// PBID is new (aka higher)
 			((((byte*)buff)[3] > Self.TB_PBID[0] || ((byte*)buff)[4] > Self.TB_PBID[1]) ||
 			// PBID is "old", but it's the reset one and it's a new table
-			(((byte*)buff)[3] == 0 && ((byte*)buff)[4] == 0 && prev_table_size != Self.NewTimeTable->table_size)))
+			(((byte*)buff)[3] == 0 && ((byte*)buff)[4] == 0 && newTimeTable)))
 	{
 		Self.TB_PBID[0] = ((byte*)buff)[3];
 		Self.TB_PBID[1] = ((byte*)buff)[4];
@@ -139,6 +160,7 @@ void TA_RX(in_message* msg)
 		pbid_ip_pairs* existing = pbidSearchPair(Originator_IP, PBID, Self.PBID_IP_TA);
 		if(getSubSlave(Originator_IP) && (!existing || ((short*)&(existing->PresentPBID))[0] < ((short*)PBID)[0]))
 		{
+			printf("Resending TA for subslave %u.%u  with PBID %u\n", Originator_IP[0], Originator_IP[1], ((short*)PBID)[0]);
 			TA_TX(Originator_IP, PBID);
 			pbidRemovePair(Originator_IP, Self.PBID_IP_TA);
 			pbidInsertPair(Originator_IP, PBID, Self.PBID_IP_TA);
