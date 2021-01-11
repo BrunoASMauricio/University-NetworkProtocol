@@ -13,7 +13,6 @@ void TB_RX(in_message* msg)
 	byte senderIP[2];
 	static byte* previous_Timetable = NULL;
 	static int previous_Timetable_size = -1;
-	unsigned long int prev_table_size = Self.NewTimeTable->table_size;
 
 	senderIP[0] = ((byte*)(buff))[1];
 	senderIP[1] = ((byte*)(buff))[2];
