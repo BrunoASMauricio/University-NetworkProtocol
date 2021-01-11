@@ -78,7 +78,7 @@ void TB_RX(in_message* msg)
 
 	if(newTimeTable)
 	{
-		//emptyTable(&(Self.PBID_IP_TA));
+		emptyTable(&(Self.PBID_IP_TA));
 		if(previous_Timetable != NULL)
 		{
 			free(previous_Timetable);

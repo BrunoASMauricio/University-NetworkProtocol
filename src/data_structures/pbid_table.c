@@ -55,6 +55,17 @@ void pbidRemovePair(byte* IP_toRemove, pbid_ip_table* table_head)
 	return;
 }
 
+void emptyTable(pbid_ip_table** table_head)
+{
+	pbid_ip_pairs* table;
+	table = (*table_head)->first_pair;
+	while(table != NULL && !(table->PresentIP[0] == 0x00 && table->PresentIP[1] == 0x00))
+	{
+		pbidRemovePair(table->PresentIP, *table_head);
+		table = (*table_head)->first_pair;
+	}
+	*table_head = pbidInitializeTable();
+}
 void pbidPrintTable(pbid_ip_table* table_head)
 {
 	pbid_ip_pairs* table = table_head->first_pair;
