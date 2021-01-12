@@ -46,8 +46,8 @@ enum packet_type{
 #define RETRANSMISSION_DELAY_PB_MIN 3*1E9		// 3 s
 #define RETRANSMISSION_DELAY_PB_MAX 5*1E9		// 5 s
 
-#define RETRANSMISSION_DELAY_TB_MIN 1*1E9		// 1 s
-#define RETRANSMISSION_DELAY_TB_MAX 2*1E9		// 2 s
+#define RETRANSMISSION_DELAY_TB_MIN 6*1E9		// 1 s
+#define RETRANSMISSION_DELAY_TB_MAX 7*1E9		// 2 s
 
 #define RETRANSMISSION_DELAY_PR_MIN 1*1E9		// 1 s
 #define RETRANSMISSION_DELAY_PR_MAX 2*1E9		// 2 s
@@ -84,7 +84,7 @@ enum packet_type{
 #define TOTALLENGTH IPLENGTH+DATAPAYLOADLENGTH
 
 // Queue read delay in HW dispatcher in us
-#define HW_DISPATCHER_SLEEP 0.5E6	// 0.5s
+#define HW_DISPATCHER_SLEEP 0.1E5	// 0.01s
 
 #define UNREACHABLE 65535
 
