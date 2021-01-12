@@ -30,34 +30,34 @@ void printMessage(void* buff, int size)
 	switch (((byte*)buff)[0] & 0x0f)
 	{
 		case SD:
-			fprintf(stdout,"\tSD");
+			fprintf(stdout,"\tSD\n");
 			break;
 		case PB:
-			fprintf(stdout,"\tPB");
+			fprintf(stdout,"\tPB\n");
 			break;
 		case PR:
-			fprintf(stdout,"\tPR");
+			fprintf(stdout,"\tPR\n");
 			break;
 		case PC:
-			fprintf(stdout,"\tPC");
+			fprintf(stdout,"\tPC\n");
 			break;
 		case TA:
-			fprintf(stdout,"\tTA");
+			fprintf(stdout,"\tTA\n");
 			break;
 		case TB:
-			fprintf(stdout,"\tTB");
+			fprintf(stdout,"\tTB\n");
 			break;
 		case NE:
-			fprintf(stdout,"\tNE");
+			fprintf(stdout,"\tNE\n");
 			break;
 		case NEP:
-			fprintf(stdout,"\tNEP");
+			fprintf(stdout,"\tNEP\n");
 			break;
 		case NER:
-			fprintf(stdout,"\tNER");
+			fprintf(stdout,"\tNER\n");
 			break;
 		case NEA:
-			fprintf(stdout,"\tNEA");
+			fprintf(stdout,"\tNEA\n");
 			break;
 	}
 	pthread_mutex_unlock(&(Self.OutputLock));
