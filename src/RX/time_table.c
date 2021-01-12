@@ -25,12 +25,7 @@ void TB_RX(in_message* msg)
 	pthread_mutex_lock(&(Self.NewTimeTable->Lock));
 	Self.NewTimeTable->local_slot = -1;
 	unsigned long int validity_delay = (unsigned long int)(*((unsigned short*)(((byte*)buff+13))))*1E3;
-	Self.NewTimeTable->sync = *((unsigned long int*)(((byte*)buff+5)));
-	Self.NewTimeTable->timeslot_size = *(((byte*)buff+15))*1E6;
 	ip_amm = *((short*)(((byte*)buff+16)));
-	Self.NewTimeTable->table_size = ip_amm*Self.NewTimeTable->timeslot_size;
-	printf("SYNC TIMESTAMP %lu %lu\n", Self.NewTimeTable->sync, validity_delay);
-	Self.NewTimeTable->sync += validity_delay;
 
 	timespec res;
 	clock_gettime(CLOCK_REALTIME, &res);
@@ -53,6 +48,13 @@ void TB_RX(in_message* msg)
 		pthread_mutex_unlock(&(Self.NewTimeTable->Lock));
 		return;
 	}
+
+	Self.NewTimeTable->sync = *((unsigned long int*)(((byte*)buff+5)));
+	Self.NewTimeTable->timeslot_size = *(((byte*)buff+15))*1E6;
+	Self.NewTimeTable->table_size = ip_amm*Self.NewTimeTable->timeslot_size;
+	printf("SYNC TIMESTAMP %lu %lu\n", Self.NewTimeTable->sync, validity_delay);
+	Self.NewTimeTable->sync += validity_delay;
+
 	local_byte = ((byte*)buff)+18+ip_amm*2 + (slot/8);
 	slot = slot - 8 * (slot/8);
 	send_TA = (0x80 >> slot) & local_byte[0];
