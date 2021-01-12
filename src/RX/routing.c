@@ -41,7 +41,7 @@ void PB_RX(in_message* msg)
 	}
 	else if(Self.Status == Inside)
 	{
-		if(!pbidSearchPair(SenderIp, PBID, Self.RoutingPBIDTable))
+		if(!pbidSearchPair(SenderIp, PBID, Self.RoutingPBIDTable) || 1)
 		{
 			pbidInsertPair(SenderIp, PBID, Self.RoutingPBIDTable); //stores pair in PBID table
 
@@ -59,7 +59,7 @@ void PB_RX(in_message* msg)
 			//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, WORST_QUALITY, WORST_QUALITY,Act); //stores distance when receiveing PB so later when it receives PC can update
 			buff = buildPRMessage(SenderIp, PBID, msg->PBE);
 			PR_TX(buff);
-			startRetransmission(rPR, buff);
+			//startRetransmission(rPR, buff);
 		}
 	}
 	clearInMessage(msg);
