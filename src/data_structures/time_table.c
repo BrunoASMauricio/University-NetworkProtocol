@@ -17,7 +17,7 @@ void clearBitmapValue(short* IP, void* bitmap, int size, void* IPs)
 
 	if(place == -1)
 	{
-		printf("Could not find IP %u.%u in bitmap", ((byte*)IP)[0], ((byte*)IP)[1]);
+		printf("Could not find IP %u.%u in bitmap\n", ((byte*)IP)[0], ((byte*)IP)[1]);
 		dumpBin((char*)IPs, size*2, "IPs: ");
 		return;
 	}
