@@ -150,7 +150,7 @@ void TA_RX(in_message* msg)
 		clearBitmapValue((short*)Originator_IP, (byte*)TBmessage+18+ip_amm*2, ip_amm, (byte*)TBmessage+18);
 		dumpBin((char*)TBmessage, getPacketSize(TBmessage), "after");
 		pthread_mutex_unlock(&(Self.Rt.Lock));
-		for(int i = 0; i < ip_amm; i++)
+		for(int i = 0; i < 1+ip_amm/8; i++)
 		{
 			if((byte*)((byte*)TBmessage+18+ip_amm*2)[i])
 			{
