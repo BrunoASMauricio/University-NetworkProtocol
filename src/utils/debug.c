@@ -25,42 +25,44 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 }
 void printMessage(void* buff, int size)
 {
-	printf("Message (%d bytes):\n");
+	pthread_mutex_lock(&(Self.OutputLock));
+	fprintf(stdout,"Message (%d bytes):\n");
 	switch (((byte*)buff)[0] & 0x0f)
 	{
 		case SD:
-			printf("\tSD");
+			fprintf(stdout,"\tSD");
 			break;
 		case PB:
-			printf("\tPB");
+			fprintf(stdout,"\tPB");
 			break;
 		case PR:
-			printf("\tPR");
+			fprintf(stdout,"\tPR");
 			break;
 		case PC:
-			printf("\tPC");
+			fprintf(stdout,"\tPC");
 			break;
 		case TA:
-			printf("\tTA");
+			fprintf(stdout,"\tTA");
 			break;
 		case TB:
-			printf("\tTB");
+			fprintf(stdout,"\tTB");
 			break;
 		case NE:
-			printf("\tNE");
+			fprintf(stdout,"\tNE");
 			break;
 		case NEP:
-			printf("\tNEP");
+			fprintf(stdout,"\tNEP");
 			break;
 		case NER:
-			printf("\tNER");
+			fprintf(stdout,"\tNER");
 			break;
 		case NEA:
-			printf("\tNEA");
+			fprintf(stdout,"\tNEA");
 			break;
 	}
+	pthread_mutex_unlock(&(Self.OutputLock));
 	dumpBin((char*)buff, size, "\n\tDump: ");
-	printf("\n");
+
 	fflush(stdout);
 }
 
