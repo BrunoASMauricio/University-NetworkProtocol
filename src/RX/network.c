@@ -35,7 +35,7 @@ void NE_RX(in_message* msg)
             NEP_TX(SenderIP);
 
             // se é um node que não o master, transmite NER
-			message = buildNERMessage(Self.Table->begin->Neigh_IP, SenderIP);
+			message = buildNERMessage(getBestHop(), SenderIP);
 			NER_TX(message);
             startRetransmission(rNER, message);
         }
@@ -105,7 +105,7 @@ void NER_RX(in_message* msg)
         {
             //Transmit the packet up the network
             //Send Outsiders' IP NER_TX
-            message = buildNERMessage(Self.Table->begin->Neigh_IP, &Packet[3]);
+            message = buildNERMessage(getBestHop(), &Packet[3]);
 			NER_TX(message);
             //startRetransmission(rNER, message);
         }

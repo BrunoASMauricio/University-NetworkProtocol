@@ -156,7 +156,7 @@ buildSDMessage(void* buff, int size, byte* IP)
 
 	byte packet[Packet_Sizes[SD]+MAX_PAYLOAD_SIZE];
    	//	= (byte*)malloc(sizeof(byte)*(Packet_Sizes[SD] + size));
-	byte* NextHopIP = Self.Table->begin->Neigh_IP;
+	byte* NextHopIP = getBestHop();
 	//Assuming first position in table is itself; otherwise, search in table by self IP or something else
 
 	if (NextHopIP == NULL)
