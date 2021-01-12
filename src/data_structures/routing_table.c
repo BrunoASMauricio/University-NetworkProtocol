@@ -54,7 +54,7 @@ void routUpdateLastHeard(table * tbl, byte IP[2])
 		unsigned long int Act;
 		clock_gettime(CLOCK_REALTIME, &Res);
 		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
-		printf("Updating last heard of %u.%u from %lu to %lu: %lu\n", IP[0], IP[1], entr->LastHeard, Act, Act-entr->LastHeard);
+		//printf("Updating last heard of %u.%u from %lu to %lu: %lu\n", IP[0], IP[1], entr->LastHeard, Act, Act-entr->LastHeard);
 		routInsertOrUpdateEntry(tbl, IP, entr->Distance, entr->LocalPBE, entr->RemotePBE, Act);
 	}
 }
@@ -65,7 +65,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
        printf("Tried to insert/update a non-existent routTable\n");
        return NULL;
     }
-	printf("Adding route to %u.%u dist=%d local_pbe=%f remote_pbe=%f last heard = %lu\n",NeighIP[0], NeighIP[1], Distance, LocalPBE, RemotePBE, LastHeard);
+	//printf("Adding route to %u.%u dist=%d local_pbe=%f remote_pbe=%f last heard = %lu\n",NeighIP[0], NeighIP[1], Distance, LocalPBE, RemotePBE, LastHeard);
     
     table_entry *aux = NULL;
     table_entry *aux1 = NULL;
@@ -228,7 +228,7 @@ bool routRemoveEntry(table *tbl, byte neigh_IP[2])
  
     if(tbl->begin==NULL) 
     {
-        printf("Empty routing table\n");
+        //printf("Empty routing table\n");
         pthread_mutex_unlock(&(tbl->lock));
         return false;
     } 
@@ -249,7 +249,7 @@ bool routRemoveEntry(table *tbl, byte neigh_IP[2])
             free(tbl->begin);
             tbl->begin = NULL;
             tbl->size--;
-            printf("Routing table is now empty\n");
+            //printf("Routing table is now empty\n");
          
             return true;
         }
