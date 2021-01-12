@@ -26,7 +26,7 @@ void dumpBin(char* buf, int size, const char *fmt,...)
 void printMessage(void* buff, int size)
 {
 	pthread_mutex_lock(&(Self.OutputLock));
-	fprintf(stdout,"Message (%d bytes):\n");
+	fprintf(stdout,"Message (%d bytes):\n", size);
 	switch (((byte*)buff)[0] & 0x0f)
 	{
 		case SD:
