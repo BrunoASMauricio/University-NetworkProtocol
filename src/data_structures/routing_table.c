@@ -58,6 +58,17 @@ void routUpdateLastHeard(table * tbl, byte IP[2])
 		routInsertOrUpdateEntry(tbl, IP, entr->Distance, entr->LocalPBE, entr->RemotePBE, Act);
 	}
 }
+byte* getBestHop()
+{
+    if( Self.Table->begin == NULL ||
+        Self.Table->begin->Neigh_IP == NULL ||
+        getDistance(Self.Table->begin) == UNREACHABLE
+        )
+    {
+        return NULL;
+    }
+    return Self.Table->begin->Neigh_IP;
+}
 table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard)
 {
     if(tbl == NULL) 

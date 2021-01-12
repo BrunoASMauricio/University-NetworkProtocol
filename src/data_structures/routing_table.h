@@ -47,6 +47,10 @@ table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalP
  */
 void routUpdateLastHeard(table * tbl, byte IP[2]);
 
+/*
+ * Returns best hop (that has available distance)
+ */
+byte* getBestHop();
 /**
  * inserts new entry on the routing table or updates an entry if the received IP is already there
  * returns newly inserted or updated entry
