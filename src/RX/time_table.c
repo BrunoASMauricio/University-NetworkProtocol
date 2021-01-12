@@ -77,6 +77,7 @@ void TB_RX(in_message* msg)
 
 	if(send_TA)
 	{
+		printf("Transmitting TA (requested by TB\n");
 		TA_TX(Self.IP, Self.TB_PBID);
 		((short*)Self.TB_PBID)[0] += 1;
 	}
@@ -84,6 +85,7 @@ void TB_RX(in_message* msg)
 
 	if(new_Timetable)
 	{
+		printf("RESETTING TA PBID\n");
 		emptyTable(&(Self.PBID_IP_TA));
 		if(previous_Timetable != NULL)
 		{
@@ -165,13 +167,21 @@ void TA_RX(in_message* msg)
 	}
 	else
 	{
-		pbid_ip_pairs* existing = pbidSearchPair(Originator_IP, PBID, Self.PBID_IP_TA);
+		pbid_ip_pairs* existing = pbidSearchIP(Originator_IP, PBID, Self.PBID_IP_TA);
 		if(getSubSlave(Originator_IP) && (!existing || ((short*)&(existing->PresentPBID))[0] < ((short*)PBID)[0]))
 		{
-			printf("Resending TA for subslave %u.%u  with PBID %u\n", Originator_IP[0], Originator_IP[1], ((short*)PBID)[0]);
+			printf("EXISTS? %p\n", existing);
+			if(existing){
+				printf("Resending TA for subslave %u.%u  with PBID %u<%u\n", Originator_IP[0], Originator_IP[1], ((short*)&(existing->PresentPBID))[0],((short*)PBID)[0]);
+			}else{
+				printf("Resending TA for subslave %u.%u  with PBID NILL %u\n", Originator_IP[0], Originator_IP[1], ((short*)PBID)[0]);
+			}
+			
 			TA_TX(Originator_IP, PBID);
 			pbidRemovePair(Originator_IP, Self.PBID_IP_TA);
 			pbidInsertPair(Originator_IP, PBID, Self.PBID_IP_TA);
+			existing = pbidSearchPair(Originator_IP, PBID, Self.PBID_IP_TA);
+			printf("NOW EXISTS RIGHT? %p\n", existing);
 		}
 		
 	}
