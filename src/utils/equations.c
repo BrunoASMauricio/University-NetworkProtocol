@@ -4,7 +4,7 @@
 unsigned short getDistance(table_entry* t_en)
 {
 	// Full routing conversation hasn't taken place yet
-	if(t_en->LocalPBE == 1 || t_en->RemotePBE == 1 || t_en->Distance == UNREACHABLE)
+	if(t_en->LocalPBE == WORST_QUALITY || t_en->RemotePBE == WORST_QUALITY || t_en->Distance == UNREACHABLE)
 	{
 		return UNREACHABLE;
 	}
