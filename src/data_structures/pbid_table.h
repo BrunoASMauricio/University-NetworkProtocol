@@ -23,7 +23,7 @@ pbid_ip_table* pbidInitializeTable();
  * a PBID-IP pair is constituted by a PBID entry and an IP entry
  */
 
-
+pbid_ip_pairs* pbidSearchIP(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head);
 
 void pbidInsertPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head);
 /*

@@ -77,6 +77,33 @@ void pbidPrintTable(pbid_ip_table* table_head)
     table = table->next_pair;
   }
 }
+pbid_ip_pairs* pbidSearchIP(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head)
+{
+	pbid_ip_pairs* table = table_head->first_pair;
+  //if table is empty
+  if(table->PresentIP[0] == 0x00 && table->PresentPBID[0] == 0x00
+		&& table->PresentIP[1] == 0x00 && table->PresentPBID[1] == 0x00)
+  {
+    return NULL;
+  }
+
+  //if table not empty
+	pthread_mutex_lock(&(table_head->Lock));
+	while(memcmp(table->PresentIP, IP_ofPair, sizeof(table->PresentIP)) != 0)
+  {
+    table = table->next_pair;
+    if(table == NULL)
+    {
+      //no hits
+			pthread_mutex_unlock(&(table_head->Lock));
+      return NULL;
+    }
+  }
+
+	pthread_mutex_unlock(&(table_head->Lock));
+  return table;
+}
+
 pbid_ip_pairs* pbidSearchPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table* table_head)
 {
 	pbid_ip_pairs* table = table_head->first_pair;
@@ -89,7 +116,7 @@ pbid_ip_pairs* pbidSearchPair(byte* IP_ofPair, byte* PBID_ofPair, pbid_ip_table*
 
   //if table not empty
 	pthread_mutex_lock(&(table_head->Lock));
-	while(memcmp(table->PresentPBID, PBID_ofPair, sizeof(table->PresentPBID)) != 0)
+	while(memcmp(table->PresentPBID, PBID_ofPair, sizeof(table->PresentPBID)) != 0 || memcmp(table->PresentIP, IP_ofPair, sizeof(table->PresentIP)) != 0)
   {
     table = table->next_pair;
     if(table == NULL)
