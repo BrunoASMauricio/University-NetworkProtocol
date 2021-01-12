@@ -130,7 +130,7 @@ void* generateTB()
 		((byte*)buff)[18+ip_amm*2+(ip_amm/8)] = (0xff<<(8-rest));
 	}
 	
-	CLEARBIT(7, ((byte*)buff)[18+ip_amm*2+(ip_amm/8)]);
+	CLEARBIT(7, ((byte*)buff)[18+ip_amm*2]);
 
 	//dumpBin((char*)buff, getPacketSize(buff), "GENERATED TB: ");
 	pthread_mutex_unlock(&(Self.SubSlaves->Lock));
