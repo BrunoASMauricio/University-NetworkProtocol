@@ -8,7 +8,7 @@ unsigned short getDistance(table_entry* t_en)
 	{
 		return UNREACHABLE;
 	}
-	return (unsigned short)((1-t_en->LocalPBE)*10+(1-t_en->RemotePBE)*45+(float)t_en->Distance);
+	return (unsigned short)((t_en->LocalPBE)*10+(t_en->RemotePBE)*45+(float)t_en->Distance+10);
     //return ((unsigned short)((float)((31-t_en->LocalPBE)/t_en->LocalPBE+100)))+1U+t_en->Distance;
 }
 
