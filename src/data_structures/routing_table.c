@@ -121,7 +121,9 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
     else //if there's already an entry
     {
         //do the updates
-        if(entry->LocalPBE != LocalPBE || entry->RemotePBE != RemotePBE || entry->Distance != Distance)
+		if(	abs(entry->LocalPBE - LocalPBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
+			abs(entry->RemotePBE - RemotePBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
+		   	abs(entry->Distance - Distance)> RECEIVED_DISTANCE_THRASHING_LIMIT)
 		{
 			byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
 			memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));

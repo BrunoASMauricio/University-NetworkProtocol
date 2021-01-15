@@ -22,6 +22,12 @@ enum packet_type{
 	NEA
 };
 
+// The limit quality change it takes to update an entry
+#define RECEIVED_QUALITY_THRASHING_LIMIT 0.01
+
+// The limit distance change it takes to update an entry
+#define RECEIVED_DISTANCE_THRASHING_LIMIT 0.01
+
 // Maximum SD payload size in bytes
 #define MAX_PAYLOAD_SIZE 256
 
