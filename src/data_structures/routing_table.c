@@ -146,7 +146,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
 
     if(tbl->begin->next == NULL) //if it exists and there's only one entry in the table, we are talking about the same entry
     {  
-        if (getDistance(tbl->begin) < getDistance(aux))
+        if (getDistance(tbl->begin) <= getDistance(aux))
         {   
             tbl->begin->next=aux;
             tbl->begin->next->next=NULL;
@@ -170,7 +170,7 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
 
         while( aux1 != NULL)
         {
-            if(getDistance(aux) < getDistance(aux1)) break;
+            if(getDistance(aux) <= getDistance(aux1)) break;
 
             aux2=aux1; //to store the previous
             aux1=aux1->next;
