@@ -123,7 +123,7 @@ printfLog(const char *fmt, ...)
 
 		va_start(args, fmt);
 		pthread_mutex_lock(&(Self.OutputLock));
-		fprintf(stdout, "[%c] [!] [%02d:%02d:%02d]", getThreadChar(), hours, minutes, seconds);
+		fprintf(stdout, "[%c] [!] (%02d:%02d:%02d)", getThreadChar(), hours, minutes, seconds);
 		vfprintf(stdout, fmt, args);
 		pthread_mutex_unlock(&(Self.OutputLock));
 		va_end(args);
