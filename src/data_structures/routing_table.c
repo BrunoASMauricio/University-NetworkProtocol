@@ -47,6 +47,7 @@ table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalP
 }
 void routUpdateLastHeard(table * tbl, byte IP[2])
 {
+    pthread_mutex_lock(&(tbl->lock));
 	table_entry* entr = routSearchByIp(tbl, IP);
 	if(entr)
 	{
@@ -55,8 +56,10 @@ void routUpdateLastHeard(table * tbl, byte IP[2])
 		clock_gettime(CLOCK_REALTIME, &Res);
 		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 		//printf("Updating last heard of %u.%u from %lu to %lu: %lu\n", IP[0], IP[1], entr->LastHeard, Act, Act-entr->LastHeard);
-		routInsertOrUpdateEntry(tbl, IP, entr->Distance, entr->LocalPBE, entr->RemotePBE, Act);
+		entr->LastHeard = Act;
+		//routInsertOrUpdateEntry(tbl, IP, entr->Distance, entr->LocalPBE, entr->RemotePBE, Act);
 	}
+    pthread_mutex_unlock(&(tbl->lock));
 }
 byte* getBestHop()
 {
@@ -118,15 +121,20 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
     else //if there's already an entry
     {
         //do the updates
-        byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
-        memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
-        float StoreLocalPBE= entry->LocalPBE;
-        float StoreRemotePBE= entry->RemotePBE;
-        
-        routRemoveEntry(tbl, entry->Neigh_IP);
-
-        aux=routNewEntry(Store_IP, Distance, LocalPBE, RemotePBE, LastHeard);
-        tbl->size++;
+        if(entry->LocalPBE != LocalPBE || entry->RemotePBE != RemotePBE || entry->Distance != Distance)
+		{
+			byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
+			memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
+			float StoreLocalPBE= entry->LocalPBE;
+			float StoreRemotePBE= entry->RemotePBE;
+			routRemoveEntry(tbl, entry->Neigh_IP);
+			aux=routNewEntry(Store_IP, Distance, LocalPBE, RemotePBE, LastHeard);
+			tbl->size++;
+		}
+		else{
+			pthread_mutex_unlock(&(tbl->lock));
+			return entry;
+		}
     }
 	
 	//TODO: REFACTOR ROUT FUNCTIONS
