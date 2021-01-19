@@ -48,7 +48,7 @@ WF_dispatcher(void* dummy)
 					continue;
 				}
 			}
-			//printf("Message sent! total of %d\n", ++sent_messages);
+			printf("Message sent! total of %d\n", ++sent_messages);
 			printMessage(To_send->buf, message_size);
 			//dumpBin((char*)(To_send->buf), To_send->size, "SENT PACKET!: ");
 			delOutMessage(To_send);
@@ -92,7 +92,7 @@ WF_dispatcher(void* dummy)
 							continue;
 						}
 					}
-					//printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
+					printf("Message sent! total of %d size :%d %lu\n", ++sent_messages, message_size, Act);
 					printMessage(To_send->buf, message_size);
 					delOutMessage(To_send);
 					To_send = NULL;
