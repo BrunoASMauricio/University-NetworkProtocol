@@ -46,6 +46,9 @@ enum packet_type{
 // requested, and it first begins (in ns)
 #define TB_GENERATION_DELAY	1000000	//(1ms)
 
+// The time a node spends waiting before becoming an
+// outside node again
+#define WAITING_TIME_OUT (unsigned long int)5*1E9
 //								Retransmission
 
 // Retransmission delays in ns

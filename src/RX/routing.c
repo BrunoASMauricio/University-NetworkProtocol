@@ -10,6 +10,7 @@ void PB_RX(in_message* msg)
 	PBID[0]=((byte *)msg->buf)[3];
 	PBID[1]=((byte *)msg->buf)[4];
 	unsigned short distance	=(((byte *)msg->buf)[5]<< 8) + ((byte *)msg->buf)[6];
+	static unsigned long int started_waiting = 0;
 
 
 	timespec Res;
@@ -26,41 +27,50 @@ void PB_RX(in_message* msg)
 	
 	routUpdateLastHeard(Self.Table, SenderIp);
 
-	if(Self.Status == Outside)
-	{ //if the node is an outside slave 
-
-		if(distance!= (unsigned short)65535)
-		{
-			printf("As an outside slave, received a PB with %u distance to Master\n", distance);
-			void* NEMessage = buildNEMessage(Self.IP, SenderIp);
-			NE_TX(NEMessage);
-			startRetransmission(rNE, NEMessage);
-			clearInMessage(msg);
-			return;
-		}	
-	}
-	else if(Self.Status == Inside)
-	{
-		if(!pbidSearchPair(SenderIp, PBID, Self.RoutingPBIDTable) || 1)
-		{
-			pbidInsertPair(SenderIp, PBID, Self.RoutingPBIDTable); //stores pair in PBID table
-
-
-			table_entry* prev = routSearchByIp(Self.Table, SenderIp);
-			if(prev == NULL)
+	switch(Self.Status){
+		case Outside:
+			//if the node is an outside slave
+			if(distance!= (unsigned short)65535)
 			{
-				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, WORST_QUALITY, Act);
-			}
-			else
+				printf("As an outside slave, received a PB with %u distance to Master\n", distance);
+				started_waiting = Act;
+				void* NEMessage = buildNEMessage(Self.IP, SenderIp);
+				NE_TX(NEMessage);
+				startRetransmission(rNE, NEMessage);
+				clearInMessage(msg);
+				return;
+			}	
+			break;
+		case Inside:
+			if(!pbidSearchPair(SenderIp, PBID, Self.RoutingPBIDTable) || 1)
 			{
-				routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, prev->RemotePBE, Act);
-			}
+				pbidInsertPair(SenderIp, PBID, Self.RoutingPBIDTable); //stores pair in PBID table
 
-			//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, WORST_QUALITY, WORST_QUALITY,Act); //stores distance when receiveing PB so later when it receives PC can update
-			buff = buildPRMessage(SenderIp, PBID, msg->PBE);
-			PR_TX(buff);
-			//startRetransmission(rPR, buff);
-		}
+
+				table_entry* prev = routSearchByIp(Self.Table, SenderIp);
+				if(prev == NULL)
+				{
+					routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, WORST_QUALITY, Act);
+				}
+				else
+				{
+					routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, prev->RemotePBE, Act);
+				}
+
+				//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, WORST_QUALITY, WORST_QUALITY,Act); //stores distance when receiveing PB so later when it receives PC can update
+				buff = buildPRMessage(SenderIp, PBID, msg->PBE);
+				PR_TX(buff);
+				//startRetransmission(rPR, buff);
+			}
+			break;
+		case Waiting:
+			if(started_waiting != 0 && Act > started_waiting + WAITING_TIME_OUT)
+			{
+				printf("Waiting timed out, becoming outside node again\n");
+				Self.Status = Outside;
+				started_waiting = 0;
+			}
+			break;
 	}
 	clearInMessage(msg);
 }
