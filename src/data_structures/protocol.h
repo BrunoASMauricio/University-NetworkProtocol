@@ -97,6 +97,10 @@ enum packet_type{
 
 #define UNREACHABLE 65535
 
+#define HIGHEST_LOSS_ACCEPTABLE 1E-4
+
+#define HIGHEST_LOSS_MAGNITUDE 1E4
+
 #define TAMIP   2   //  2 bytes the ip
 #define DATAPAYLOAD 136 // bytes
 #define TAMTOTALSAMPLE  TAMIP + DATAPAYLOAD   // bytes   
