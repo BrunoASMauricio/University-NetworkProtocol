@@ -1,7 +1,7 @@
 #ifndef DATA_STRUCTURES_PROTOCOL
 #define DATA_STRUCTURES_PROTOCOL
 
-#define PROTOCOL_VERSION 2
+#define PROTOCOL_VERSION 3
 
 //								Messages
 
