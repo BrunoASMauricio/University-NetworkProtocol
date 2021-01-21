@@ -20,7 +20,26 @@ table* routNewTable()
 
     return tbl;
 }
+void routUpdateRollingLocalPBE(byte NeighIP[2], float newLocalPBE, unsigned int bytes_heard)
+{
+    table_entry *entry = routSearchByIp(Self.Table,NeighIP);
+	if(entry == NULL)
+	{
+		return;
+	}
+	printf(" (SD) %u.%u old local pbe %f  new local pbe %f  old bytes heard %d new bytes heard %d\n",NeighIP[0], NeighIP[1], entry->LocalPBE, newLocalPBE, entry->bytes_heard, bytes_heard);
+	entry->LocalPBE = (entry->LocalPBE*entry->bytes_heard+newLocalPBE*bytes_heard)/(entry->bytes_heard+bytes_heard);
+	printf("%f\n", entry->LocalPBE);
+	if(entry->bytes_heard + bytes_heard > ROLLING_MAX)
+	{
+		entry->bytes_heard = ROLLING_RESTART;
+	}
+	else
+	{
+		entry->bytes_heard = entry->bytes_heard + bytes_heard;
+	}
 
+}
 table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard)
 {
     /* allocate memory for new entry*/
@@ -40,7 +59,7 @@ table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalP
     Entry->LocalPBE = LocalPBE;
     Entry->RemotePBE = RemotePBE;
     Entry->LastHeard = LastHeard;
-	Entry->bits_heard= 0;
+	Entry->bytes_heard= 0;
 
     Entry->next=NULL;
 
@@ -73,7 +92,7 @@ byte* getBestHop()
     }
     return Self.Table->begin->Neigh_IP;
 }
-table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard, unsigned int bits_heard)
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard, unsigned int bytes_heard)
 {
     if(tbl == NULL) 
     {
@@ -125,24 +144,23 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
 		//	abs(entry->LocalPBE - LocalPBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
 		//	abs(entry->RemotePBE - RemotePBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
 		float StoreLocalPBE;
-		unsigned int _heard_bits;
-		printf("old local pbe %f  new local pbe %f  old bits heard %d new bits heard %d\n",entry->LocalPBE, LocalPBE, entry->bits_heard, bits_heard);
-		StoreLocalPBE = (entry->LocalPBE*entry->bits_heard+LocalPBE*bits_heard)/(entry->bits_heard+bits_heard);
+		unsigned int _heard_bytes;
+		printf(" %u.%u old local pbe %f  new local pbe %f  old bytes heard %d new bytes heard %d\n",NeighIP[0], NeighIP[1], entry->LocalPBE, LocalPBE, entry->bytes_heard, bytes_heard);
+		StoreLocalPBE = (entry->LocalPBE*entry->bytes_heard+LocalPBE*bytes_heard)/(entry->bytes_heard+bytes_heard);
 		printf("%f\n", StoreLocalPBE);
-		if(entry->bits_heard + bits_heard > ROLLING_MAX)
+		if(entry->bytes_heard + bytes_heard > ROLLING_MAX)
 		{
-			_heard_bits = ROLLING_RESTART;
+			_heard_bytes = ROLLING_RESTART;
 		}
 		else
 		{
-			_heard_bits = entry->bits_heard + bits_heard;
+			_heard_bytes = entry->bytes_heard + bytes_heard;
 		}
-		entry->LocalPBE = StoreLocalPBE;
 		byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
 		memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
 		routRemoveEntry(tbl, entry->Neigh_IP);
-		aux=routNewEntry(Store_IP, Distance, LocalPBE, RemotePBE, LastHeard);
-		aux->bits_heard = _heard_bits;
+		aux=routNewEntry(Store_IP, Distance, StoreLocalPBE, RemotePBE, LastHeard);
+		aux->bytes_heard = _heard_bytes;
 		tbl->size++;
 		/*
 		if(abs(entry->Distance - old_distance) > RECEIVED_DISTANCE_THRASHING_LIMIT)

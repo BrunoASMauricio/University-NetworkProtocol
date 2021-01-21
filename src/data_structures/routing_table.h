@@ -15,7 +15,7 @@ typedef struct table_entry
     float  RemotePBE; //this probably needs to be updated after math stuff
     unsigned long int LastHeard;
     struct table_entry *next;
-	unsigned int bits_heard;
+	unsigned int bytes_heard;
 } table_entry;
 
 /**
@@ -58,7 +58,7 @@ byte* getBestHop();
  * returns NULL if anything goes wrong
  */
 
-table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalSNR, float RemotePBE, unsigned long int LastHeard, unsigned int bits_heard);
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalSNR, float RemotePBE, unsigned long int LastHeard, unsigned int bytes_heard);
 /**
  * prints routing table's content
  * return: number of entries if there's no problems
