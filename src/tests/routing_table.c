@@ -23,7 +23,7 @@ testRoutingTable()
     short Eff = 777;
 
     table_entry *Entry;
-    Entry=routInsertOrUpdateEntry(Tbl,IP,Qual,Avg,Eff, Act);
+    Entry=routInsertOrUpdateEntry(Tbl,IP,Qual,Avg,Eff, Act, 1);
     if(Entry==NULL) printf("Failed to insert entry\n");
 
     routPrintTableContent(Tbl);
@@ -41,7 +41,7 @@ testRoutingTable()
 
      
     table_entry *Entry1;
-    Entry1=routInsertOrUpdateEntry(Tbl, IP_, Qual1, Avg1, Eff1, Act);
+    Entry1=routInsertOrUpdateEntry(Tbl, IP_, Qual1, Avg1, Eff1, Act, 1);
 
     routPrintTableContent(Tbl);
     printf("\n\n");
@@ -57,7 +57,7 @@ testRoutingTable()
     short Eff2 = 777;
 
     table_entry *Entry2;
-    Entry2=routInsertOrUpdateEntry(Tbl, IP_0, Qual2, Avg2, Eff2, Act);
+    Entry2=routInsertOrUpdateEntry(Tbl, IP_0, Qual2, Avg2, Eff2, Act, 1);
 
     routPrintTableContent(Tbl);
     printf("\n\n");
@@ -73,7 +73,7 @@ testRoutingTable()
     short Eff3 = 777;
 
     table_entry *Entry3;
-    Entry3=routInsertOrUpdateEntry(Tbl, IP_1, Qual3, Avg3, Eff3, Act);  
+    Entry3=routInsertOrUpdateEntry(Tbl, IP_1, Qual3, Avg3, Eff3, Act, 1);  
 
     routPrintTableContent(Tbl);
     printf("\n\n");
@@ -89,7 +89,7 @@ testRoutingTable()
     short Eff4 = 777;
 
     table_entry *Entry4;
-    Entry4=routInsertOrUpdateEntry(Tbl, IP_2, Qual4, Avg4, Eff4, Act);  
+    Entry4=routInsertOrUpdateEntry(Tbl, IP_2, Qual4, Avg4, Eff4, Act, 1);  
 
     routPrintTableContent(Tbl);
     printf("\n\n");
@@ -100,7 +100,7 @@ testRoutingTable()
     
 
     short QualUpd = 1;
-    routInsertOrUpdateEntry(Tbl, IP_1, QualUpd, Avg4, Eff4, Act);  
+    routInsertOrUpdateEntry(Tbl, IP_1, QualUpd, Avg4, Eff4, Act, 1);  
 
     routPrintTableContent(Tbl);
     printf("\n\n");
@@ -110,7 +110,7 @@ testRoutingTable()
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
     
     short QualUpd_1 = 100;
-    routInsertOrUpdateEntry(Tbl, IP_, QualUpd_1, Avg4, Eff4,Act);  
+    routInsertOrUpdateEntry(Tbl, IP_, QualUpd_1, Avg4, Eff4,Act, 1);  
 
     routPrintTableContent(Tbl);
     printf("\n\n");
@@ -120,7 +120,7 @@ testRoutingTable()
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
     
     short QualUpd_2 = 1500;
-    routInsertOrUpdateEntry(Tbl, IP_1, QualUpd_2, Avg4, Eff4, Act);  
+    routInsertOrUpdateEntry(Tbl, IP_1, QualUpd_2, Avg4, Eff4, Act, 1);  
 
     routPrintTableContent(Tbl);
     printf("\n\n");

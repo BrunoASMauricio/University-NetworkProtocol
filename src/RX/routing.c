@@ -50,11 +50,11 @@ void PB_RX(in_message* msg)
 				table_entry* prev = routSearchByIp(Self.Table, SenderIp);
 				if(prev == NULL)
 				{
-					routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, WORST_QUALITY, Act);
+					routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, WORST_QUALITY, Act, getPacketSize(msg->buf));
 				}
 				else
 				{
-					routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, prev->RemotePBE, Act);
+					routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, prev->RemotePBE, Act, getPacketSize(msg->buf));
 				}
 
 				//routInsertOrUpdateEntry(Self.Table, SenderIp, distance, WORST_QUALITY, WORST_QUALITY,Act); //stores distance when receiveing PB so later when it receives PC can update
@@ -106,7 +106,7 @@ void PR_RX(in_message* msg)
 	{
 		clock_gettime(CLOCK_REALTIME, &Res);
 		Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
-		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, PBEofSentPB,Act);
+		routInsertOrUpdateEntry(Self.Table, SenderIp, distance, msg->PBE, PBEofSentPB,Act, getPacketSize(msg->buf));
 		// THIS WAS OPTIMIZED, AND NOW ITS CLEAR ITS NOT DOING ANYTHING
 		if(pbidSearchPair(SenderIp,PBID,Self.RoutingPBIDTable)==0)
 		{
@@ -149,7 +149,7 @@ void PC_RX(in_message* msg)
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 			//somehow update in routTable using existance distance, SNRofSentPR (remote snr) and msg->snr (local snr)
 			//Distance=updateDistance(PBEofSentPR,0,0) + SenderEntry->Distance;
-			routInsertOrUpdateEntry(Self.Table, SenderIP, SenderEntry->Distance, msg->PBE, PBEofSentPR,Act);
+			routInsertOrUpdateEntry(Self.Table, SenderIP, SenderEntry->Distance, msg->PBE, PBEofSentPR,Act, getPacketSize(msg->buf));
 		}
 
 		else
@@ -157,7 +157,7 @@ void PC_RX(in_message* msg)
 			clock_gettime(CLOCK_REALTIME, &Res);
 			Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 			//somehow checks if the extrapolated distance it's better than one we have
-			routInsertOrUpdateEntry(Self.Table, SenderIP, SenderEntry->Distance, msg->PBE, PBEofSentPR,Act);
+			routInsertOrUpdateEntry(Self.Table, SenderIP, SenderEntry->Distance, msg->PBE, PBEofSentPR,Act, getPacketSize(msg->buf));
 		}
 		stopRetransmission(rPR);
 		startRetransmission(rPB, createPB());

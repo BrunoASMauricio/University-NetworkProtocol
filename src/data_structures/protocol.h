@@ -101,6 +101,13 @@ enum packet_type{
 
 #define HIGHEST_LOSS_MAGNITUDE 1E4
 
+// The "previous" rolling averages "weight"
+#define ROLLING_RESTART 1024
+
+// Maximum ammount bits to reset the counter
+#define ROLLING_MAX 65536
+
+
 #define TAMIP   2   //  2 bytes the ip
 #define DATAPAYLOAD 136 // bytes
 #define TAMTOTALSAMPLE  TAMIP + DATAPAYLOAD   // bytes   

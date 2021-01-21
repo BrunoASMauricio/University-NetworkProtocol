@@ -40,6 +40,7 @@ table_entry* routNewEntry(byte NeighIP[2], unsigned short Distance, float LocalP
     Entry->LocalPBE = LocalPBE;
     Entry->RemotePBE = RemotePBE;
     Entry->LastHeard = LastHeard;
+	Entry->bits_heard= 0;
 
     Entry->next=NULL;
 
@@ -72,7 +73,7 @@ byte* getBestHop()
     }
     return Self.Table->begin->Neigh_IP;
 }
-table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard)
+table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned short Distance, float LocalPBE, float RemotePBE, unsigned long int LastHeard, unsigned int bits_heard)
 {
     if(tbl == NULL) 
     {
@@ -121,22 +122,37 @@ table_entry* routInsertOrUpdateEntry(table * tbl, byte NeighIP[2], unsigned shor
     else //if there's already an entry
     {
         //do the updates
-		if(	abs(entry->LocalPBE - LocalPBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
-			abs(entry->RemotePBE - RemotePBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
-		   	abs(entry->Distance - Distance)> RECEIVED_DISTANCE_THRASHING_LIMIT)
+		//	abs(entry->LocalPBE - LocalPBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
+		//	abs(entry->RemotePBE - RemotePBE) > RECEIVED_QUALITY_THRASHING_LIMIT ||
+		float StoreLocalPBE;
+		unsigned int _heard_bits;
+		printf("old local pbe %f  new local pbe %f  old bits heard %d new bits heard %d\n",entry->LocalPBE, LocalPBE, entry->bits_heard, bits_heard);
+		StoreLocalPBE = (entry->LocalPBE*entry->bits_heard+LocalPBE*bits_heard)/(entry->bits_heard+bits_heard);
+		printf("%f\n", StoreLocalPBE);
+		if(entry->bits_heard + bits_heard > ROLLING_MAX)
 		{
-			byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
-			memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
-			float StoreLocalPBE= entry->LocalPBE;
-			float StoreRemotePBE= entry->RemotePBE;
-			routRemoveEntry(tbl, entry->Neigh_IP);
-			aux=routNewEntry(Store_IP, Distance, LocalPBE, RemotePBE, LastHeard);
-			tbl->size++;
+			_heard_bits = ROLLING_RESTART;
+		}
+		else
+		{
+			_heard_bits = entry->bits_heard + bits_heard;
+		}
+		entry->LocalPBE = StoreLocalPBE;
+		byte * Store_IP =(byte*)malloc(sizeof(byte)*2);
+		memcpy(Store_IP, entry->Neigh_IP, sizeof(entry->Neigh_IP));
+		routRemoveEntry(tbl, entry->Neigh_IP);
+		aux=routNewEntry(Store_IP, Distance, LocalPBE, RemotePBE, LastHeard);
+		aux->bits_heard = _heard_bits;
+		tbl->size++;
+		/*
+		if(abs(entry->Distance - old_distance) > RECEIVED_DISTANCE_THRASHING_LIMIT)
+		{
 		}
 		else{
 			pthread_mutex_unlock(&(tbl->lock));
 			return entry;
 		}
+		*/
     }
 	
 	//TODO: REFACTOR ROUT FUNCTIONS
