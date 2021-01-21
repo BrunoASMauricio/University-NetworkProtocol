@@ -107,6 +107,8 @@ enum packet_type{
 // Maximum ammount bytes to reset the counter
 #define ROLLING_MAX 2560 //128 * 20
 
+#define ROUTE_LOSS_WAITING_FACTOR 6
+
 
 #define TAMIP   2   //  2 bytes the ip
 #define DATAPAYLOAD 136 // bytes

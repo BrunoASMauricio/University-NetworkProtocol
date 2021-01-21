@@ -81,8 +81,28 @@ void routUpdateLastHeard(table * tbl, byte IP[2])
 	}
     pthread_mutex_unlock(&(tbl->lock));
 }
+
+unsigned long int nextHopTimeout(table_entry* entry)
+{
+	// Ti(A) = (1+P[B->A]) * Kr * T[PB];
+	unsigned long int ret = (entry->RemotePBE+1)*1UL;
+	ret *= ((unsigned long int)(ROUTE_LOSS_WAITING_FACTOR*RETRANSMISSION_DELAY_PB_MAX));
+	return ret;
+}
+
 byte* getBestHop()
 {
+	table_entry* entry;
+	timespec Res;
+	unsigned long int Act;
+	clock_gettime(CLOCK_REALTIME, &Res);
+	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
+	entry = Self.Table->begin;
+	while(entry != NULL && entry->LastHeard + nextHopTimeout(entry) < Act){
+		printf("Lost connection to %u.%u\n", entry->Neigh_IP[0], entry->Neigh_IP[1]);
+		routRemoveEntry(Self.Table, entry->Neigh_IP);
+		entry = Self.Table->begin;
+	}
     if( Self.Table->begin == NULL ||
         Self.Table->begin->Neigh_IP == NULL ||
         getDistance(Self.Table->begin) == UNREACHABLE

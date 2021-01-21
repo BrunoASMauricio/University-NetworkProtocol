@@ -10,7 +10,7 @@ unsigned short getDistance(table_entry* t_en)
 	}
 	unsigned short L = UNREACHABLE;
 	//return (unsigned short)((t_en->LocalPBE)*10+(t_en->RemotePBE)*45+(float)t_en->Distance+10);
-	printf("Calculating distance for node %u.%u with %f %d\n", t_en->Neigh_IP[0], t_en->Neigh_IP[1], t_en->RemotePBE, t_en->Distance);
+	printf("Calculating distance for node %u.%u with %f %d %u %u\n", t_en->Neigh_IP[0], t_en->Neigh_IP[1], t_en->RemotePBE, t_en->Distance, (unsigned short)( t_en->Distance + t_en->RemotePBE*HIGHEST_LOSS_MAGNITUDE * (L - t_en->Distance  )), UNREACHABLE);
 	return (unsigned short)( t_en->Distance + t_en->RemotePBE*HIGHEST_LOSS_MAGNITUDE * (L - t_en->Distance  ));
 }
 
