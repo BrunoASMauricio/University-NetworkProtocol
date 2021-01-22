@@ -1,5 +1,67 @@
 #include "node.h"
 
+void controlledShutdown(){
+	pthread_cancel(Meta.WF_dispatcher_t);
+	pthread_cancel(Meta.HW_dispatcher_t);
+	pthread_cancel(Meta.Retransmission_t);
+
+    table_entry *aux = Self.Table->begin;
+	float least = 1;
+
+    while(aux != NULL)
+    {
+		if(aux->LocalPBE < least)
+		{
+			least = aux->LocalPBE;
+		}
+        aux=aux->next;
+    }
+	char pWS[6];
+	char pHW[6];
+	char pWF_TX[6];
+	char pWF_RX[6];
+	char pIP[6];
+	char isMaster[2] = " ";
+
+	sprintf(pWS, "%d", Meta.WS_port);
+	sprintf(pHW, "%d", Meta.HW_port);
+
+	sprintf(pWF_TX, "%d", Meta.WF_TX_port);
+	sprintf(pWF_RX, "%d", Meta.WF_RX_port);
+
+	sprintf(pIP, "%u", Self.IP[1]);
+	printf("gggg %s\n", pIP);
+	if(Self.IsMaster)
+	{
+		isMaster[0] = 'M';
+	}
+	else
+
+	{
+		isMaster[0] = 'S';
+	}
+
+	if(least != 1){
+		unsigned long int ret = (least+1)*1UL;
+		ret *= 2*((unsigned long int)(ROUTE_LOSS_WAITING_FACTOR*RETRANSMISSION_DELAY_PB_MAX/1E9));
+		printf("Sleeping before restart %d s\n",ret);
+		sleep(ret);
+	}
+	printf("SHUTDOWN\n");
+	if(Meta.WF_TX->s != -1)
+	{
+		close(Meta.WF_TX->s);
+	}
+	if(Meta.WF_RX->s != -1)
+	{
+		close(Meta.WF_RX->s);
+	}
+	if(Meta.WS_RX->s != -1)
+	{
+		close(Meta.WS_RX->s);
+	}
+	execlp("../protocol/NP", "NP", "-r", isMaster, "--WS", pWS, "--HW", pHW, "--WF_TX", pWF_TX, "--WF_RX", pWF_RX, "--IP", pIP, "-d", NULL);
+}
 void
 setMaster()
 {

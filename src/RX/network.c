@@ -6,6 +6,11 @@ void NE_RX(in_message* msg)
     
     byte* Packet = (byte*)msg->buf;
     
+	if(Packet[1] == Self.IP[0] && Packet[2] == Self.IP[1])
+	{
+		clearInMessage(msg);
+		return;
+	}
     if(Self.IP[0] == Packet[3] && Self.IP[1] == Packet[4])
     {
         //Add the Outsider IP to the Outside-Slaves, updating LastHeard
@@ -46,6 +51,11 @@ void NEP_RX(in_message* msg)
 {
     
     byte* Packet = (byte*)msg->buf;
+	if(Packet[1] == Self.IP[0] && Packet[2] == Self.IP[1])
+	{
+		clearInMessage(msg);
+		return;
+	}
     if(Packet[3] == Self.IP[0] && Packet[4] == Self.IP[1])
     {
         // Cancel retransmission of NE 
@@ -61,6 +71,11 @@ void NER_RX(in_message* msg)
 	void* message;
 	byte* Packet = (byte*)msg->buf;
     
+	if(Packet[3] == Self.IP[0] && Packet[4] == Self.IP[1])
+	{
+		clearInMessage(msg);
+		return;
+	}
     if(Self.IP[0] == Packet[1] && Self.IP[1] == Packet[2])
     {
         //Add the Outsider IP to the Sub-Slaves, updating LastHeard

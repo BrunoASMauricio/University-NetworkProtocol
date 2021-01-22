@@ -29,6 +29,7 @@ typedef struct{
 
 	socket_s* WF_RX;
 	socket_s* WF_TX;
+	socket_s* WS_RX;
 	bool Post;
 	bool Debug;
 	bool Quiet;

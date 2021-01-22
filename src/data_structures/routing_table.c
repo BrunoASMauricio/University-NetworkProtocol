@@ -95,19 +95,26 @@ byte* getBestHop()
 	table_entry* entry;
 	timespec Res;
 	unsigned long int Act;
+	bool had_connection = false;
 	clock_gettime(CLOCK_REALTIME, &Res);
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 	entry = Self.Table->begin;
 	while(entry != NULL && entry->LastHeard + nextHopTimeout(entry) < Act){
 		printf("Lost connection to %u.%u\n", entry->Neigh_IP[0], entry->Neigh_IP[1]);
+		had_connection = true;
 		routRemoveEntry(Self.Table, entry->Neigh_IP);
 		entry = Self.Table->begin;
+	}
+	if(had_connection){
+		controlledShutdown();
+        return NULL;
 	}
     if( Self.Table->begin == NULL ||
         Self.Table->begin->Neigh_IP == NULL ||
         getDistance(Self.Table->begin) == UNREACHABLE
         )
     {
+		// Lost connection to Master, proceed with controlled shutdown
         return NULL;
     }
     return Self.Table->begin->Neigh_IP;
