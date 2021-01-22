@@ -12,7 +12,10 @@ WS_listener(void* dummy)
 	byte* TotalSample = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE);
 	byte* TotalSample_aux = (byte*)malloc(sizeof(byte)*TAMTOTALSAMPLE);
 
-	socket_s* sockfd = newSocket(Meta.WS_port);
+	Meta.WS_RX = newSocket(Meta.WS_port);
+
+	socket_s* sockfd = Meta.WS_RX;
+
 	startSocket_ws(sockfd);
 	//sleep(1);
 	//sendToSocket(sockfd, &nBytes, 2);
