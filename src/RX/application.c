@@ -15,7 +15,7 @@ void SD_RX(in_message* msg)
 	SourceIP[1] = ((byte*)msg->buf)[2];
 
 	// Ignore all packets that don't have this node as the NextHop
-	if(!(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1]))
+	if(Self.Status == Outside || Self.Status == Waiting || !(Self.IP[0] == NextHopIp[0] && Self.IP[1] == NextHopIp[1]))
 	{
 		clearInMessage(msg);
 		return;
