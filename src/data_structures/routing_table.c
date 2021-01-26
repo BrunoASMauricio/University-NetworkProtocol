@@ -99,13 +99,18 @@ byte* getBestHop()
 	clock_gettime(CLOCK_REALTIME, &Res);
 	Act = Res.tv_sec * (int64_t)1000000000UL + Res.tv_nsec;
 	entry = Self.Table->begin;
+	printf("Printing\n");
+	routPrintTableContent(Self.Table);
+	byte IP[2];
 	while(entry != NULL && entry->LastHeard + nextHopTimeout(entry) < Act){
 		printf("Lost connection to %u.%u\n", entry->Neigh_IP[0], entry->Neigh_IP[1]);
 		had_connection = true;
+		IP[0] = entry->Neigh_IP[0];
+		IP[1] = entry->Neigh_IP[1];
 		routRemoveEntry(Self.Table, entry->Neigh_IP);
 		entry = Self.Table->begin;
 	}
-	if(had_connection){
+	if(had_connection && entry == NULL){
 		controlledShutdown();
         return NULL;
 	}

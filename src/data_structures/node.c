@@ -42,8 +42,10 @@ void controlledShutdown(){
 	}
 
 	if(least != 1){
-		unsigned long int ret = (least+1)*1UL;
-		ret *= 2*((unsigned long int)(ROUTE_LOSS_WAITING_FACTOR*RETRANSMISSION_DELAY_PB_MAX/1E9));
+		unsigned long int ret = 1UL;
+		ret *= ((unsigned long int)(ROUTE_LOSS_WAITING_FACTOR*RETRANSMISSION_DELAY_PB_MAX/1E9));
+		//unsigned long int ret = (least+1)*1UL;
+		//ret *= 2*((unsigned long int)(ROUTE_LOSS_WAITING_FACTOR*RETRANSMISSION_DELAY_PB_MAX/1E9));
 		printf("Sleeping before restart %d s\n",ret);
 		sleep(ret);
 	}
